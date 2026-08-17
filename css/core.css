@@ -1,0 +1,1071 @@
+/* =====================================================================
+   720-core — shared lomda styles (vendored per unit)
+   Design tokens per 720-design-guidelines (Math theme active on <body>).
+   ===================================================================== */
+
+:root {
+  --icon-correct: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIxNiIgZmlsbD0iIzYwOUUxMiIvPjxwYXRoIGQ9Ik0xMy4xNjYxIDIxLjVDMTIuNzEyIDIxLjUwMDIgMTIuMjc2NCAyMS4zMjgzIDExLjk1NTUgMjEuMDIyMkw4LjI5NTM3IDE3LjUzNzdDNy45MDE1NCAxNy4xNjI1IDcuOTAxNTQgMTYuNTU0MyA4LjI5NTM3IDE2LjE3OTFDOC42ODkzMyAxNS44MDQgOS4zMjc5NCAxNS44MDQgOS43MjE4OSAxNi4xNzkxTDEzLjE2NjEgMTkuNDU5M0wyMi4yNzgxIDEwLjc4MTNDMjIuNjcyMSAxMC40MDYyIDIzLjMxMDcgMTAuNDA2MiAyMy43MDQ2IDEwLjc4MTNDMjQuMDk4NSAxMS4xNTY1IDI0LjA5ODUgMTEuNzY0NyAyMy43MDQ2IDEyLjEzOTlMMTQuMzc2OCAyMS4wMjIyQzE0LjA1NTkgMjEuMzI4MyAxMy42MjAzIDIxLjUwMDIgMTMuMTY2MSAyMS41WiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=");
+  --icon-incorrect: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSIxNiIgZmlsbD0iI0IyMDAxMCIvPjxwYXRoIGQ9Ik0yMy42Mjc4IDguMzcyMjJDMjMuMzg5NCA4LjEzMzg5IDIzLjA2NjEgOCAyMi43MjkgOEMyMi4zOTE5IDggMjIuMDY4NiA4LjEzMzg5IDIxLjgzMDIgOC4zNzIyMkwxNiAxNC4yMDI0TDEwLjE2OTggOC4zNzIyMkM5LjkzMTQzIDguMTMzODkgOS42MDgxMyA4IDkuMjcxMDMgOEM4LjkzMzkyIDggOC42MTA2MiA4LjEzMzg5IDguMzcyMjIgOC4zNzIyMkM4LjEzMzg5IDguNjEwNjIgOCA4LjkzMzkyIDggOS4yNzEwM0M4IDkuNjA4MTMgOC4xMzM4OSA5LjkzMTQzIDguMzcyMjIgMTAuMTY5OEwxNC4yMDI0IDE2TDguMzcyMjIgMjEuODMwMkM4LjEzMzg5IDIyLjA2ODYgOCAyMi4zOTE5IDggMjIuNzI5QzggMjMuMDY2MSA4LjEzMzg5IDIzLjM4OTQgOC4zNzIyMiAyMy42Mjc4QzguNjEwNjIgMjMuODY2MSA4LjkzMzkyIDI0IDkuMjcxMDMgMjRDOS42MDgxMyAyNCA5LjkzMTQzIDIzLjg2NjEgMTAuMTY5OCAyMy42Mjc4TDE2IDE3Ljc5NzZMMjEuODMwMiAyMy42Mjc4QzIyLjA2ODYgMjMuODY2MSAyMi4zOTE5IDI0IDIyLjcyOSAyNEMyMy4wNjYxIDI0IDIzLjM4OTQgMjMuODY2MSAyMy42Mjc4IDIzLjYyNzhDMjMuODY2MSAyMy4zODk0IDI0IDIzLjA2NjEgMjQgMjIuNzI5QzI0IDIyLjM5MTkgMjMuODY2MSAyMi4wNjg2IDIzLjYyNzggMjEuODMwMkwxNy43OTc2IDE2TDIzLjYyNzggMTAuMTY5OEMyMy44NjYxIDkuOTMxNDMgMjQgOS42MDgxMyAyNCA5LjI3MTAzQzI0IDguOTMzOTIgMjMuODY2MSA4LjYxMDYyIDIzLjYyNzggOC4zNzIyMloiIGZpbGw9IndoaXRlIi8+PC9zdmc+");
+  /* Subject tokens — default theme: science (720-design-guidelines) */
+  --subject-100: #D4F3FF;
+  --subject-200: #C7F0FF;
+  --subject-300: #B9ECFF;
+  --subject-400: #00BAFF;
+  --subject-500: #019DE5;
+  --subject-600: #0690D0;
+  --subject-700: #007AC6;
+  --subject-800: #0070C0;
+  --subject-900: #002060;
+  --subject-alpha-100: rgba(0, 186, 255, 0);
+  --subject-alpha-200: rgba(0, 186, 255, 0.3);
+
+  /* Theme-independent */
+  --text: #222222;
+  --gray-100: #AEAEAE;
+  --correct-bg: #EDF8ED;
+  --correct-fg: #609E12;
+  --incorrect-bg: #FFF0F4;
+  --incorrect-bg-strong: #FFDBDC;
+  --incorrect-fg: #B20010;
+}
+
+body[data-subject-theme="math"] {
+  --subject-100: #F1D9FF;
+  --subject-200: #E7C2FF;
+  --subject-300: #E0BFF5;
+  --subject-400: #CE82FF;
+  --subject-500: #7100B9;
+  --subject-600: #8518CC;
+  --subject-700: #8300D9;
+  --subject-800: #7106B7;
+  --subject-900: #580091;
+  --subject-alpha-100: rgba(165, 28, 255, 0);
+  --subject-alpha-200: rgba(165, 28, 255, 0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  background: #e9e9ee;
+  font-family: 'Assistant', 'Arial Hebrew', Arial, sans-serif;
+  color: var(--text);
+  overflow: hidden;
+}
+
+/* ---------- Canvas & scaling ---------- */
+#stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+#app {
+  position: relative;
+  width: 1280px;
+  height: 710px;
+  background: #ffffff;
+  overflow: hidden;
+  direction: rtl;
+  transform-origin: center center;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  border-radius: 8px;
+}
+
+/* ---------- Screens ---------- */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+.screen.active { display: block; }
+
+/* Bottom feedback bar on every screen */
+.screen::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 74px;
+  background: #fff;
+  border-top: 1px solid #e3e3e8;
+  pointer-events: none;
+}
+
+/* ---------- Global buttons ---------- */
+.btn-continue {
+  position: absolute;
+  bottom: 15px;
+  left: 40px;
+  z-index: 5;
+  min-width: 152px;
+  height: 44px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 24px;
+  background: linear-gradient(180deg, var(--subject-500), var(--subject-700));
+  color: #fff;
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-continue:disabled {
+  background: var(--gray-100);
+  cursor: default;
+}
+
+.btn-back {
+  position: absolute;
+  bottom: 15px;
+  right: 40px;
+  z-index: 5;
+  min-width: 116px;
+  height: 44px;
+  padding: 0 24px;
+  border: 1px solid var(--subject-700);
+  border-radius: 24px;
+  background: #fff;
+  color: var(--subject-700);
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------- Report / issue flag button (interim inline-SVG version;
+     final Figma PNG exports pending — see TODO.md) ---------- */
+.flag-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  border: none;
+  background: transparent;
+  cursor: default;
+  font-family: inherit;
+}
+.flag-btn .flag-icon { width: 38px; height: 38px; }
+.flag-btn .flag-icon-hover { display: none; }
+.flag-btn:hover .flag-icon-default { display: none; }
+.flag-btn:hover .flag-icon-hover { display: block; }
+.flag-btn .flag-label {
+  display: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--subject-500);
+}
+.flag-btn:hover .flag-label { display: inline; }
+
+/* ---------- Screen 0 — TwoOptionSelection (character select) ---------- */
+.select-content {
+  position: absolute;
+  inset: 0 0 74px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+.select-head { text-align: center; }
+.select-title {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--text);
+}
+.select-subtitle {
+  font-size: 24px;
+  margin-top: 8px;
+}
+.option-cards {
+  display: flex;
+  gap: 48px;
+}
+.option-card {
+  width: 296px;
+  border: 3px solid #e3e3e8;
+  border-radius: 20px;
+  background: #fff;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.option-card:hover,
+.option-card:focus-visible {
+  border-color: var(--subject-500);
+  outline: none;
+}
+.option-card.selected {
+  border-color: var(--subject-500);
+  background: var(--subject-100);
+}
+.option-card-img {
+  width: 238px;
+  aspect-ratio: 296 / 278;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.option-card-img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.option-card-name {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* ---------- Screen 4 & 6 — transition screens ---------- */
+.transition-content {
+  position: absolute;
+  inset: 0 0 74px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+.transition-title {
+  font-size: 64px;
+  font-weight: 700;
+  color: var(--subject-500);
+  text-align: center;
+}
+.transition-character { height: 260px; }
+.transition-character img { height: 100%; }
+
+/* ---------- Screen 5 — section placeholder ---------- */
+.placeholder-content {
+  position: absolute;
+  inset: 0 0 74px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: var(--gray-100);
+}
+.placeholder-content h2 { font-size: 36px; }
+.placeholder-content p { font-size: 22px; }
+
+/* ---------- Screen 7 — SingleChoiceQuestion ---------- */
+.scq-progress {
+  position: absolute;
+  top: 24px;
+  right: 40px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--subject-700);
+}
+.scq-question {
+  position: absolute;
+  top: 120px;
+  right: 40px;
+  width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.scq-qtext {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--subject-500);
+}
+.scq-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 584px;
+}
+.scq-opt {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 22px;
+  border: 1.5px solid var(--subject-500);
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 22px;
+  transition: border-color 0.15s, background-color 0.15s;
+  position: relative;
+}
+.scq-opt:hover, .scq-opt:focus-visible {
+  border-color: var(--subject-500);
+  outline: none;
+}
+.scq-radio {
+  order: -1; /* radio on the RIGHT in RTL */
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--subject-500);
+  border-radius: 50%;
+  flex: 0 0 auto;
+  position: relative;
+}
+.scq-opt.selected { border-color: var(--subject-500); }
+.scq-opt.selected .scq-radio {
+  border-color: var(--subject-500);
+}
+.scq-opt.selected .scq-radio::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--subject-500);
+}
+.scq-opt.correct {
+  border-color: var(--correct-fg);
+  background: var(--correct-bg);
+}
+.scq-opt.correct .scq-radio,
+.scq-opt.wrong .scq-radio {
+  border: none;
+  background-color: transparent;
+  background-image: none;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.scq-opt.correct .scq-radio { background-image: var(--icon-correct); }
+.scq-opt.wrong .scq-radio { background-image: var(--icon-incorrect); }
+.scq-opt.correct .scq-radio::after, .scq-opt.wrong .scq-radio::after { content: none; }
+.scq-opt.correct { border-color: var(--correct-fg); background: var(--correct-bg); }
+.scq-opt.wrong { border-color: var(--incorrect-fg); background: var(--incorrect-bg); }
+
+.scq-opt.locked { pointer-events: none; }
+.ratio { direction: ltr; unicode-bidi: isolate; }
+
+/* Feedback box — left side, bottom-anchored above the bar */
+#scq-feedbox {
+  position: absolute;
+  bottom: 90px;
+  left: 40px;
+  width: 420px;
+  border-radius: 16px;
+  padding: 20px 24px;
+  font-size: 20px;
+  line-height: 1.5;
+  display: none;
+  z-index: 6;
+}
+#scq-feedbox.is-correct { display: block; background: var(--correct-bg); }
+#scq-feedbox.is-wrong { display: block; background: var(--incorrect-bg-strong); }
+#scq-feedbox .scq-fb { display: none; }
+#scq-feedbox .scq-fb.visible { display: block; }
+.scq-fb-title { font-weight: 700; margin-bottom: 6px; }
+#scq-feedbox.is-correct .scq-fb-title { color: var(--correct-fg); }
+#scq-feedbox.is-wrong .scq-fb-title { color: var(--incorrect-fg); }
+
+/* SCQ action bar */
+.scq-bar {
+  position: absolute;
+  bottom: 15px;
+  left: 0;
+  right: 0;
+  height: 44px;
+  direction: ltr;
+  z-index: 5;
+}
+#scq-check {
+  position: absolute;
+  left: 40px;
+  bottom: 0;
+  min-width: 152px;
+  height: 44px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 24px;
+  background: linear-gradient(180deg, var(--subject-500), var(--subject-700));
+  color: #fff;
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+}
+#scq-check:disabled { background: var(--gray-100); cursor: default; }
+#scq-hint {
+  position: absolute;
+  left: 212px;
+  bottom: 0;
+  height: 44px;
+  padding: 0 24px;
+  border: 1px solid var(--subject-700);
+  border-radius: 24px;
+  background: #fff;
+  color: var(--subject-700);
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+}
+#scq-hint:disabled { opacity: 0.45; cursor: default; }
+#scq-back {
+  position: absolute;
+  right: 40px;
+  bottom: 0;
+  min-width: 116px;
+  height: 44px;
+  padding: 0 24px;
+  border: 1px solid var(--subject-700);
+  border-radius: 24px;
+  background: #fff;
+  color: var(--subject-700);
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Hint overlays — live outside .screen divs */
+#s7-hint-overlay,
+#quiz-hint-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+}
+#s7-hint-overlay.hidden,
+#quiz-hint-overlay.hidden { display: none; }
+.hint-popup {
+  width: 560px;
+  border-radius: 48px;
+  background: var(--subject-500);
+  color: #fff;
+  padding: 40px 48px;
+  text-align: center;
+  direction: rtl;
+}
+.hint-popup h3 { font-size: 32px; font-weight: 700; margin-bottom: 16px; }
+.hint-popup p { font-size: 24px; line-height: 1.5; }
+.hint-popup .hint-close-btn {
+  margin-top: 28px;
+  height: 44px;
+  padding: 0 32px;
+  border: none;
+  border-radius: 24px;
+  background: #fff;
+  color: var(--subject-700);
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------- Quiz engine screens (standard practice, slides 33-74) ---------- */
+.quiz-cols {
+  position: absolute;
+  top: 70px;
+  right: 40px;
+  left: 40px;
+  bottom: 70px;
+  display: flex;
+  gap: 40px;
+  overflow: hidden;
+}
+.quiz-main {
+  flex: 1 1 58%;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+  overflow-y: auto;
+  padding-left: 4px;
+}
+.quiz-content {
+  flex: 1 1 42%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+}
+.quiz-stem { font-size: 20px; line-height: 1.5; }
+/* client design QA 20/07: purple is for headings only — stem emphasis stays text color */
+.quiz-stem strong { color: var(--text); }
+.quiz-screen .scq-answers { width: 100%; max-width: 560px; gap: 12px; }
+.quiz-screen .scq-opt { padding: 10px 18px; font-size: 20px; }
+
+/* checkbox variant for multi-select */
+.scq-radio.is-box { border-radius: 6px; }
+.scq-opt.is-multi.selected .scq-radio::after {
+  content: '✓';
+  width: auto; height: auto;
+  background: none;
+  color: var(--subject-500);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* data tables (live HTML per the no-baked-text rule) */
+.data-table {
+  border-collapse: collapse;
+  font-size: 18px;
+  width: 100%;
+  max-width: 460px;
+  background: #fff;
+}
+.data-table th, .data-table td {
+  border: 1px solid #d8d8de;
+  padding: 8px 12px;
+  text-align: center;
+}
+.data-table th {
+  background: var(--subject-100);
+  color: var(--subject-900);
+  font-weight: 700;
+}
+
+/* dual year select */
+.dual-select-sentence { font-size: 20px; line-height: 2.2; max-width: 560px; }
+.year-select {
+  font-family: inherit;
+  font-size: 20px;
+  padding: 6px 12px;
+  margin: 0 8px;
+  border: 2px solid #d8d8de;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--text);
+}
+.year-select:focus { border-color: var(--subject-500); outline: none; }
+.year-select.wrong { border-color: var(--incorrect-fg); background: var(--incorrect-bg); }
+.year-select.correct { border-color: var(--correct-fg); background: var(--correct-bg); }
+
+/* value-input equation */
+.vi-equation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  font-size: 28px;
+  margin-top: 8px;
+}
+.vi-eq { font-weight: 700; }
+.vi-input {
+  width: 96px;
+  height: 44px;
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  border: 2px solid #d8d8de;
+  border-radius: 12px;
+  /* client QA note 61 (גורף): input text is standard black, not subject color */
+  color: #303030;
+}
+.vi-input:focus { border-color: var(--subject-500); outline: none; }
+.vi-input.wrong { border-color: var(--incorrect-fg); background: var(--incorrect-bg); }
+.vi-input.correct { border-color: var(--correct-fg); background: var(--correct-bg); }
+.vi-frac .frac-top { padding-bottom: 8px; }
+.vi-frac .frac-bottom { padding-top: 8px; }
+
+/* applet placeholder frame */
+.applet-frame {
+  width: 100%;
+  max-width: 420px;
+  height: 340px;
+  border: 2px dashed var(--gray-100);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--gray-100);
+}
+.applet-frame p { font-size: 24px; font-weight: 700; }
+.applet-frame .applet-note { font-size: 16px; font-weight: 400; }
+
+/* quiz feedback box (shared visual language with #scq-feedbox) */
+.quiz-feedbox {
+  position: absolute;
+  bottom: 90px;
+  left: 40px;
+  width: 420px;
+  border-radius: 24px;
+  padding: 20px 52px 20px 24px;
+  font-size: 18px;
+  line-height: 1.5;
+  display: none;
+  z-index: 6;
+}
+.quiz-feedbox.is-correct { display: block; background: var(--correct-bg); }
+.quiz-feedbox.is-wrong { display: block; background: var(--incorrect-bg-strong); }
+.quiz-feedbox .scq-fb-title { color: var(--text); }
+.quiz-feedbox .fb-toggle {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #30303040;
+  background: #fff;
+  color: var(--text);
+  font-size: 15px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.quiz-feedbox.collapsed .fb-body { display: none; }
+
+/* quiz bar buttons reuse scq styles */
+.quiz-check {
+  position: absolute; left: 40px; bottom: 0;
+  min-width: 152px; height: 44px; padding: 0 28px;
+  border: none; border-radius: 24px;
+  background: linear-gradient(180deg, var(--subject-500), var(--subject-700));
+  color: #fff; font-family: inherit; font-size: 22px; font-weight: 600; cursor: pointer;
+}
+.quiz-check:disabled { background: var(--gray-100); cursor: default; }
+.quiz-hint {
+  position: absolute; left: 212px; bottom: 0;
+  height: 44px; padding: 0 24px;
+  border: 1px solid var(--subject-700); border-radius: 24px;
+  background: #fff; color: var(--subject-700);
+  font-family: inherit; font-size: 22px; font-weight: 600; cursor: pointer;
+}
+.quiz-hint:disabled { opacity: 0.45; cursor: default; }
+.quiz-back {
+  position: absolute; right: 40px; bottom: 0;
+  min-width: 116px; height: 44px; padding: 0 24px;
+  border: 1px solid var(--subject-700); border-radius: 24px;
+  background: #fff; color: var(--subject-700);
+  font-family: inherit; font-size: 22px; font-weight: 600; cursor: pointer;
+}
+
+/* practice intro screen */
+.practice-intro-lines { font-size: 26px; line-height: 1.7; text-align: center; }
+
+/* content image in the quiz content column */
+.content-img {
+  width: 100%;
+  max-width: 440px;
+  border-radius: 16px;
+  object-fit: contain;
+}
+
+/* image-based answer options */
+.opt-img { max-height: 56px; max-width: 260px; object-fit: contain; }
+
+/* ratio-rows value-input layout */
+.ratio-rows { display: flex; flex-direction: column; gap: 22px; max-width: 620px; }
+.ratio-row { display: flex; flex-direction: column; gap: 8px; font-size: 20px; }
+.ratio-row-label { font-weight: 600; }
+.ratio-row-cells { display: flex; align-items: center; gap: 10px; }
+.vi-colon { font-size: 26px; font-weight: 700; }
+
+/* in-question note popup (e.g. unit-conversion reminder) */
+.popup-trigger {
+  align-self: flex-start;
+  height: 40px;
+  padding: 0 20px;
+  border: 1px solid var(--subject-700);
+  border-radius: 20px;
+  background: var(--subject-100);
+  color: var(--subject-700);
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.note-popup {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+}
+.note-popup.hidden { display: none; }
+.note-popup-panel {
+  width: 640px;
+  border-radius: 24px;
+  background: #fff;
+  padding: 36px 44px;
+  text-align: right;
+  direction: rtl;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+}
+.note-popup-panel h3 { font-size: 28px; font-weight: 700; color: var(--subject-500); margin-bottom: 14px; }
+.note-popup-body { font-size: 20px; line-height: 1.6; }
+/* canonical popup close X (Figma FeedbackCloseButton 249:5259 — one state, no hover) */
+.popup-x {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #303030;
+  background: #fff;
+  cursor: pointer;
+  padding: 0;
+}
+.popup-x::before,
+.popup-x::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 11.31px;
+  height: 1.333px;
+  background: #303030;
+}
+.popup-x::before { transform: translate(-50%, -50%) rotate(45deg); }
+.popup-x::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.note-popup-panel { position: relative; }
+
+.note-popup-panel .hint-close-btn {
+  margin-top: 24px;
+  height: 44px;
+  padding: 0 32px;
+  border: none;
+  border-radius: 24px;
+  background: var(--subject-500);
+  color: #fff;
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* transition screens with a story image */
+.transition-img {
+  max-height: 330px;
+  max-width: 760px;
+  border-radius: 16px;
+  object-fit: contain;
+}
+
+/* class-task screens */
+.ct-content {
+  position: absolute;
+  inset: 0 0 74px 0;
+  overflow-y: auto;
+  padding: 48px 90px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.ct-title { font-size: 36px; font-weight: 700; color: var(--subject-500); }
+.ct-body { font-size: 21px; line-height: 1.6; display: flex; flex-direction: column; gap: 10px; }
+.ct-table input.ct-input {
+  width: 84px;
+  height: 34px;
+  font-family: inherit;
+  font-size: 18px;
+  text-align: center;
+  border: 1.5px solid #d8d8de;
+  border-radius: 8px;
+}
+.ct-table input.ct-input:focus { border-color: var(--subject-500); outline: none; }
+
+
+/* applet (יישומון) embed */
+.applet-embed {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  height: 380px;
+  border: 1px solid #e3e3e8;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+}
+.applet-embed iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.applet-zoom-btn {
+  /* Figma Zoom/Close components 1589:17043 / 1589:17081 — 44px circle,
+     white fill, 2px subject stroke; hover inverts */
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--subject-500);
+  background: #fff;
+  color: var(--subject-500);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+.applet-zoom-btn:hover { background: var(--subject-500); color: #fff; }
+
+#applet-zoom-popup {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.78);
+  display: grid;
+  place-items: center;
+}
+#applet-zoom-popup.hidden { display: none; }
+.applet-zoom-panel {
+  position: relative;
+  width: 1080px;
+  height: 640px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+.applet-zoom-panel iframe { width: 100%; height: 100%; border: none; }
+.applet-zoom-close {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--subject-500);
+  background: #fff;
+  color: var(--subject-500);
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.applet-zoom-close:hover { background: var(--subject-500); color: #fff; }
+
+/* content column may hold table + applet together */
+.quiz-content { overflow-y: auto; gap: 16px; }
+
+
+/* in-place applet fullscreen — same iframe, state persists */
+.applet-embed .applet-close-btn { display: none; }
+#app .applet-embed.is-zoomed {
+  position: fixed;      /* containing block = #app (transformed) */
+  inset: 24px;
+  width: auto;          /* explicit — the base width:100% over-constrains
+                           against inset in RTL and misplaces the frame */
+  height: auto;
+  max-width: none;
+  max-height: none;
+  z-index: 60;
+  box-shadow: 0 0 0 2000px rgba(255, 255, 255, 0.78), 0 10px 50px rgba(0, 0, 0, 0.25);
+}
+#app .applet-embed.is-zoomed .applet-zoom-btn[data-applet-toggle="open"] { display: none; }
+#app .applet-embed.is-zoomed .applet-close-btn { display: block; }
+
+/* dropdown-in-sentence (DropdownQuestion) */
+.dd-sentence { font-size: 21px; line-height: 2.4; max-width: 640px; }
+/* the 2.4 line-height is for selects inline in running text; inside a table it
+   inflates every row — cells revert to normal rhythm */
+.dd-sentence .dd-table th, .dd-sentence .dd-table td { line-height: 1.4; }
+.dd-sentence .dd-table th, .dd-sentence .dd-table td { white-space: nowrap; }
+.dd-select {
+  font-family: inherit;
+  font-size: 19px;
+  padding: 6px 12px;
+  margin: 0 6px;
+  min-width: 130px;
+  border: 1.5px solid #d8d8de;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  vertical-align: middle;
+}
+.dd-select:focus { border-color: var(--subject-500); outline: none; }
+.dd-select.wrong { border-color: var(--incorrect-fg); background: var(--incorrect-bg); }
+.dd-select.correct { border-color: var(--correct-fg); background: var(--correct-bg); }
+
+/* statement assessment (נכון / לא נכון) */
+.stmt-list { display: flex; flex-direction: column; gap: 18px; max-width: 660px; }
+.stmt-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.stmt-text { font-size: 20px; line-height: 1.5; flex: 1; }
+.stmt-pills { display: flex; gap: 10px; flex: 0 0 auto; }
+.stmt-pill {
+  min-width: 88px;
+  height: 40px;
+  border: 1.5px solid var(--subject-500);
+  border-radius: 20px;
+  background: #fff;
+  color: var(--subject-500);
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.stmt-pill.selected { background: var(--subject-500); color: #fff; }
+.stmt-pill.correct { border-color: var(--correct-fg); background: var(--correct-bg); color: var(--correct-fg); }
+.stmt-pill.wrong { border-color: var(--incorrect-fg); background: var(--incorrect-bg); color: var(--incorrect-fg); }
+.stmt-pill:disabled { cursor: default; }
+.stmt-row.wrong .stmt-text { color: var(--incorrect-fg); }
+
+/* question progress stepper (סרגל שאלה) */
+.qstepper {
+  position: absolute;
+  top: 34px;
+  right: 190px;
+  left: 190px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 5;
+}
+.qstep { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 64px; }
+.qstep-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #c9c9d1;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+}
+.qstep-label { font-size: 13px; color: #9a9aa4; white-space: nowrap; }
+.qstep-line { flex: 1; height: 2px; background: #d8d8de; margin-top: 10px; min-width: 28px; }
+.qstep.is-current .qstep-dot { border-color: var(--subject-500); }
+.qstep.is-current .qstep-dot::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--subject-500); }
+.qstep.is-current .qstep-label { color: var(--text); font-weight: 600; }
+.qstep.is-done .qstep-dot,
+.qstep.is-wrong .qstep-dot { background: var(--subject-500); border-color: var(--subject-500); color: #fff; }
+.qstep.is-done .qstep-dot::after { content: '✓'; font-size: 12px; font-weight: 700; color: #fff; }
+.qstep.is-wrong .qstep-dot::after { content: '✕'; font-size: 11px; font-weight: 700; color: #fff; }
+.qstep.is-done .qstep-label, .qstep.is-wrong .qstep-label { color: var(--text); }
+
+
+/* hint button lightbulb (per Figma SCQ frame) */
+.quiz-hint svg, #scq-hint svg { vertical-align: -3px; margin-inline-start: 6px; }
+
+/* screens with a stepper need more headroom */
+.quiz-screen:has(.qstepper) .quiz-cols { top: 100px; }
+
+/* the action bar is direction:ltr for positional layout only — button TEXT
+   must render RTL so trailing punctuation (צדקתי?) lands at the reading end */
+.scq-bar button { direction: rtl; }
+
+/* stacked fraction (מונה/מכנה) — used by vi-equation, explanations, formulas */
+.fraction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 12px;
+  font-weight: inherit;
+  color: var(--subject-500);
+  font-size: 24px;
+}
+.fraction .frac-top { padding: 0 16px 6px; }
+/* client QA 29/07 note 68 (גורף): fraction bar is a thin black line */
+.fraction .frac-bottom {
+  border-top: 2px solid #222;
+  padding: 6px 16px 0;
+}
+
+/* scroll screens: styled scrollbar per Figma Vertical Slider bar language
+   (thin light track, rounded subject thumb) — physical right via ltr container */
+.teach-scroll::-webkit-scrollbar { width: 6px; }
+.teach-scroll::-webkit-scrollbar-track { background: transparent; }
+.teach-scroll::-webkit-scrollbar-thumb { background: var(--subject-300); border-radius: 100px; }
+.teach-scroll { scrollbar-color: var(--subject-300) transparent; scrollbar-width: thin; }
+
+/* client rule: subject color is for headings/chrome only — formula math is content */
+.vi-equation, .vi-equation .fraction, .fraction { color: var(--text); }
+
+/* ============ QA 26/07 — Figma component conformance ============ */
+.btn-continue, .quiz-check, .teach-check {
+  min-width: 140px; height: 39px; padding: 0 24px;
+  border-radius: 1000px; font-size: 20px; font-weight: 400;
+  background: var(--subject-500);
+}
+.btn-continue:disabled, .quiz-check:disabled { background: var(--gray-100); }
+.btn-back, .quiz-back {
+  min-width: 140px; height: 39px; padding: 0 24px;
+  border: 1px solid var(--subject-500); border-radius: 1000px;
+  font-size: 20px; font-weight: 400; color: var(--subject-700);
+}
+.quiz-hint {
+  min-width: 158px; height: 39px; padding: 0 20px;
+  border: 1px solid var(--subject-500); border-radius: 1000px;
+  background: #fff; color: var(--subject-700);
+  font-size: 20px; font-weight: 400;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.quiz-hint svg { margin: 0; vertical-align: middle; }
+.scq-opt {
+  min-height: 46px; border-radius: 1000px; font-size: 22px; color: #222;
+  padding-top: 8px; padding-bottom: 8px;
+}
+.scq-opt.selected { border-width: 2px; border-color: var(--subject-500); }
+.scq-options { align-items: stretch; }
+.qstep-line { width: 64px; min-width: 64px; max-width: 64px; height: 2px; border-radius: 2px; background: #ECECEC; }
+.qstep-dot { width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; }
+.qstep.is-done .qstep-dot::after, .qstep.is-wrong .qstep-dot::after { position: static; line-height: 1; display: block; }
+.qstep.is-wrong .qstep-dot { background: var(--incorrect-fg); border-color: var(--incorrect-fg); }
+.qstep.is-current .qstep-dot { background: #fff; border: 2px solid var(--subject-500); position: relative; }
+.qstep.is-current .qstep-dot::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--subject-500); }
+.qstep.is-future .qstep-dot { background: #ECECEC; border-color: #ECECEC; }
+#quiz-hint-overlay, #s7-hint-overlay {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+}
+.flag-btn { gap: 4px; }
+.flag-label { font-size: 14px; font-weight: 600; color: #484848; }
+.stmt-pill.correct, .stmt-pill.wrong, .dd-select.correct, .dd-select.wrong,
+.vi-input.mark-ok, .vi-input.mark-bad, .year-select.correct, .year-select.wrong {
+  background-repeat: no-repeat; background-size: 22px 22px;
+  background-position: left 8px center; padding-left: 36px;
+}
+.stmt-pill.correct, .dd-select.correct, .vi-input.mark-ok, .year-select.correct { background-image: var(--icon-correct); }
+.stmt-pill.wrong, .dd-select.wrong, .vi-input.mark-bad, .year-select.wrong { background-image: var(--icon-incorrect); }
+.vi-input, .ct-input, .dd-select { color: #303030; font-size: 22px; font-weight: 400; }
+.teach-scroll::-webkit-scrollbar { width: 10px; }
+.teach-scroll::-webkit-scrollbar-track { background: var(--subject-100); border-radius: 100px; }
+.teach-scroll::-webkit-scrollbar-thumb { background: var(--subject-300); border-radius: 100px; }
+.teach-scroll { scrollbar-color: var(--subject-300) var(--subject-100); scrollbar-width: auto; }
+.applet-zoom-btn, .applet-close-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0; line-height: 0; }
+.applet-zoom-btn svg, .applet-close-btn svg { display: block; margin: 0; }
+
+/* feedback box floats above content, draggable (notes 38/58/60) */
+.quiz-feedbox {
+  position: absolute; left: 40px; bottom: 84px; width: min(620px, 60%);
+  z-index: 40; cursor: grab; touch-action: none;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+}
+.quiz-feedbox:active { cursor: grabbing; }
+.fb-answer-toggle {
+  display: inline-block; margin-top: 10px; height: 34px; padding: 0 18px;
+  border: 1px solid var(--subject-500); border-radius: 1000px;
+  background: #fff; color: var(--subject-700);
+  font-family: inherit; font-size: 17px; cursor: pointer;
+}
+
+/* image magnifier + lightbox (note 67) */
+.img-zoom-wrap { position: relative; display: inline-block; }
+.img-zoom-btn { position: absolute; top: 8px; left: 8px; z-index: 4; }
+#img-zoom-overlay {
+  position: absolute; inset: 0; z-index: 90; display: none;
+  place-items: center; background: rgba(255, 255, 255, 0.92);
+}
+#img-zoom-overlay img { max-width: 82%; max-height: 82%; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+#img-zoom-overlay .applet-close-btn { position: absolute; top: 24px; left: 24px; }
+
+/* QA visual pass fixes */
+/* bulb sits RIGHT of the text (note 35): svg is first child, rtl row places it at main-start (right) */
+.hint-popup .hint-close-btn { color: #303030; }        /* per 526:12948 button text */
