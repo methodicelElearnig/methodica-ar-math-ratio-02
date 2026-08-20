@@ -931,13 +931,13 @@ MCQ.s22 = { id: 's22', correctIds: new Set(['a', 'b', 'c']), maxAttempts: 2,
    producer's call 17.08.26: statement 4 (the ×6 claim) is the wrong one.
    NOTE the deck's own feedback body contradicts this — it explains the ×6
    claim as correct and never mentions the 3/5 claim; flagged to producer. */
-MCQ.s23 = { id: 's23', correctIds: new Set(['a', 'b', 'c']), maxAttempts: 2,
+MCQ.s23 = { id: 's23', correctIds: new Set(['a', 'b', 'd']), maxAttempts: 2,
   selected: new Set(), attempts: 0, answered: false, done: false, lastWrong: null,
   popups: mcqCfg('כל הכבוד, זה נכון!', 'זה לא מדוייק, בואו נבין למה:', [
     'ההיגדים הנכונים הם:',
     '1. נועה קיבלה 15 תגובות מחברי הכיתה ו-20 תגובות מחברי כיתות אחרות. לכן היחס הוא <span dir="ltr">15 : 20</span>.',
     '2. נצמצם את היחס <span dir="ltr">15 : 20</span> ב-5 ונקבל <span dir="ltr">3 : 4</span>, או כשבר <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">4</span></span>.',
-    '3. מתוך 35 התגובות, 15 היו מחברי הכיתה.']) };
+    '3. אם נגדיל פי 6, היחס יהיה <span dir="ltr">90 : 120</span> ולאחר צמצום <span dir="ltr">3 : 4</span>, לכן הוא יישמר.']) };
 function s18Toggle(id) { mcqToggle(MCQ.s18, id); }
 function s22Toggle(id) { mcqToggle(MCQ.s22, id); }
 function s23Toggle(id) { mcqToggle(MCQ.s23, id); }
@@ -1257,8 +1257,12 @@ defQ('s32', { type: 'input', inputs: ['s32-a1','s32-a2','s32-r1','s32-r2','s32-r
   ok: 'מעולה!', bad: 'זה לא מדוייק, בואו נבין למה:',
   body: ['המשולש הוא שווה שוקיים ולכן 2 הזוויות שנותרו שוות: 180° - 40° = 140°, ו-140° : 2 = 70°.',
          'היחס בין שלושת הזוויות הוא <span class="ratio">40 : 70 : 70</span>. נצמצם ב-10 ונקבל <span class="ratio">4 : 7 : 7</span>.'] });
-const AI_BODY = ['המשמעות של יחס <span class="ratio">1 : 1</span> היא שכמות המרואיינים שהשתמשו כל יום ב-AI היא <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">2</span></span> מכלל המרואיינים, כלומר — <span dir="ltr">4,750 : 2 = 2,375</span>.'];
-defQ('s33', { type: 'saq', answers: { a: 'no' }, ok: 'יפה מאוד!', bad: 'זה לא מדוייק, בואו נבין למה:', body: AI_BODY });
+const AI_BODY = ['המשמעות של יחס <span class="ratio">1 : 1</span> היא שכמות המרואיינים שהשתמשו כל יום ב-AI היא <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">2</span></span> מכלל המרואיינים, כלומר — <span dir="ltr">4,750 : 2 = 2,375</span>. לכן המסקנה נכונה.'];
+/* keys on the AI table follow the deck's FEEDBACK text, which states the
+   verdict and the arithmetic for each row (producer 20.08: restore). The
+   96px BadgeTick graphics on slides 45-47 overlap rows/columns and
+   contradict that text on row 1 — they are not the key here. */
+defQ('s33', { type: 'saq', answers: { a: 'yes' }, ok: 'יפה מאוד!', bad: 'זה לא מדוייק, בואו נבין למה:', body: AI_BODY });
 defQ('s34', { type: 'saq', answers: { b: 'yes' }, ok: 'יפה מאוד!', bad: 'זה לא מדוייק, בואו נבין למה:',
   body: ['אם היחס הוא <span class="ratio">13 : 7</span>, אז <span class="frac" dir="ltr"><span class="frac-num">7</span><span class="frac-den">20</span></span> מהמרואיינים חושבים שהשימוש ב-AI לא הפך אותם ליותר יעילים. <span class="frac" dir="ltr"><span class="frac-num">7</span><span class="frac-den">20</span></span> זה כמעט <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">3</span></span>. לכן המסקנה נכונה.'] });
 defQ('s35', { type: 'saq', answers: { c: 'no' }, ok: 'יפה מאוד!', bad: 'זה לא מדוייק, בואו נבין למה:',

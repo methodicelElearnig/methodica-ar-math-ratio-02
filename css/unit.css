@@ -434,8 +434,13 @@
 #s11 .s19-question-line, #s12 .s19-question-line { font-weight: 400; }
 
 /* ratios and fractions NEVER wrap (producer rule 15.08) */
-.ratio { white-space: nowrap; unicode-bidi: isolate; }
+/* numbers are authored in reading order — pin LTR so bidi cannot swap the
+   operands of "a : b" inside the RTL page (unicode-bidi:isolate alone does not) */
+.ratio { white-space: nowrap; direction: ltr; unicode-bidi: isolate; }
 .frac { white-space: nowrap; }
+/* statement fractions read as part of the sentence, not as an emphasis
+   (producer 20.08) — the .frac base weight is 700, override it here */
+.saq-text .frac { font-weight: 400; }
 .s19-elaboration, .s18-ask, .rs-text, .s9-intro, .scq-opt-text { text-wrap: pretty; }
 
 /* guided step card: four operations in a 2x2 grid (slide 23) */
