@@ -530,3 +530,9 @@
   display: block; background: #fff;   /* clips are white-backed; no black bars */
 }
 #s51 .s1-video-wrap { width: 640px; height: 360px; }
+
+
+/* S19/S20: the figure is tall (square side 8, triangle height 16 — a true 1:2),
+   so it needs the screen's vertical room rather than the default mid slot */
+#s19 .scq-img--mid, #s20 .scq-img--mid { width: auto; }
+#s19 .scq-img--mid img, #s20 .scq-img--mid img { height: 470px; width: auto; max-width: none; }

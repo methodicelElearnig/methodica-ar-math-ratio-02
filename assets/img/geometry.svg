@@ -1,12 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 430" role="img" font-family="Assistant, sans-serif">
-  <polygon points="190,40 70,155 310,155" fill="#e1d9ff" stroke="#3b2fc2" stroke-width="2.5"/>
-  <rect x="70" y="155" width="240" height="240" fill="#f4f1ff" stroke="#3b2fc2" stroke-width="2.5"/>
-  <line x1="190" y1="40" x2="190" y2="155" stroke="#3b2fc2" stroke-width="1.6" stroke-dasharray="6 5"/>
-  <rect x="190" y="143" width="12" height="12" fill="none" stroke="#3b2fc2" stroke-width="1.4"/>
-  <text x="190" y="30" text-anchor="middle" font-size="19" font-weight="700" fill="#303030">P</text>
-  <text x="58" y="150" text-anchor="middle" font-size="19" font-weight="700" fill="#303030">B</text>
-  <text x="322" y="150" text-anchor="middle" font-size="19" font-weight="700" fill="#303030">A</text>
-  <text x="58" y="418" text-anchor="middle" font-size="19" font-weight="700" fill="#303030">C</text>
-  <text x="322" y="418" text-anchor="middle" font-size="19" font-weight="700" fill="#303030">D</text>
-  <text x="207" y="173" text-anchor="middle" font-size="18" font-weight="700" fill="#303030">E</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 640" role="img" font-family="Assistant, sans-serif">
+  <!-- true proportion: square side = 180, triangle height PE = 360 (1 : 2),
+       so the height reads as twice the side (producer 22.08) -->
+  <polygon points="150,40 60,400 240,400" fill="#e1d9ff" stroke="#3b2fc2" stroke-width="2.5"/>
+  <rect x="60" y="400" width="180" height="180" fill="#f4f1ff" stroke="#3b2fc2" stroke-width="2.5"/>
+  <line x1="150" y1="40" x2="150" y2="400" stroke="#3b2fc2" stroke-width="1.6" stroke-dasharray="6 5"/>
+  <rect x="150" y="388" width="12" height="12" fill="none" stroke="#3b2fc2" stroke-width="1.4"/>
+  <text x="150" y="28" text-anchor="middle" font-size="19" font-weight="700" fill="#303030">P</text>
+  <text x="48" y="395" text-anchor="middle" font-size="19" font-weight="700" fill="#303030">B</text>
+  <text x="252" y="395" text-anchor="middle" font-size="19" font-weight="700" fill="#303030">A</text>
+  <text x="48" y="602" text-anchor="middle" font-size="19" font-weight="700" fill="#303030">C</text>
+  <text x="252" y="602" text-anchor="middle" font-size="19" font-weight="700" fill="#303030">D</text>
+  <text x="168" y="418" text-anchor="middle" font-size="18" font-weight="700" fill="#303030">E</text>
 </svg>
