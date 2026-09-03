@@ -1,0 +1,32 @@
+{
+  "id": "https://lomdot.education.gov.il/metodica/720active/math/ratio/01/methodica-math-ratio-01-02-04/",
+  "title": "תרגול מתקדם",
+  "learningUnitId": "https://lomdot.education.gov.il/metodica/720active/math/ratio/01/methodica-math-ratio-01-02/",
+  "componentPurpose": "both",
+  "isAssessment": false,
+  "manufacture": "methodica",
+  "recommendedAfterFail": [],
+  "isRequired": true,
+  "relativeDifficulty": 4,
+  "masteryLevel": "advanced",
+  "order": 4,
+  "depthLevel": "core-curriculum-extended",
+  "cognitiveLevel": "higher-order-thinking",
+  "languages": [
+    "Hebrew"
+  ],
+  "skills": [],
+  "estimatedTimeInMinutes": 18,
+  "createdAt": "2026-09-03T00:00:00.000Z",
+  "updatedAt": "2026-09-03T00:00:00.000Z",
+  "subContent": [
+    {
+      "id": "https://lomdot.education.gov.il/metodica/720active/math/ratio/01/methodica-math-ratio-01-02-04/methodica-math-ratio-01-02-04-001/",
+      "title": "תרגול מתקדם",
+      "informationToBot": "מטרת הפריט: תרגול מתקדם. [טיוטה — לאישור מפתחת הלמידה]",
+      "contentType": "practice",
+      "mediaFormat": "interactive-content",
+      "questions": []
+    }
+  ]
+}
