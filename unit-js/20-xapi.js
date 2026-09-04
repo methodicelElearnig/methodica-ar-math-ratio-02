@@ -57,8 +57,8 @@ function xapiQ(suffix, qKey){
    try/catch, so a reporting failure cannot corrupt the score) and read when the component
    'completed' is assembled. The library's own aggregate is an all-correct AND, which would
    report success:false for any partial pass, so a component that needs a partial score supplies
-   its result explicitly. Component 04 (the off-computer class task) never writes to this; there
-   it stays empty and unused. */
+   its result explicitly (main.js: partResult / itemResultFor). Keys are '<item suffix>/<qKey>',
+   which is what lets itemResultFor() find an item's questions by prefix without a question map. */
 var XAPI_Q_RESULTS = {};
 function xapiCorrectCount(){ return Object.keys(XAPI_Q_RESULTS).filter(function(k){ return XAPI_Q_RESULTS[k]; }).length; }
 

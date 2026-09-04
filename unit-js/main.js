@@ -71,23 +71,68 @@ function announce(msg) {
 function goTo(n) {
   /* Component mode: screens keep the unit's global numbering (0-51) across the
      five components, and this part's range is what bounds navigation. Walking
-     past the last screen hands over to the next app. */
+     past either edge hands over to the neighbouring app.
+
+     Both edges are derived from PART_CONFIG, so no screen number is written here:
+     forward seeds the destination with end + 1 (its own first screen, because the
+     numbering is unit-wide and contiguous), and back returns to start - 1 (the
+     screen the learner left in the previous component). */
   if (window.PART_CONFIG) {
-    if (n > window.PART_CONFIG.end) { goToNextPart(); return; }
-    if (n < window.PART_CONFIG.start) return;
+    if (n > window.PART_CONFIG.end) {
+      if (window.PART_CONFIG.next) leaveToPart(window.PART_CONFIG.next, window.PART_CONFIG.end + 1);
+      else finishUnit();
+      return;
+    }
+    if (n < window.PART_CONFIG.start) {
+      /* Every screen but the unit's first carries a "חזרה" wired to goBack(), i.e.
+         goTo(currentScreen - 1). On a component's first screen that used to fall into
+         this guard and do nothing at all — the button looked live and was dead.
+         goBackToPreviousPart points the state document at the destination BEFORE
+         navigating, and stays put if that write fails. */
+      if (window.PART_CONFIG.prev) {
+        try { goBackToPreviousPart(window.PART_CONFIG.prev, '#screen=' + (window.PART_CONFIG.start - 1)); }
+        catch (e) { console.error('[nav] back to previous part', e); }
+      }
+      return;
+    }
   }
   if (n < 0 || n >= TOTAL_SCREENS) return;
+
+  /* Resolve the target BEFORE mutating anything. This used to clear .active and assign
+     currentScreen first, so a screen the markup does not have left NO screen active and
+     currentScreen desynced. PART_CONFIG bounds n to screens that all exist, so it could not
+     fire — until resume, whose payload can name a screen from another part. */
+  const next = document.getElementById('s' + n);
+  if (!next) return;
+
   document.querySelectorAll('[id$="-popup"], [id$="-hint-overlay"]')
     .forEach(el => el.classList.add('hidden'));
   const prev = document.querySelector('.screen.active');
   if (prev) prev.classList.remove('active');
   currentScreen = n;
-  const next = document.getElementById('s' + n);
-  if (next) next.classList.add('active');
+  next.classList.add('active');
+
+  /* xAPI item scope: after the screen is active and currentScreen is set, and before
+     anything can navigate away. Swallowed on purpose — reporting must never stop a learner. */
+  try { xapiOnScreen(n); } catch (e) {}
+
+  /* resetScreenState is NOT a pure initialiser in this unit: resetQuestionOnEntry() early-returns
+     on a finished question and restoreFeedback() re-opens its popup, so an answered screen keeps
+     its answered look across in-part navigation on its own. That is why goTo needs no
+     capture/re-apply/repaint sandwich — the painters are needed only after a page load, where the
+     DOM is pristine markup, and applyExecutionState() drives them there. */
   resetScreenState(n);
+
+  const heading = next.querySelector('h1, h2');
+  if (heading) announce(heading.textContent.trim());
+
   if (window.parent !== window) {
     window.parent.postMessage({ type: 'DEV_SCREEN', screen: n }, '*');
   }
+
+  /* Resume: the screen change is the choke point that bounds how much a learner can lose.
+     Debounced, and self-suppressing while restoring or before the document has been read. */
+  try { scheduleResumeSave(); } catch (e) {}
 }
 
 function resetScreenState(n) {
@@ -1533,8 +1578,690 @@ if (window.parent !== window) {
 }
 
 
-/* the seam between components: carries the query string (the LMS launch params) */
+/* The seam between components. Kept as a named entry point because the markup calls it, but it
+   now delegates to leaveToPart() so there is exactly ONE handover path — the one that reports the
+   component 'completed' and moves the resume landing pointer first. A second path that only did
+   location.replace() would skip both. */
 function goToNextPart() {
-  if (!window.PART_CONFIG || !window.PART_CONFIG.next) return;
-  window.location.replace(window.PART_CONFIG.next + window.location.search);
+  if (!window.PART_CONFIG || !window.PART_CONFIG.next) { finishUnit(); return; }
+  leaveToPart(window.PART_CONFIG.next, window.PART_CONFIG.end + 1);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESUME — the hooks ../unit-js/40-resume.js and ../unit-js/50-loader.js call
+   Full design: Documentation/reporting-and-resume/ADDING-REPORTING-AND-RESUME.md §8
+
+   ── Why this lives in main.js and not in a file of its own ──
+   applyResumeVars() runs eval(k + ' = st.vars[k];'), which resolves both `st` AND the target
+   name lexically. The answer variables are top-level let/const of THIS file, so the eval has to
+   sit here. Everything else follows it for cohesion.
+
+   ── What resume has to do here that in-part navigation does not ──
+   resetScreenState() already keeps an answered screen answered while the page is alive:
+   resetQuestionOnEntry() early-returns on a finished question and restoreFeedback() re-opens its
+   popup. After a page LOAD none of that helps — the DOM is pristine markup and every done flag is
+   false — so the payload is applied first and then the painters below rebuild the answered look.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Plain let-bindings, restored by eval. ⚠️ applyResumeVars assigns ONLY names on this list. */
+var RESUME_PLAIN_VARS = [
+  's1Selected', 's1Done',
+  's2Revealed',
+  's3q1Attempts', 's3q1LastWrong',
+  's15Picks', 's15Attempts', 's15Done', 's15LastWrong',
+  's19Attempts', 's19Done', 's19LastWrong',
+  's20Attempts', 's20Done', 's20LastWrong',
+  's24Attempts', 's24Done', 's24LastWrong'
+];
+
+/* Answers that live only in the DOM. DERIVED, not hand-maintained: the union of every
+   Q[sid].inputs plus the questions that predate the generic engine. Deriving it means a new
+   defQ() cannot be forgotten — which is exactly the kind of omission that costs a learner their
+   answers with no error anywhere. Runs after the defQ() block above. */
+var RESUME_INPUT_IDS = (function () {
+  var ids = ['s3q2-left', 's3q2-right',
+             's19-input',
+             's20-left', 's20-right',
+             's24a-num', 's24a-den', 's24b-left', 's24b-right'];
+  Object.keys(Q).forEach(function (sid) {
+    (Q[sid].inputs || []).forEach(function (id) { if (ids.indexOf(id) === -1) ids.push(id); });
+  });
+  return ids;
+})();
+
+/* Empty on purpose — this unit has no answer that exists only as DOM text. Kept so the hook
+   contract keeps its shape across units. ⚠️ If it is ever populated, note that capturePartPayload
+   must grow a matching `st.texts` half: the reference unit has only the APPLY side. */
+var RESUME_TEXT_IDS = [];
+
+/* The only trustworthy correctness source. NOT the attempt count (two wrong attempts also mark a
+   screen done, so done !== correct) and NOT the inputs — on the final wrong attempt every input
+   question OVERWRITES the learner's answer with the correct one before the capture runs, so a
+   restored input is the revealed answer, not what they typed. That is faithful to what was on
+   screen when they left, and their real answer is already in the reported statement. */
+function screenWasCorrect(sid) {
+  return qResults[sid] === true;
+}
+
+/* ── capture ───────────────────────────────────────────────────────── */
+
+/* ⚠️ Sets become arrays. JSON cannot carry a Set — JSON.stringify(new Set(['a'])) is '{}' — and a
+   silently dropped selection would come back as "nothing picked" on a screen that is also locked. */
+function capturePartPayload() {
+  var st = {
+    currentScreen: currentScreen,
+
+    /* Scoring first: without it a learner who resumes mid-component scores 0 from that point on,
+       and the progress strips come back blank. */
+    qResults: Object.assign({}, qResults),
+    xapiQ: (typeof XAPI_Q_RESULTS !== 'undefined') ? Object.assign({}, XAPI_Q_RESULTS) : {},
+
+    /* The const registries, field by field — a const binding cannot be reassigned. */
+    s3:    { scrolledEnd: s3State.scrolledEnd, q1: s3State.q1, q2: s3State.q2,
+             q3: s3State.q3, q4: s3State.q4, q5: s3State.q5,
+             flipped: s3State.flipped.slice() },
+    s3yn:  Object.assign({}, s3ynSelected),
+    s3q1Selected: Array.from(s3q1Selected),
+    gsteps: {},
+    mcq:   {},
+    scq:   {},
+    q:     {},
+
+    inputs: {},
+    vars:   {}
+  };
+
+  Object.keys(GSTEPS).forEach(function (k) { st.gsteps[k] = !!GSTEPS[k].answered; });
+
+  Object.keys(MCQ).forEach(function (k) {
+    var m = MCQ[k];
+    st.mcq[k] = {
+      selected:     Array.from(m.selected || []),
+      learnerPicks: m.learnerPicks ? Array.from(m.learnerPicks) : null,
+      attempts:     m.attempts,
+      answered:     !!m.answered,
+      done:         !!m.done,
+      view:         m.view || null,
+      lastWrong:    m.lastWrong || null,
+      _popup:       m._popup || null
+    };
+  });
+
+  Object.keys(SCQ).forEach(function (k) {
+    var s = SCQ[k];
+    st.scq[k] = { selected: s.selected || null, attempts: s.attempts,
+                  done: !!s.done, lastWrong: s.lastWrong || null, _popup: s._popup || null };
+  });
+
+  /* ⚠️ STATE KEYS ONLY. Q[sid] mixes this release's configuration (type, answers, accept, inputs,
+     ok, bad, body, reveal, display, maxAttempts) with the learner's state. Carrying the config
+     into the document and back would pin a returning learner to the answer key that was live when
+     they started — a content fix would never reach them, and a corrected key would mark them
+     wrong. */
+  Object.keys(Q).forEach(function (k) {
+    var q = Q[k];
+    st.q[k] = { done: !!q.done, attempts: q.attempts, lastWrong: q.lastWrong || null,
+                selected: (q.selected === undefined) ? null : q.selected,
+                picks: q.picks ? Object.assign({}, q.picks) : null,
+                _popup: q._popup || null };
+  });
+
+  RESUME_INPUT_IDS.forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) st.inputs[id] = el.value;
+  });
+
+  RESUME_PLAIN_VARS.forEach(function (k) {
+    try { st.vars[k] = eval(k); } catch (e) {}
+  });
+
+  return st;
+}
+
+/* ── apply ─────────────────────────────────────────────────────────── */
+
+/* ⚠️ The parameter MUST stay named `st`. The loop at the bottom runs
+   eval(k + ' = st.vars[k];'), which resolves `st` lexically — rename it and every assignment
+   throws into the enclosing try/catch, the learner's answers vanish, and nothing appears in the
+   console. Nothing but _test/ enforces this. */
+function applyResumeVars(st) {
+  if (!st) return;
+
+  if (st.qResults) Object.keys(st.qResults).forEach(function (k) { qResults[k] = st.qResults[k]; });
+  if (st.xapiQ && typeof XAPI_Q_RESULTS !== 'undefined') {
+    Object.keys(st.xapiQ).forEach(function (k) { XAPI_Q_RESULTS[k] = st.xapiQ[k]; });
+  }
+
+  if (st.s3) {
+    s3State.scrolledEnd = !!st.s3.scrolledEnd;
+    ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(function (k) { s3State[k] = !!st.s3[k]; });
+    if (st.s3.flipped) st.s3.flipped.forEach(function (v, i) { s3State.flipped[i] = !!v; });
+  }
+  if (st.s3yn) Object.keys(st.s3yn).forEach(function (k) { s3ynSelected[k] = st.s3yn[k]; });
+  if (st.s3q1Selected) s3q1Selected = new Set(st.s3q1Selected);
+
+  if (st.gsteps) {
+    Object.keys(st.gsteps).forEach(function (k) {
+      if (GSTEPS[k]) GSTEPS[k].answered = !!st.gsteps[k];
+    });
+  }
+
+  if (st.mcq) {
+    Object.keys(st.mcq).forEach(function (k) {
+      if (!MCQ[k]) return;                     /* a screen this component does not own */
+      var s = st.mcq[k];
+      MCQ[k].selected     = new Set(s.selected || []);
+      MCQ[k].learnerPicks = s.learnerPicks ? new Set(s.learnerPicks) : undefined;
+      MCQ[k].attempts     = s.attempts || 0;
+      MCQ[k].answered     = !!s.answered;
+      MCQ[k].done         = !!s.done;
+      MCQ[k].view         = s.view || 'correct';
+      MCQ[k].lastWrong    = s.lastWrong || null;
+      MCQ[k]._popup       = s._popup || null;
+    });
+  }
+
+  if (st.scq) {
+    Object.keys(st.scq).forEach(function (k) {
+      if (!SCQ[k]) return;
+      var s = st.scq[k];
+      SCQ[k].selected  = s.selected || null;
+      SCQ[k].attempts  = s.attempts || 0;
+      SCQ[k].done      = !!s.done;
+      SCQ[k].lastWrong = s.lastWrong || null;
+      SCQ[k]._popup    = s._popup || null;
+    });
+  }
+
+  if (st.q) {
+    Object.keys(st.q).forEach(function (k) {
+      if (!Q[k]) return;
+      var s = st.q[k];
+      Q[k].done      = !!s.done;
+      Q[k].attempts  = s.attempts || 0;
+      Q[k].lastWrong = s.lastWrong || null;
+      if (s.selected !== null && s.selected !== undefined) Q[k].selected = s.selected;
+      if (s.picks) Q[k].picks = Object.assign({}, s.picks);
+      Q[k]._popup    = s._popup || null;
+      /* config keys deliberately untouched — see capturePartPayload */
+    });
+  }
+
+  if (st.vars) {
+    Object.keys(st.vars).forEach(function (k) {
+      if (RESUME_PLAIN_VARS.indexOf(k) === -1) return;   /* never assign an unlisted name */
+      try { eval(k + ' = st.vars[k];'); } catch (e) {}
+    });
+  }
+}
+
+/* Takes the WHOLE payload, not a sub-object. Must run BEFORE the painters, which disable the
+   inputs it writes to. */
+function applyResumeDom(st) {
+  if (!st) return;
+  if (st.inputs) {
+    RESUME_INPUT_IDS.forEach(function (id) {
+      if (typeof st.inputs[id] !== 'string') return;
+      var el = document.getElementById(id);
+      if (el) el.value = st.inputs[id];
+    });
+  }
+  if (st.texts) {
+    RESUME_TEXT_IDS.forEach(function (id) {
+      if (typeof st.texts[id] !== 'string') return;
+      var el = document.getElementById(id);
+      if (el) el.textContent = st.texts[id];
+    });
+  }
+}
+
+/* ── the painters ──────────────────────────────────────────────────────
+   Rules every painter below obeys:
+     1. Correctness comes from screenWasCorrect(), never from the attempt count or the inputs.
+     2. DOM writes only. No state mutation, no reporting call, no setQResult.
+     3. Idempotent, and a no-op on a screen nothing has touched.
+     4. Never reset — resetScreenState(n) owns that and has already run.
+     5. Early-return on a missing host node: every part loads this same file, so a painter is
+        routinely asked about a screen that is not in its DOM.
+   ─────────────────────────────────────────────────────────────────────── */
+
+function _lock(sel, root) {
+  (root || document).querySelectorAll(sel).forEach(function (el) { el.disabled = true; });
+}
+function _doneButton(sid) {
+  var chk = document.getElementById(sid + '-check');
+  if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+  hideHintButton(sid);
+}
+
+/* S1 — battery chat, single attempt, correct id 'd'. Not in Q/MCQ/SCQ, so showPopup() never
+   stored a _popup for it and restoreFeedback() cannot bring it back: rebuilt from S1_BODY. */
+function paintS1() {
+  if (!s1Done || !document.getElementById('s1')) return;
+  var ok = s1Selected === 'd';
+  document.querySelectorAll('#s1 .scq-opt').forEach(function (o) {
+    o.disabled = true;
+    o.classList.remove('selected');
+    if (o.dataset.id === 'd') o.classList.add('correct');
+    else if (o.dataset.id === s1Selected) o.classList.add('wrong');
+  });
+  var popup = document.getElementById('s1-popup');
+  if (popup) {
+    popup.style.background = ok ? '#edf8ed' : '#ffdbdc';
+    resetPopupPosition(popup);
+    document.getElementById('s1-popup-title').innerHTML =
+      ok ? 'כל הכבוד!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:';
+    document.getElementById('s1-popup-body').innerHTML =
+      S1_BODY.map(function (x) { return '<p>' + x + '</p>'; }).join('');
+    popup.classList.remove('hidden');
+  }
+  _doneButton('s1');
+}
+
+/* S2 — staged reveal. s2Enter() already latched s2Revealed, so its timeouts will not re-run;
+   land the end state directly instead of replaying 2.1s of animation. */
+function paintS2() {
+  if (!s2Revealed || !document.getElementById('s2')) return;
+  document.getElementById('s2-text')?.classList.add('is-shown');
+  document.getElementById('s2-char-group')?.classList.add('is-shown');
+  var cont = document.getElementById('s2-continue');
+  if (cont) cont.disabled = false;
+}
+
+/* S3 — one scrolling screen carrying five questions and four reveal cards. */
+function paintS3() {
+  if (!document.getElementById('s3')) return;
+
+  if (s3State.q1) {
+    var opts = document.querySelectorAll('#s3q1-block .scq-opt');
+    var allCorrect = setsEqual(s3q1Selected, S3Q1_CORRECT);
+    opts.forEach(function (o) {
+      o.disabled = true;
+      o.classList.remove('selected');
+      if (S3Q1_CORRECT.has(o.dataset.id)) o.classList.add('correct');
+      else if (s3q1Selected.has(o.dataset.id)) o.classList.add('wrong');
+    });
+    s3Feedback('s3q1-feedback', allCorrect,
+      '<strong>' + (allCorrect ? 'כל הכבוד!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:') +
+      '</strong><br>' + S3Q1_EXPLAIN);
+    var c1 = document.getElementById('s3q1-check'); if (c1) c1.disabled = true;
+  }
+
+  if (s3State.q2) {
+    var l = document.getElementById('s3q2-left'), r = document.getElementById('s3q2-right');
+    if (l && r) {
+      var okq2 = Number(l.value) === 1 && Number(r.value) === 4;
+      l.disabled = true; r.disabled = true;
+      l.classList.add('correct'); r.classList.add('correct');
+      s3Feedback('s3q2-feedback', okq2,
+        '<strong>' + (okq2 ? 'כל הכבוד!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:') +
+        '</strong><br>' + S3Q2_EXPLAIN +
+        (okq2 ? '' : '<br>התשובה הנכונה היא <span dir="ltr"><strong>1 : 4</strong></span>'));
+      var c2 = document.getElementById('s3q2-check'); if (c2) c2.disabled = true;
+    }
+  }
+
+  Object.keys(S3_YESNO).forEach(function (qid) {
+    var cfg = S3_YESNO[qid];
+    if (!s3State[cfg.flag]) return;
+    var chk = document.getElementById(qid + '-check');
+    if (!chk) return;
+    var sel = s3ynSelected[qid];
+    var ok = sel === cfg.correct;
+    var block = chk.closest('.rs-block');
+    if (block) {
+      block.querySelectorAll('.scq-opt').forEach(function (o) {
+        o.disabled = true;
+        o.classList.remove('selected');
+        if (o.dataset.id === cfg.correct) o.classList.add('correct');
+        else if (o.dataset.id === sel) o.classList.add('wrong');
+      });
+    }
+    s3Feedback(qid + '-feedback', ok, '<strong>' + (ok ? cfg.ok : cfg.bad) + '</strong><br>' + cfg.body);
+    chk.disabled = true;
+  });
+
+  /* the four reveal cards — one-way, so a flipped card stays flipped */
+  s3State.flipped.forEach(function (on, i) {
+    if (!on) return;
+    var card = document.querySelector('#s3 .frc-card[data-index="' + i + '"]');
+    if (!card || card.classList.contains('is-flipped')) return;
+    card.classList.add('is-flipped');
+    card.setAttribute('aria-expanded', 'true');
+    card.querySelector('.frc-card-front')?.setAttribute('aria-hidden', 'true');
+    card.querySelector('.frc-card-back')?.removeAttribute('aria-hidden');
+  });
+
+  s3UpdateGate();
+}
+
+/* GSTEPS — the guided worked example (s6/s8/s9/s11/s12). It reveals the correct option whatever
+   the learner picked, so there is no learner answer to restore; only that it was answered. */
+function paintGStep(sid) {
+  var stp = GSTEPS[sid];
+  if (!stp || !stp.answered || !document.getElementById(sid)) return;
+  document.querySelectorAll('#' + sid + ' .s19-opt').forEach(function (o) {
+    o.disabled = true;
+    if (o.dataset.id === stp.correctId) o.classList.add('correct');
+  });
+  var cont = document.getElementById(sid + '-continue');
+  if (cont) cont.disabled = false;
+}
+
+function paintS15() {
+  if (!s15Done || !document.getElementById('s15')) return;
+  var reveal = !screenWasCorrect('s15');
+  document.querySelectorAll('#s15 .saq-row').forEach(function (row) {
+    var id = row.dataset.id;
+    var good = s15Picks[id] === S15_CORRECT[id];
+    row.classList.add(good ? 'row-correct' : 'row-wrong');
+    row.querySelectorAll('.saq-pill').forEach(function (pp) {
+      var on = pp.dataset.val === (good ? s15Picks[id] : (reveal ? S15_CORRECT[id] : s15Picks[id]));
+      pp.classList.toggle('selected', on);
+      pp.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+    if (reveal && !good) { row.classList.remove('row-wrong'); row.classList.add('row-revealed'); }
+  });
+  _lock('#s15 .saq-pill');
+  showPopup('s15', reveal ? '#ffdbdc' : '#edf8ed',
+            reveal ? 'זה לא מדויק, בואו נבין למה.' : 'כל הכבוד!', S15_BODY);
+  _doneButton('s15');
+  if (QPROG.s15) renderQprog('s15');
+}
+
+function paintS19() {
+  var el = document.getElementById('s19-input');
+  if (!s19Done || !el) return;
+  var ok = screenWasCorrect('s19');
+  el.disabled = true;
+  el.classList.remove('error');
+  el.classList.add('correct');
+  showPopup('s19', ok ? '#edf8ed' : '#ffdbdc',
+            ok ? 'כל הכבוד!' : 'זו טעות, בואו נלמד ממנה:',
+            ok ? S19_BODY : S19_BODY.concat(['התשובה הנכונה היא 16 ס"מ.']));
+  _doneButton('s19');
+  if (QPROG.s19) renderQprog('s19');
+}
+
+function paintS20() {
+  var L = document.getElementById('s20-left'), R = document.getElementById('s20-right');
+  if (!s20Done || !L || !R) return;
+  var ok = screenWasCorrect('s20');
+  [L, R].forEach(function (el) { el.disabled = true; el.classList.remove('error'); el.classList.add('correct'); });
+  showPopup('s20', ok ? '#edf8ed' : '#ffdbdc',
+            ok ? 'כל הכבוד!' : 'זו טעות, בואו נלמד ממנה:',
+            ok ? S20_BODY : S20_BODY.concat(['התשובה הנכונה היא <span dir="ltr">1 : 2</span>.']));
+  _doneButton('s20');
+  if (QPROG.s20) renderQprog('s20');
+}
+
+function paintS24() {
+  if (!s24Done || !document.getElementById('s24')) return;
+  var ok = screenWasCorrect('s24');
+  ['s24a-num', 's24a-den', 's24b-left', 's24b-right'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.disabled = true; el.classList.remove('error'); el.classList.add('correct');
+  });
+  showPopup('s24', ok ? '#edf8ed' : '#ffdbdc',
+            ok ? 'מצויין!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+            ok ? S24_BODY : S24_BODY.concat(['התשובה הנכונה היא <span dir="ltr">2 : 1</span>.']));
+  _doneButton('s24');
+  if (QPROG.s24) renderQprog('s24');
+}
+
+function paintSCQ(sid) {
+  var q = SCQ[sid];
+  if (!q || !q.done || !document.getElementById(sid)) return;
+  var mark = function (id, cls) {
+    var o = document.querySelector('#' + sid + ' .scq-opt[data-id="' + id + '"]');
+    if (o) { o.classList.remove('selected'); o.classList.add(cls); }
+  };
+  mark(q.correctId, 'correct');
+  if (q.selected && q.selected !== q.correctId) mark(q.selected, 'wrong');
+  _lock('#' + sid + ' .scq-opt');
+  var ok = q.selected === q.correctId;
+  showPopup(sid, ok ? '#edf8ed' : '#ffdbdc', ok ? q.okTitle : q.badTitle, q.body);
+  _doneButton(sid);
+  if (QPROG[sid]) renderQprog(sid);
+}
+
+function paintMCQ(sid) {
+  var q = MCQ[sid];
+  if (!q || !q.answered || !document.getElementById(q.id)) return;
+  var sel = '#' + q.id + ' ' + (q.optSelector || '.scq-opt');
+  document.querySelectorAll(sel).forEach(function (o) {
+    o.classList.remove('correct', 'wrong', 'selected');
+    o.disabled = true;
+  });
+  /* honour whichever view the learner had open when they left */
+  if (q.view === 'mine') {
+    (q.learnerPicks || new Set()).forEach(function (id) {
+      mcqMark(q, id, q.correctIds.has(id) ? 'correct' : 'wrong');
+    });
+  } else {
+    q.correctIds.forEach(function (id) { mcqMark(q, id, 'correct'); });
+  }
+  var tog = document.getElementById(sid + '-answers-toggle');
+  if (tog) {
+    tog.classList.remove('hidden');
+    tog.textContent = q.view === 'mine' ? 'הצגת התשובות הנכונות' : 'הצגת התשובות שלי';
+  }
+  if (q._popup) mcqShowPopup(q, q._popup);
+  _doneButton(sid);
+  if (QPROG[sid]) renderQprog(sid);
+}
+
+/* The generic engine — one painter for all 19 defQ() screens. Mirrors qCheck's final branch. */
+function paintQ(sid) {
+  var q = Q[sid];
+  var scr = document.getElementById(sid);
+  if (!q || !q.done || !scr) return;
+
+  if (q.type === 'input') {
+    /* Values are already back via applyResumeDom — and on a final wrong attempt those are the
+       REVEALED answers, which is exactly what was on screen. Either way the box reads correct. */
+    (q.inputs || []).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('error');
+      el.classList.add('correct');
+    });
+  } else if (q.type === 'saq') {
+    var reveal = !screenWasCorrect(sid) && qResults[sid] !== undefined;
+    Object.keys(q.answers).forEach(function (k) {
+      var row = scr.querySelector('.saq-row[data-id="' + k + '"]') ||
+                scr.querySelector('[onclick*="\'' + k + '\'"]')?.closest('tr');
+      if (!row) return;
+      var good = q.picks && q.picks[k] === q.answers[k];
+      row.classList.add(good ? 'row-correct' : 'row-wrong');
+      var shown = good ? q.picks[k] : (reveal ? q.answers[k] : (q.picks ? q.picks[k] : null));
+      row.querySelectorAll('.saq-pill').forEach(function (pp) {
+        var on = pp.dataset.val === shown;
+        pp.classList.toggle('selected', on);
+        pp.setAttribute('aria-checked', on ? 'true' : 'false');
+      });
+      if (reveal && !good) { row.classList.remove('row-wrong'); row.classList.add('row-revealed'); }
+    });
+  } else {
+    var m = function (id, cls) {
+      var o = scr.querySelector('.scq-opt[data-id="' + id + '"]');
+      if (o) { o.classList.remove('selected'); o.classList.add(cls); }
+    };
+    m(q.answers, 'correct');
+    if (q.selected && q.selected !== q.answers) m(q.selected, 'wrong');
+  }
+
+  _lock('.viq-input-box', scr);
+  _lock('.saq-pill, .scq-opt', scr);
+  /* restoreFeedback() re-opens Q's popup from q._popup, and resetScreenState() already called it */
+  _doneButton(sid);
+  if (QPROG[sid]) renderQprog(sid);
+}
+
+/* The dispatcher. A screen absent from here keeps no answer state of its own — the transitions,
+   the narration screens of the guided example, and the finale. No `else`, no stub, no throw. */
+function restoreScreenUI(n) {
+  var sid = 's' + n;
+  if (n === 1)  { paintS1();  return; }
+  if (n === 2)  { paintS2();  return; }
+  if (n === 3)  { paintS3();  return; }
+  if (n === 15) { paintS15(); return; }
+  if (n === 19) { paintS19(); return; }
+  if (n === 20) { paintS20(); return; }
+  if (n === 24) { paintS24(); return; }
+  if (GSTEPS[sid]) { paintGStep(sid); return; }
+  if (MCQ[sid])    { paintMCQ(sid);   return; }
+  if (SCQ[sid])    { paintSCQ(sid);   return; }
+  if (Q[sid])      { paintQ(sid);     return; }
+}
+
+/* ── the replay ────────────────────────────────────────────────────────
+   Called by ../unit-js/50-loader.js on launch. The two-pass shape is deliberate: goTo() runs
+   resetScreenState(n), and although this unit's version preserves a FINISHED question, it still
+   re-runs s2Enter/s3Enter and the entry reset for anything not yet finished — so the variables
+   are assigned again afterwards and only then painted.
+
+   screenOverride: '#screen=N' in the URL wins over the document in choosing the SCREEN, never in
+   restoring the STATE. Skipping the restore when a hash is present would lose qResults, from
+   which the progress strips and any gate are derived. */
+function applyExecutionState(st, screenOverride) {
+  if (!st) return;
+  _restoring = true;
+  /* Replaying answers must not re-report them. The stub is held across goTo() too, which is what
+     stops a resumed finale screen re-emitting the item, component and unit 'completed' — the
+     library's one-per-page-load rule cannot help across a page load. */
+  var _origSend = window.sendStatement720;
+  window.sendStatement720 = function () {};
+  try {
+    applyResumeVars(st);
+    /* Range-checked here rather than trusting goTo to reject: goTo() returns on an out-of-range
+       screen and would leave currentScreen on its previous value, with the painter then drawing a
+       different screen than the one shown. */
+    var _n = (typeof screenOverride === 'number' && screenOverride >= 0 && screenOverride < TOTAL_SCREENS)
+      ? screenOverride
+      : ((typeof st.currentScreen === 'number') ? st.currentScreen : (window.PART_CONFIG ? window.PART_CONFIG.start : 0));
+    goTo(_n);
+    applyResumeVars(st);   /* undo anything the entry reset just cleared */
+    applyResumeDom(st);    /* before the painter, which disables the inputs */
+    restoreScreenUI(currentScreen);
+  } catch (e) {
+    console.error('[resume] apply', e);
+  } finally {
+    window.sendStatement720 = _origSend;
+    _restoring = false;
+  }
+  /* xapiOnScreen() latched xapiCurrentItem during the stubbed goTo without emitting anything.
+     Clearing the latch is what lets the resumed screen report its item 'initialized' exactly
+     once — there is no prior item to close on a fresh page load. */
+  xapiCurrentItem = null;
+  try { xapiOnScreen(currentScreen); } catch (e) {}
+}
+
+/* ── scoring ───────────────────────────────────────────────────────────
+   All derived from XAPI_Q_RESULTS, whose keys are '<item suffix>/<qKey>' — so an item's questions
+   are simply the keys carrying that prefix, and this unit needs no separate question map.
+
+   Why explicit results at all: the 720 library's own aggregation is an all-correct AND, which
+   reports success:false for any partial pass. 0.6 is the threshold MOE's own example uses. */
+var XAPI_PASS = 0.6;
+
+function itemQuestionKeys(item) {
+  return Object.keys(XAPI_Q_RESULTS).filter(function (k) { return k.indexOf(item + '/') === 0; });
+}
+
+/* Read by ../unit-js/20-xapi.js's xapiItemResult() through each script.js's XAPI_ITEM_RESULT.
+   Returns null for an item with no graded question, which is the neutral value. */
+function itemResultFor(item) {
+  var keys = itemQuestionKeys(item);
+  if (!keys.length) return null;
+  var ok = keys.filter(function (k) { return XAPI_Q_RESULTS[k] === true; }).length;
+  var scaled = ok / keys.length;
+  return { success: scaled >= XAPI_PASS, score: { scaled: scaled } };
+}
+
+/* This component's result, across every graded question it reported. */
+function partResult() {
+  var keys = Object.keys(XAPI_Q_RESULTS);
+  if (!keys.length) return null;
+  var ok = keys.filter(function (k) { return XAPI_Q_RESULTS[k] === true; }).length;
+  var scaled = ok / keys.length;
+  return { success: scaled >= XAPI_PASS, score: { scaled: scaled } };
+}
+
+/* Where each component parks its score for the terminal component to average.
+   ⚠️ These must be exactly RESULT_KEYS in ../unit-js/40-resume.js — the same keys, listed there
+   so ?resetState clears their localStorage mirrors too. If they drift, a reset document sits
+   beside a stale cache and the unit score comes back from a previous attempt. */
+var UNIT_SCORE_KEYS = {
+  'methodica-math-ratio-02-01': 'ratio02_c01_scaled',
+  'methodica-math-ratio-02-02': 'ratio02_c02_scaled',
+  'methodica-math-ratio-02-03': 'ratio02_c03_scaled',
+  'methodica-math-ratio-02-04': 'ratio02_c04_scaled',
+  'methodica-math-ratio-02-05': 'ratio02_c05_scaled'
+};
+
+function recordPartResult(res) {
+  if (!res || typeof XAPI_COMP_SLUG === 'undefined') return;
+  var key = UNIT_SCORE_KEYS[XAPI_COMP_SLUG];
+  if (key) setUnitResult(key, String(res.score.scaled));
+}
+
+/* The mean of whatever component scores the document holds. A component the learner never
+   finished simply does not contribute. */
+function unitResult() {
+  var vals = [];
+  Object.keys(UNIT_SCORE_KEYS).forEach(function (slug) {
+    var v = getUnitResult(UNIT_SCORE_KEYS[slug]);
+    if (v === null || v === undefined || v === '') return;
+    var num = Number(v);
+    if (!isNaN(num)) vals.push(num);
+  });
+  if (!vals.length) return null;
+  var scaled = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+  return { success: scaled >= XAPI_PASS, score: { scaled: scaled } };
+}
+
+/* ── part boundaries ─────────────────────────────────────────────────── */
+
+/* Hand over to the next component. The component 'completed' goes out BEFORE anything can branch
+   or fail, so a learner who did not clear this component is still reported. */
+function leaveToPart(destSlug, destFirstScreen) {
+  var res = partResult();
+  try { xapiCompleteComponent(res); } catch (e) {}
+  try { recordPartResult(res); } catch (e) {}
+  /* Moves the landing pointer to the destination and records the back edge. Without it the
+     destination's loader sees a pointer still aimed here and hops the learner straight back — a
+     ping-pong that re-sent 'completed' on every cycle.
+     ⚠️ The THIRD argument is required in this unit: screens are numbered unit-wide, so seeding a
+     never-visited destination with 0 would make its applyExecutionState call goTo(0), which the
+     null-screen guard turns into a silent no-op. */
+  try { writeForwardState(destSlug, '#screen=' + currentScreen, destFirstScreen); } catch (e) {}
+  /* explicit index.html — file:// has no default document */
+  window.location.replace('../' + destSlug + '/index.html' + window.location.search);
+}
+
+/* The learner finished the unit's last screen. There is no forward hop to carry this component's
+   'completed', so it goes here together with the unit's. Both are ledger-guarded, so re-reaching
+   the finale after a reload re-sends neither. */
+function finishUnit() {
+  var res = partResult();
+  /* recordPartResult FIRST: unitResult() reads the document this component just wrote. */
+  try { recordPartResult(res); } catch (e) {}
+  try { xapiCompleteComponent(res); } catch (e) {}
+  try { xapiCompleteUnit(unitResult()); } catch (e) {}
+  try { flushResumeSave(); } catch (e) {}
+}
+
+/* Puts a first-time learner on this component's own first screen. The landing screen is otherwise
+   decided by the resume document: 50-loader.js reads it AFTER partBoot() has run and, when this
+   component has a saved payload, applyExecutionState() navigates again.
+
+   This also closes a gap that predates resume: main.js had no DOMContentLoaded handler and never
+   called goTo() at load, so the markup's own .active screen was shown without resetScreenState()
+   ever running for it — no s2Enter/s3Enter, no character image swap, no renderQprog, no
+   restoreFeedback. */
+function partBoot() {
+  goTo(window.PART_CONFIG ? window.PART_CONFIG.start : 0);
 }

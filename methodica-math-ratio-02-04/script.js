@@ -4,9 +4,38 @@
    תרגול מתקדם
 
    CONFIGURATION ONLY. Every behaviour is shared in ../unit-js/.
-   The split follows the deck's own "רכיב N" separator slides.
    ═══════════════════════════════════════════════════════════════════ */
-window.PART_CONFIG = { start: 30, end: 37, next: "../methodica-math-ratio-02-05/" };
 
-const XAPI_COMP_SLUG = 'methodica-math-ratio-02-04';
-const XAPI_COMP_ID = 4;
+window.PART_CONFIG = {
+  start: 30, end: 37,
+  next: 'methodica-math-ratio-02-05',
+  prev: 'methodica-math-ratio-02-03'
+};
+
+var PART_FIRST = window.PART_CONFIG.start;
+var PART_LAST  = window.PART_CONFIG.end;
+
+var XAPI_COMP_SLUG     = 'methodica-math-ratio-02-04';
+var XAPI_COMP_ID       = XAPI_ID_PREFIX + XAPI_COMP_SLUG + '/';
+var XAPI_METADATA_FILE = '../metadata/methodica-math-ratio-02-04.json';
+
+/* screen -> [item suffix, page-within-item]; null = no catalogue item.
+   ⚠️ THIS component's [start..end] only.
+
+   Slides 46-53 map one-to-one onto screens 30-37:
+     001  slides 46-48  intro + יחס בין זוויות במשולש (2 questions)
+     002  slides 49-51  מסקנות ממחקר שימוש ב-AI — ONE catalogue question over three screens,
+                        which are the three rows of the same table
+     003  slides 52-53  משחק קלפים — טליה ויוני (2 questions) */
+var SCREEN_TO_SUBCONTENT = {
+  30: ['001', 1], 31: ['001', 2], 32: ['001', 3],
+  33: ['002', 1], 34: ['002', 2], 35: ['002', 3],
+  36: ['003', 1], 37: ['003', 2]
+};
+
+var XAPI_EVAL_ITEMS = { '001': 1, '002': 1, '003': 1 };
+
+var XAPI_ITEM_RESULT = {};
+Object.keys(XAPI_EVAL_ITEMS).forEach(function (it) {
+  XAPI_ITEM_RESULT[it] = function () { return itemResultFor(it); };
+});
