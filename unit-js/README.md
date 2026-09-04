@@ -109,13 +109,36 @@ load *after* them.
 
 ### Unit-wide, in `main.js`
 
-Present now: `TOTAL_SCREENS` (52) · `currentScreen` · `goTo(n)` · `scaleApp()` ·
-`resetScreenState(n)` · `announce(msg)` · `initReportModal()`
+The engine: `TOTAL_SCREENS` (52) · `currentScreen` · `goTo(n)` · `scaleApp()` ·
+`resetScreenState(n)` · `announce(msg)` · `initReportModal()` · `goToNextPart()`
 
-Still to land (resume): `capturePartPayload()` · `applyResumeVars(st)` · `applyResumeDom(st)` ·
-`restoreScreenUI(n)` · `applyExecutionState(st, screenOverride)` · `partBoot()`. Until they exist
-the layer boots and stays inert — `90-boot.js` typeof-guards `partBoot`, and `50-loader.js` reaches
-`applyExecutionState` only when a saved document exists, which requires `XAPI_METADATA_FILE` first.
+Resume: `capturePartPayload()` · `applyResumeVars(st)` · `applyResumeDom(st)` ·
+`restoreScreenUI(n)` · `applyExecutionState(st, screenOverride)` · `partBoot()` · `leaveToPart()` ·
+`finishUnit()`
+
+Scoring: `screenWasCorrect(sid)` · `itemResultFor(item)` · `partResult()` · `unitResult()` ·
+`recordPartResult(res)` · `UNIT_SCORE_KEYS`
+
+Reporting: `XAPI_QMAP` · `xapiKeyFor(key)` · `xapiScreenKey(sid)` · `xapiReport(key, correct,
+answer)` · `xapiHint(sid)` · `xapiReportQScreen(...)` · `xapiReportAiTable(...)`
+
+### Why `goTo` has no repaint sandwich
+
+The reference's `goTo` snapshots the payload, lets `resetScreenState` wipe the screen, then
+re-applies and repaints — because there `sNNEnter()` is a pure initialiser. **Here it is not:**
+`resetQuestionOnEntry()` early-returns on a finished question and `restoreFeedback()` re-opens its
+popup, so an answered screen already survives in-part navigation. The painters are needed only
+after a page **load**, where the DOM is pristine markup and every done flag is false, and
+`applyExecutionState()` drives them there. Three seams are grafted into `goTo` instead:
+`xapiOnScreen(n)`, `scheduleResumeSave()`, and the two part edges.
+
+### The reporting map is not screen-to-question
+
+Neither side is one-to-one. `s24` carries two catalogue questions behind one check button, `s26`
+three and `s28` two — each reports separately, from `qCheck`'s per-input verdicts. The AI table is
+the opposite: part 04's item `002/q1` is **one** question spread over screens 33/34/35, so
+`xapiReportAiTable()` reports it once, on the third row, with the AND. `'answered.last'` is derived
+from the item's question count in the metadata, never hardcoded.
 
 ⚠️ **`applyResumeVars`'s parameter must stay named `st`.** It runs `eval(k + ' = st.vars[k];')`,
 which resolves `st` lexically. Renaming it fails **silently**: the assignment throws, the
