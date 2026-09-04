@@ -1,0 +1,119 @@
+{
+  "id": "https://lomdot.education.gov.il/metodica/720active/math/ratio/02/methodica-math-ratio-02-05/",
+  "title": "שאלת שיא",
+  "learningUnitId": "https://lomdot.education.gov.il/metodica/720active/math/ratio/02/methodica-math-ratio-02/",
+  "componentPurpose": "practice",
+  "isAssessment": true,
+  "recommendedAfterFail": [],
+  "isRequired": true,
+  "relativeDifficulty": 5,
+  "masteryLevel": null,
+  "order": 5,
+  "depthLevel": "core-curriculum-basic",
+  "cognitiveLevels": [
+    "interpretation-and-reasoning"
+  ],
+  "languages": [
+    "Hebrew"
+  ],
+  "skills": [],
+  "estimatedTimeInMinutes": 16,
+  "createdAt": "2026-08-30T00:00:00.000Z",
+  "updatedAt": "2026-08-30T00:00:00.000Z",
+  "subContent": [
+    {
+      "id": "https://lomdot.education.gov.il/metodica/720active/math/ratio/02/methodica-math-ratio-02-05/methodica-math-ratio-02-05-001/",
+      "title": "שאלת שיא: מכירת כרטיסים למופע להקות (6 סעיפים)",
+      "informationToBot": "מטרת הפריט: שאלת השיא של היחידה - תרחיש שלם של מכירת כרטיסים למופע להקות (400 מושבים, כרטיסים מוזלים/מלא מחיר/ללא עלות), הבודק ייצוגי יחס שונים, שימור יחס, ופרשנות משמעות יחס בהקשר כספי. תתי-סעיפים: א) ביטוי היחס המתוכנן (5:3 בין מוזלים למחיר מלא) כשבר ובמשפט. ב) חישוב וצמצום היחס בפועל (180 מוזלים, 120 מחיר מלא) ופירוש משמעותו. ג) בדיקה האם היחס המתוכנן נשמר בפועל. ד) חישוב יחס מצומצם בין כרטיסי צוות (40) לכלל הכרטיסים (400). ה) בדיקת טענה לגבי חלק הכרטיסים שנמכרו מכלל המושבים. ו) השוואת הכנסות משני סוגי כרטיסים תוך שילוב יחס מחירים עם יחס כמויות. טעויות נפוצות: בלבול בין 'היחס נשמר' לבין 'שתי הכמויות גדלו'; מסקנה שגויה לגבי הכנסה מבלי לשלב את יחס המחירים עם יחס הכמויות. מידע נוסף: מחיר כרטיס מלא 40 ש\"ח, מחיר כרטיס מוזל 20 ש\"ח.",
+      "contentType": "practice",
+      "mediaFormat": "interactive-content",
+      "questions": [
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720active/math/ratio/02/methodica-math-ratio-02-05/methodica-math-ratio-02-05-001/q1",
+          "questionType": "fill-in",
+          "questionText": "א.1. נקבע שהיחס בין מספר הכרטיסים המוזלים לבין מספר הכרטיסים במחיר מלא יהיה 5:3. רשמו את היחס כשבר פשוט.",
+          "answers": [],
+          "correctAnswers": [
+            "5/3"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720active/math/ratio/02/methodica-math-ratio-02-05/methodica-math-ratio-02-05-001/q2",
+          "questionType": "numeric",
+          "questionText": "א.2. השלימו את המשפט: על כל 3 כרטיסים שנמכרו במחיר מלא, ימכרו ___ כרטיסים מוזלים.",
+          "answers": [],
+          "correctAnswers": [
+            5
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720active/math/ratio/02/methodica-math-ratio-02-05/methodica-math-ratio-02-05-001/q3",
+          "questionType": "fill-in",
+          "questionText": "ב.1. במהלך ימי המכירה נמכרו 120 כרטיסים במחיר מלא ו-180 כרטיסים מוזלים. הקלידו את היחס המצומצם בין מספר הכרטיסים שנמכרו במחיר מלא לבין מספר הכרטיסים שנמכרו במחיר מוזל.",
+          "answers": [],
+          "correctAnswers": [
+            "3 : 2",
+            "3:2"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720active/math/ratio/02/methodica-math-ratio-02-05/methodica-math-ratio-02-05-001/q4",
+          "questionType": "numeric",
+          "questionText": "ב.2. השלימו את המשפט: על כל 2 כרטיסים שנמכרו במחיר מלא, נמכרו ___ כרטיסים מוזלים.",
+          "answers": [],
+          "correctAnswers": [
+            3
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720active/math/ratio/02/methodica-math-ratio-02-05/methodica-math-ratio-02-05-001/q5",
+          "questionType": "choice",
+          "questionText": "ג. היחס המתוכנן בין מספר הכרטיסים המוזלים לבין מספר הכרטיסים במחיר מלא היה 5:3. האם היחס המתוכנן נשמר בסיום המכירה (120 מלא, 180 מוזלים)?",
+          "answers": [
+            "כן",
+            "לא",
+            "אי אפשר לדעת"
+          ],
+          "correctAnswers": [
+            "לא"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720active/math/ratio/02/methodica-math-ratio-02-05/methodica-math-ratio-02-05-001/q6",
+          "questionType": "fill-in",
+          "questionText": "ד. 40 כרטיסים נשמרו לנגנים, זמרים ואנשי צוות, מתוך 400 כרטיסים סך הכל. מהו היחס המצומצם בין מספר הכרטיסים שנשמרו לבין כלל הכרטיסים?",
+          "answers": [],
+          "correctAnswers": [
+            "10 : 1",
+            "10:1"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720active/math/ratio/02/methodica-math-ratio-02-05/methodica-math-ratio-02-05-001/q7",
+          "questionType": "choice",
+          "questionText": "ה. הדר טענה שהכרטיסים שנמכרו במחיר מלא ומוזל יחד (120+180=300, מתוך 400 מושבים) מהווים 3/4 מכלל המושבים באולם. האם היא צודקת?",
+          "answers": [
+            "כן",
+            "לא",
+            "אי אפשר לדעת"
+          ],
+          "correctAnswers": [
+            "כן"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720active/math/ratio/02/methodica-math-ratio-02-05/methodica-math-ratio-02-05-001/q8",
+          "questionType": "choice",
+          "questionText": "ו. מחיר כרטיס מלא 40 ש\"ח, מחיר כרטיס מוזל 20 ש\"ח. עומר טען: 'למרות שמכרנו יותר כרטיסים מוזלים (180) מאשר כרטיסים במחיר מלא (120), ההכנסה מהכרטיסים במחיר מלא הייתה גבוהה יותר.' האם הוא צודק?",
+          "answers": [
+            "כן, מכיוון שהיחס בין מחיר כרטיס מוזל למחיר כרטיס מלא הוא 2 : 1, והיחס בין מספר הכרטיסים המוזלים שנמכרו למספר הכרטיסים במחיר מלא שנמכרו הוא 2 : 3",
+            "כן, מכיוון שיש פי 1.5 יותר כרטיסים מוזלים מאשר כרטיסים במחיר מלא"
+          ],
+          "correctAnswers": [
+            "כן, מכיוון שהיחס בין מחיר כרטיס מוזל למחיר כרטיס מלא הוא 2 : 1, והיחס בין מספר הכרטיסים המוזלים שנמכרו למספר הכרטיסים במחיר מלא שנמכרו הוא 2 : 3"
+          ]
+        }
+      ]
+    }
+  ]
+}

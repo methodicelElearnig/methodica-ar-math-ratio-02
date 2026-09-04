@@ -1,0 +1,2321 @@
+/* ═══ style.css ═══ */
+/* ═══════════════════════════════════════════════════════
+   css/style.css  —  methodica-math-ratio-01-01 — vendored from the approved methodica-math-percent-02-01 engine
+   Canvas: 1280 × 710 px   (720 reference engine)
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── Local fonts (Assistant) ───────────────────────────
+   Loaded from assets/fonts/ — used before Google Fonts CDN.
+   Google Fonts <link> in index.html remains as network fallback.
+   ───────────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Assistant';
+  src: url('assets/fonts/Assistant-ExtraLight.ttf') format('truetype');
+  font-weight: 200; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Assistant';
+  src: url('assets/fonts/Assistant-Light.ttf') format('truetype');
+  font-weight: 300; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Assistant';
+  src: url('assets/fonts/Assistant-Regular.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Assistant';
+  src: url('assets/fonts/Assistant-Medium.ttf') format('truetype');
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Assistant';
+  src: url('assets/fonts/Assistant-SemiBold.ttf') format('truetype');
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Assistant';
+  src: url('assets/fonts/Assistant-Bold.ttf') format('truetype');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Assistant';
+  src: url('assets/fonts/Assistant-ExtraBold.ttf') format('truetype');
+  font-weight: 800; font-style: normal; font-display: swap;
+}
+
+/* ─── Reset ────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Subject theme tokens — Figma Variable Collection (720 UI Templates).
+   Canonical architecture per figma-lomda-builder → reference/subject-theming.md:
+   :root carries the DEFAULT (Science) theme; each additional theme is an
+   override block keyed by data-subject-theme on <body>. This lomda ships
+   with data-subject-theme="math" baked into index.html.
+   All 12 token values: 720-design-guidelines → references/colors-and-gradients.md
+   (verified against the live Figma Foundations page, 2026-08-04). ── */
+:root {
+  --subject-100: #d4f3ff;
+  --subject-200: #c7f0ff;
+  --subject-300: #b9ecff;
+  --subject-350: #b0dfff;
+  --subject-400: #00baff;
+  --subject-500: #019de5;
+  --subject-600: #0690d0;
+  --subject-700: #007ac6;
+  --subject-800: #0070c0;
+  --subject-900: #002060;
+  --subject-alpha-100: rgba(0, 186, 255, 0);
+  --subject-alpha-200: rgba(0, 186, 255, 0.3);
+  /* Official Subject/Gradient/Science Paint Style. Role-scoped name
+     because it is applied ONLY to confirmed primary actions (Continue /
+     Submit) — the Subject gradient's wider usage scope is not defined,
+     so this property must not be reused for other components.
+     Stops per colors-and-gradients.md → "Known Subject-related
+     gradients", matching the Type=Science NavButton component. */
+  --primary-action-gradient: linear-gradient(to bottom, #005fbe 9%, #0059b2 23.361%, #003971 100%);
+}
+
+body[data-subject-theme="math"] {
+  --subject-100: #ead9ff;
+  --subject-200: #cec7ff;
+  --subject-300: #e1d9ff;
+  --subject-350: #b3b0ff;
+  --subject-400: #bdb3fc;
+  --subject-500: #3b2fc2;
+  --subject-600: #383896;
+  --subject-700: #5656cc;
+  --subject-800: #4b35a5;
+  --subject-900: #2f2478;
+  --subject-alpha-100: rgba(165, 28, 255, 0);
+  --subject-alpha-200: rgba(165, 28, 255, 0.3);
+  /* Official Subject/Gradient/Math Paint Style values (producer-confirmed
+     as canonical): 9% #6F6AD5 → 38% #4B35A5 → 100% #270075, vertical.
+     These are the Paint Style's own values, NOT pixels sampled from a
+     rendered component. An earlier revision used #676AD5 8.654% /
+     38.462%, read off the Type=Math NavButton render; the Paint Style
+     supersedes it. (colors-and-gradients.md records the same stop colours
+     with finer percentages, 8.654% / 38.462% — the values here are the
+     confirmed canonical ones.)
+     Role-scoped name, same as the Science counterpart: applied ONLY to
+     confirmed primary actions (Continue / Submit), because the Subject
+     gradient's wider usage scope is not defined. Do not reuse this
+     property for other components. */
+  --primary-action-gradient: linear-gradient(to bottom, #6f6ad5 9%, #4b35a5 38%, #270075 100%);
+}
+
+/* ─── Global utility ───────────────────────────────────── */
+.hidden { display: none !important; }
+
+/* ─── Global ────────────────────────────────────────────── */
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  direction: rtl;
+  font-family: 'Assistant', sans-serif;
+  /* project floor: no text in a unit is ever rendered below 18px
+     (producer rule 16.08.26) — this is the inherited baseline */
+  font-size: 18px;
+  background: #fff;
+}
+
+/* ─── App Canvas ────────────────────────────────────────── */
+#app {
+  position: absolute;
+  /* Width/height are set dynamically by scaleApp() to fill the viewport
+     (in design coords). The 1280×710 fallback keeps the page sensible if JS
+     is still booting. */
+  width: 1280px; height: 710px;
+  transform-origin: top left;
+  background: #fff;
+  overflow: hidden;
+}
+
+/* ─── Screens ───────────────────────────────────────────── */
+/* .screen fills #app (which fills the viewport) so chrome anchored to its
+   bottom/top edges (flag button, bottom bar) reaches the actual screen
+   edges on tablet aspect ratios. Per-screen content stays positioned via
+   absolute/centered layout against the 1280-wide design grid. */
+.screen {
+  position: absolute; inset: 0;
+  display: none; overflow: hidden;
+}
+.screen.active { display: block; }
+
+/* 74px white feedback bar at the bottom of every screen (Figma standard). */
+.screen::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 74px;
+  background: #fff;
+  border-top: 0.4px solid #AEAEAE;
+  pointer-events: none;
+  z-index: 9;
+}
+
+/* ═══════════════════════════════════════════════════════
+   GLOBAL COMPONENT — Report / Issue button (top-left).
+   Figma "issue button" component set (node 207:3590): state=default
+   (207:3588) and state=hover (207:3589). Appears on every screen.
+   Visual only for now (no behavior).
+   - default: #ececec circle, rgba(0,0,0,.06) border, #484848 glyph
+   - hover:   white circle, Subject/500 border + glyph + label
+
+   THEME-AWARE, NOT BAKED. Verified in Figma: the hover state binds
+   Subject/500 on FOUR properties — circle stroke (207:3566), flag-pole
+   vector (207:3558), flag-banner vector (207:3559) and the label
+   (201:3552). state=default returns zero variable bindings, so its
+   greys are Natural, not subject. The component therefore re-colours
+   purely by switching the Figma Subject mode and has no Type=Math
+   variant (and correctly needs none).
+
+   The former btn-flag-hover.png was a stale SCIENCE-mode export
+   (pixel-verified: dominant #019DE5), which is why the glyph is now
+   live inline SVG driven by `currentColor` instead of a raster. Glyph
+   paths + geometry are the exact Figma vector exports; the two states
+   share identical viewBoxes, so one markup serves both.
+   Deviation on record: _global-components.md still specifies these
+   icon shapes as "the exact Figma PNG exports" — superseded here by
+   the higher-order rule never to bake a subject colour into an asset.
+   ═══════════════════════════════════════════════════════ */
+.flag-btn {
+  position: absolute; top: 16px; left: 16px;
+  width: 88px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: none; border: none; padding: 0; cursor: pointer;
+  z-index: 30;          /* above screen content + feedback bar */
+}
+.flag-btn-icon {
+  position: relative;
+  width: 38px; height: 38px; flex-shrink: 0;
+  border-radius: 1000px;
+  overflow: hidden;
+  background: #ececec;
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
+  color: #484848;               /* glyph colour — Natural, theme-independent */
+}
+.flag-btn:hover .flag-btn-icon,
+.flag-btn:focus-visible .flag-btn-icon {
+  background: #fff;
+  border: 0.7px solid var(--subject-500);
+  color: var(--subject-500);    /* glyph follows the Subject token */
+}
+/* Glyph box — Figma "icon" frame: aspect 28/40, left calc(50% + 1px),
+   top calc(31.58% - 0.26px), bottom calc(23.68% - 0.37px) of the 38px
+   circle. Resolved to px for determinism: top 11.74, height
+   38 - 11.74 - 8.63 = 17.63, width 17.63 x 28/40 = 12.34.
+   (Figma's default state differs from hover by <0.12px on these
+   offsets — below one rendered pixel, so one geometry serves both.) */
+.flag-btn-glyph {
+  position: absolute;
+  top: 11.74px;
+  left: calc(50% + 1px);
+  transform: translateX(-50%);
+  width: 12.34px; height: 17.63px;
+}
+/* Each vector keeps its own Figma inset box and stretches into it,
+   exactly as the original <img size-full> exports did. */
+.flag-btn-glyph-pole,
+.flag-btn-glyph-banner { position: absolute; display: block; }
+.flag-btn-glyph-pole   { inset: 0 93.38% 0 0; }
+.flag-btn-glyph-banner { inset: 3.49% 0 41.72% 0; }
+.flag-btn-label {
+  font-family: 'Assistant', sans-serif;
+  font-weight: 600; font-size: 18px; color: var(--subject-500);
+  text-align: center; width: 80px; line-height: normal;
+  direction: rtl; display: none;
+}
+.flag-btn:hover .flag-btn-label,
+.flag-btn:focus-visible .flag-btn-label { display: block; }
+
+/* ─── Back button — white pill, bottom-right of bar (never shown on the
+   first screen) ── */
+/* Back button — one shared position rule (not per-screen IDs) so every
+   screen's Back sits at the exact same spot, per the same size/position
+   consistency rule as .btn-continue. */
+.scq-back {
+  position: absolute;
+  bottom: 17px;
+  right: 24px;
+  z-index: 12;
+  height: 40px; box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: auto; min-width: 140px; padding: 0 40px;
+  border: 1px solid var(--subject-700); border-radius: 1000px; background: #fff;
+  color: var(--subject-700);
+  font-family: 'Assistant', sans-serif; font-size: 20px; font-weight: 400;
+  cursor: pointer; direction: rtl; white-space: nowrap;
+}
+.scq-back:hover { font-weight: 600; border-width: 1.5px; }
+
+/* ─── Shared: Continue Button — gradient pill, bottom-left of bar.
+   Also serves the confirmed primary actions that reuse this class:
+   Submit / "צדקתי?" / "שנמשיך?". This is the ONLY consumer of
+   --primary-action-gradient (see the token blocks at the top of this
+   file for why that property is role-named rather than subject-named). ── */
+.btn-continue {
+  position: absolute;
+  bottom: 17px; left: 24px;   /* Figma 1731:45026 — 40px pill centered in the bar */
+  z-index: 12;                /* above the ::after white bar (z-index 9) */
+  height: 40px; box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 140px;
+  padding: 0 40px;
+  background: var(--primary-action-gradient);
+  color: #fff;
+  border: none; border-radius: 1000px;
+  font-family: 'Assistant', sans-serif;
+  font-size: 20px; font-weight: 400;
+  cursor: pointer; direction: rtl;
+  text-align: center; white-space: nowrap;
+}
+.btn-continue:not(:disabled):hover { font-weight: 600; }
+.btn-continue.hidden { display: none !important; }
+.btn-continue:disabled {
+  background: #AEAEAE;
+  color: #303030;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* ─── Nav-button width consistency (Foundation rule, ported from
+   methodica-science-mass-measure-01-01's style.css — same fix applies
+   here): W(label) = max(box floor, intrinsic width of the SAME label
+   at the HOVER weight). Any button whose hover changes font-weight
+   must never resize/reflow between Default and Hover.
+   Mechanism: .nav-label stacks an invisible copy of the label at the
+   hover weight (a ::before fed by attr(data-label)) into the same grid
+   cell as the visible <span>, so the box always reserves the heavier
+   measurement. Not a DOM node (attr()-driven) and visibility:hidden
+   keeps it out of the accessibility tree — data-label always mirrors
+   the visible text, never authored separately from it (see
+   setNavLabel() in main.js for every place a button's label changes
+   at runtime). */
+.nav-label { display: inline-grid; }
+.nav-label::before {
+  content: attr(data-label);
+  grid-area: 1 / 1;
+  font-weight: 600;
+  block-size: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.nav-label > span { grid-area: 1 / 1; }
+/* .scq-hint-close reserves at its own hover weight (600 — see its rule
+   below), same mechanism, same reason. */
+
+/* ═══════════════════════════════════════════════════════
+   TEMPLATE — TwoOptionSelection (Screen 01 — character selection)
+   Title + two single-select cards. Card states: hover + selected.
+   First screen: no Back button, no subtitle (none in the source script).
+   ═══════════════════════════════════════════════════════ */
+#s0 { background: #fff; }
+
+.select-content {
+  position: absolute;
+  left: 50%; top: calc(50% - 37px);   /* vertically centered above the 74px bar */
+  transform: translate(-50%, -50%);
+  width: 810px;
+  display: flex; flex-direction: column; align-items: center; gap: 40px;
+}
+
+.select-head {
+  display: flex; flex-direction: column; gap: 8px;
+  align-items: center; width: 100%;
+}
+.select-title {
+  width: 100%; text-align: center;
+  font-size: 40px; font-weight: 700; color: #303030;
+  direction: rtl; line-height: 1.2;
+}
+.select-subtitle {
+  width: 100%; text-align: center;
+  font-size: 28px; font-weight: 700; color: #303030;
+  direction: rtl;
+}
+
+/* ── Cards row ── */
+.option-cards {
+  display: flex; justify-content: center; gap: 24px;
+  direction: ltr;   /* keep the two cards in a stable left-to-right order */
+}
+
+.option-card {
+  width: 296px;
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  outline: none;
+}
+.option-card-labels {
+  display: flex; flex-direction: column; gap: 12px;
+  align-items: center; text-align: center; color: #303030;
+}
+.option-card-name {
+  font-size: 32px; font-weight: 700;
+  color: #303030; white-space: nowrap;
+}
+.option-card-desc {
+  font-size: 24px; font-weight: 400; color: #303030;
+  width: 228px; text-align: center; direction: rtl;
+}
+.option-card-img {
+  position: relative; /* zoom-button anchor on screens that add one (S4)
+                          — no transform/filter/z-index here, so it does
+                          not create a stacking context (720-templates →
+                          _global-components.md → Image zoom stacking rule) */
+  width: 220px;
+  border: 3px solid rgba(201, 206, 216, 0.4);
+  border-radius: 16px;
+  padding: 16px;
+  transition: none; /* instant state changes, per 720 CSS conventions */
+}
+.option-card-img img {
+  width: 100%;
+  aspect-ratio: 296 / 278;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
+}
+/* the producer's animated characters (03.09) take the same window as the
+   stills did, but `contain`, not `cover` — a clip cannot be pre-cropped to the
+   window the way a PNG was, and cover would cut the monsters off */
+.option-card-video {
+  width: 100%;
+  aspect-ratio: 296 / 278;
+  object-fit: contain;
+  border-radius: 16px;
+  display: block;
+  background: #fff;
+}
+/* Hover + keyboard-focus — Figma ImageContainer state=hover: Subject/500 border */
+.option-card:hover .option-card-img,
+.option-card:focus-visible .option-card-img { border-color: var(--subject-500); }
+/* Selected — Figma ImageContainer state=selected: 2px Subject/500 border + Subject/100 fill */
+.option-card.selected .option-card-img {
+  border: 2px solid var(--subject-500);
+  background: var(--subject-100);
+}
+
+/* Screen 01: +10% image window — 238px box, and reduced padding (4px)
+   with object-fit:contain so the whole (square, transparent) character
+   PNG shows uncropped inside the frame. See 720-templates
+   → references/TwoOptionSelection.md → "Character asset integration". */
+#s0 .option-card-img {
+  width: 238px;
+  padding: 4px;
+}
+#s0 .option-card-img img {
+  object-fit: contain;
+}
+
+/* ═══════════════════════════════════════════════════════
+   REPORT MODAL — "מצאתם בעיה?" (ported verbatim from
+   methodica-science-mass-measure-01; same behavior in all
+   720 projects)
+   ═══════════════════════════════════════════════════════ */
+.report-modal-overlay { position: absolute; inset: 0; z-index: 200; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; direction: rtl; }
+.report-modal-overlay[hidden] { display: none; }
+.report-modal-box { width: 520px; background: #ffffff; border-radius: 16px; padding: 36px 36px 28px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.35); display: flex; flex-direction: column; gap: 18px; direction: rtl; }
+.report-confirm-box { width: 420px; padding: 40px 36px 32px; gap: 20px; }
+.report-close-btn { position: absolute; top: 14px; left: 14px; width: 32px; height: 32px; border: none; background: none; font-size: 18px; color: #8A9AAA; cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; outline: none; transition: background 0.12s, color 0.12s; }
+.report-close-btn:hover { background: #F0F2F5; color: #303030; }
+.report-close-btn:focus-visible { outline: 2px solid #8900E1; }
+.report-modal-title { font-size: 26px; font-weight: 700; color: #1A2744; line-height: 1.2; }
+.report-modal-body { font-size: 18px; color: #5A6A7A; line-height: 1.5; margin-top: -6px; }
+.report-field { display: flex; flex-direction: column; gap: 6px; }
+.report-label { font-size: 18px; font-weight: 600; color: #303030; }
+.required-star { color: #D32F2F; }
+.report-select { height: 44px; border: 2px solid #C9CED8; border-radius: 10px; padding: 0 14px; font-family: 'Assistant', sans-serif; font-size: 18px; color: #303030; background: #ffffff; direction: rtl; outline: none; cursor: pointer; transition: border-color 0.12s; }
+.report-select:focus { border-color: #8900E1; }
+.report-textarea { border: 2px solid #C9CED8; border-radius: 10px; padding: 12px 14px; font-family: 'Assistant', sans-serif; font-size: 18px; color: #303030; direction: rtl; resize: none; outline: none; transition: border-color 0.12s; line-height: 1.5; }
+.report-textarea:focus { border-color: #8900E1; }
+.report-char-count { font-size: 18px; color: #8A9AAA; text-align: left; direction: ltr; }
+.report-actions { display: flex; flex-direction: row; gap: 12px; direction: rtl; margin-top: 4px; }
+.report-error { color: #d33; font-size: 18px; margin: 4px 0 8px; direction: rtl; }
+.report-thanks { text-align: center; padding: 8px 0; direction: rtl; }
+.report-submit-btn { height: 44px; padding: 0 32px; background: linear-gradient(180deg, #8900E1 9%, #6500A5 100%); color: #ffffff; border: none; border-radius: 50px; font-family: 'Assistant', sans-serif; font-size: 18px; font-weight: 600; cursor: pointer; outline: none; transition: opacity 0.12s; }
+.report-submit-btn:hover { opacity: 0.88; }
+.report-submit-btn:focus-visible { outline: 3px solid #8900E1; outline-offset: 3px; }
+.report-cancel-btn { height: 44px; padding: 0 28px; background: #ffffff; color: #5A6A7A; border: 2px solid #C9CED8; border-radius: 50px; font-family: 'Assistant', sans-serif; font-size: 18px; font-weight: 400; cursor: pointer; outline: none; transition: border-color 0.12s, color 0.12s; }
+.report-cancel-btn:hover { border-color: #8A9AAA; color: #303030; }
+.report-cancel-btn:focus-visible { outline: 3px solid #8900E1; outline-offset: 3px; }
+
+
+/* ═══════════════════════════════════════════════════════
+   SHARED — SingleChoiceQuestion pills/feedback (vendored from
+   percent-02, approved): the shared/global SCQ component, reused
+   as-is across question screens.
+   ═══════════════════════════════════════════════════════ */
+
+/* Question block — Figma: top 139px, right 40px, width 1188px */
+.scq-question {
+  position: absolute; top: 139px; right: 40px;
+  width: 1188px; height: auto;
+}
+
+/* Image/widget placeholder (left) — 380×380 square. Stays a plain gray
+   box until a real image/widget is supplied; never invent a photo. */
+.scq-img {
+  position: absolute; left: 0; top: 0;
+  width: 380px; height: 380px; padding: 8px;
+}
+.scq-img-inner {
+  width: 100%; height: 100%;
+  position: relative;
+  background: #f2f2f2; border: 0.5px solid rgba(174, 174, 174, 0.5);
+  border-radius: 16px; overflow: hidden;
+}
+.scq-img-inner img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+/* Question text (right) — default: short single-run bold question,
+   Subject/500. For multi-part question text, a screen-scoped wrapper
+   overrides position to stack in normal flow (see #s2 below). */
+.scq-qtext {
+  position: absolute; right: 0; top: 0;
+  width: 792px; height: auto;
+  display: flex; flex-direction: column; justify-content: flex-start; gap: 0;
+  padding-top: 16px;
+  font-family: 'Assistant', sans-serif;
+  font-size: 24px; font-weight: 700; color: var(--subject-500);
+  text-align: right; direction: rtl; line-height: normal;
+}
+
+/* Answers (right, below the question text) */
+.scq-answers {
+  position: absolute; right: 0; top: 100px;
+  width: 604px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.scq-opt {
+  width: 604px; min-height: 46px;
+  border: 2px solid var(--subject-500); border-radius: 1000px;
+  background: #fff; padding: 7px 20px;
+  display: flex; align-items: center; gap: 10px;
+  direction: rtl; cursor: pointer;
+  font-family: 'Assistant', sans-serif;
+  overflow: visible;
+}
+.scq-opt-text {
+  flex: 1; text-align: right;
+  font-size: 22px; font-weight: 400; color: #222; line-height: 1.1;
+}
+.scq-opt:focus-visible { outline: 2px solid var(--subject-700); outline-offset: 2px; }
+.scq-opt:disabled { cursor: default; }
+.scq-opt.correct { background: #edf8ed; border: 2px solid #609e12; }
+.scq-opt.wrong   { background: #fff0f4; border: 2px solid #b20010; }
+
+/* Radio indicator (22px) — RTL: sits on the RIGHT (reading start) of the pill */
+.scq-radio {
+  width: 22px; height: 22px; flex-shrink: 0;
+  border: 2px solid var(--subject-500); border-radius: 1000px;
+  position: relative; box-sizing: border-box;
+  order: -1;
+}
+.scq-opt.selected .scq-radio { background: var(--subject-500); }
+.scq-opt.correct  .scq-radio { background: #609e12; border-color: #609e12; }
+.scq-opt.wrong    .scq-radio { background: #b20010; border-color: #b20010; }
+.scq-opt.correct .scq-radio::after,
+.scq-opt.wrong .scq-radio::after {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  background-repeat: no-repeat; background-position: center; background-size: contain;
+}
+.scq-opt.correct .scq-radio::after {
+  width: 13px; height: 11px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 12' fill='none'%3E%3Cpath d='M4.52036 12C4.12296 12.0002 3.74183 11.8126 3.46106 11.4787L0.258452 7.67744C-0.0861507 7.26814 -0.0861507 6.60467 0.258452 6.19536C0.603165 5.78619 1.16194 5.78619 1.50666 6.19536L4.52036 9.77374L12.4933 0.306878C12.8381 -0.102293 13.3968 -0.102293 13.7415 0.306878C14.0862 0.716179 14.0862 1.37966 13.7415 1.78896L5.57966 11.4787C5.29889 11.8126 4.91776 12.0002 4.52036 12Z' fill='white'/%3E%3C/svg%3E");
+}
+.scq-opt.wrong .scq-radio::after {
+  width: 11px; height: 11px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='M13.6743 0.325691C13.4657 0.117151 13.1828 0 12.8879 0C12.5929 0 12.31 0.117151 12.1014 0.325691L7 5.42709L1.8986 0.325691C1.69 0.117151 1.40711 0 1.11215 0C0.817183 0 0.534294 0.117151 0.325691 0.325691C0.117151 0.534294 0 0.817183 0 1.11215C0 1.40711 0.117151 1.69 0.325691 1.8986L5.42709 7L0.325691 12.1014C0.117151 12.31 0 12.5929 0 12.8879C0 13.1828 0.117151 13.4657 0.325691 13.6743C0.534294 13.8829 0.817183 14 1.11215 14C1.40711 14 1.69 13.8829 1.8986 13.6743L7 8.57291L12.1014 13.6743C12.31 13.8829 12.5929 14 12.8879 14C13.1828 14 13.4657 13.8829 13.6743 13.6743C13.8829 13.4657 14 13.1828 14 12.8879C14 12.5929 13.8829 12.31 13.6743 12.1014L8.57291 7L13.6743 1.8986C13.8829 1.69 14 1.40711 14 1.11215C14 0.817183 13.8829 0.534294 13.6743 0.325691Z' fill='white'/%3E%3C/svg%3E");
+}
+
+/* Multi-select checkbox (MultipleChoiceQuestion) — SQUARE, distinct from
+   the circular `.scq-radio` above (SingleChoiceQuestion). Figma: node
+   196:6222 (default) / 462:6740 (selected) / 462:6758 (correct) / 462:6768
+   (incorrect), confirmed via get_design_context — not invented. Sits at
+   the pill's physical RIGHT, same side as `.scq-radio` (producer
+   correction: the exported Tailwind/React reference code carries no
+   `dir=rtl` marker, which misread as "icon renders left" on first pass —
+   but Figma's own rendered screenshot, and the producer's own side-by-side
+   check, both show it on the right, so `order:-1` is needed here too, same
+   trick `.scq-radio` already uses). All three "checked" states (selected/
+   correct/wrong) render the SAME checkmark glyph — Figma's own icon set
+   (node 196:6225) confirms multi-select never shows an X for a wrong pick,
+   only a red-filled check (the glyph means "you checked this," the color
+   means "right/wrong"), unlike single-choice's distinct X-for-wrong icon
+   above. */
+.mcq-check {
+  width: 20px; height: 20px; flex-shrink: 0;
+  border: 2px solid var(--subject-500); border-radius: 2px;
+  position: relative; box-sizing: border-box;
+  background: transparent;
+  order: -1;
+}
+.scq-opt.selected .mcq-check { background: var(--subject-500); border-color: var(--subject-500); }
+.scq-opt.correct  .mcq-check { background: #609e12; border-color: #609e12; }
+.scq-opt.wrong    .mcq-check { background: #b20010; border-color: #b20010; }
+.scq-opt.selected .mcq-check::after,
+.scq-opt.correct .mcq-check::after,
+.scq-opt.wrong .mcq-check::after {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 13px; height: 9px;
+  background-repeat: no-repeat; background-position: center; background-size: contain;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12.7274 9.18767' fill='none'%3E%3Cpath d='M4.10955 9.18763C3.74828 9.18778 3.4018 9.04418 3.14655 8.78851L0.23509 5.87812C-0.0781857 5.56475 -0.0781857 5.05677 0.23509 4.74339C0.548465 4.43012 1.05645 4.43012 1.36982 4.74339L4.10955 7.48312L11.3577 0.234956C11.6711 -0.0783188 12.1791 -0.0783188 12.4925 0.234956C12.8057 0.548332 12.8057 1.05631 12.4925 1.36969L5.07255 8.78851C4.81731 9.04418 4.47083 9.18778 4.10955 9.18763Z' fill='white'/%3E%3C/svg%3E");
+}
+
+/* Word wrapper for an inline tooltip inside plain body text (not inside
+   a question title/option) — ported from methodica-science-mass-liquid-01-01. */
+.tooltip-word { position: relative; display: inline-block; }
+.term-underline {
+  font-weight: 700; color: var(--subject-700);
+  text-decoration: underline; text-decoration-skip-ink: none;
+  cursor: help;
+}
+.term-info {
+  position: absolute; top: -8px; left: 0; transform: translateX(-50%);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; cursor: help;
+}
+/* Self-contained 15×15 SVG (Figma eSbp4bKHgBky0rakDb8l9N node 1580:17042).
+   The circle IS subject-themed: get_variable_defs on that node returns
+   {"Subject/500"}, so its fill is driven by var(--subject-500) on the
+   <rect> in index.html — NOT a baked hex. (A previous version of this
+   comment asserted the #019DE5 was a fixed, non-subject colour; that was
+   wrong — #019DE5 is simply Subject/500 as resolved in the Figma file's
+   Science mode.) Still keep the circle and the "i" inside this ONE
+   self-contained asset — the rule against a second CSS-drawn circle
+   behind the SVG stands; only the fill source changed. */
+.term-info-i { display: block; flex: 0 0 15px; width: 15px; height: 15px; }
+.term-tooltip {
+  position: absolute; bottom: calc(100% + 10px);
+  left: 50%; transform: translateX(-50%);
+  width: 260px;
+  background: #fff; border: 1px solid #aeaeae; border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  padding: 18px 15px;
+  font-family: 'Assistant', sans-serif;
+  font-size: 18px; font-weight: 400; color: #222;
+  text-align: right; direction: rtl; line-height: normal;
+  display: none; z-index: 40;
+}
+.tooltip-word:hover .term-tooltip,
+.term-info:hover .term-tooltip,
+.term-info:focus .term-tooltip,
+.term-info:focus-within .term-tooltip { display: block; }
+
+/* ── Feedback popup — draggable, no close button
+   (_global-components.md → Feedback popup system) ── */
+.scq-popup {
+  position: absolute;
+  left: 2px; bottom: 76px;
+  width: 426px;
+  height: auto;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.18);
+  display: flex; flex-direction: column; gap: 4px;
+  direction: rtl; z-index: 50;
+  cursor: move;
+}
+.scq-popup.hidden { display: none !important; }
+.scq-popup-header {
+  display: flex; align-items: flex-start; gap: 8px;
+  direction: ltr;
+  width: 100%;
+}
+.scq-popup-title {
+  flex: 1;
+  font-family: 'Assistant', sans-serif;
+  font-size: 20px; font-weight: 700;
+  text-align: right; direction: rtl;
+  line-height: normal; margin: 0;
+  padding-top: 4px;
+}
+.scq-popup-body { direction: rtl; }
+.scq-popup-body p {
+  font-family: 'Assistant', sans-serif;
+  font-size: 20px; font-weight: 400; color: #222;
+  text-align: right; direction: rtl;
+  line-height: normal; margin: 0 0 4px;
+}
+.scq-popup-body p:last-child { margin-bottom: 0; }
+
+/* No separate .scq-bar/.scq-check here: the check/confirm button reuses
+   the shared .btn-continue (same size, same bottom-left position as
+   every other screen's Continue) per the global-components.md rule
+   that .btn-continue is "reused for gated continue/confirm actions" —
+   see 720-templates → _global-components.md → "Continue button". */
+
+/* ═══ SHARED — Image zoom button + modal (vendored from percent-02) ═══ */
+
+/* ── Image zoom — global component spec (720-templates →
+   _global-components.md → "Image zoom"): 44px circle, white fill, 2px
+   Subject/500 border, magnifying-glass inline SVG on currentColor,
+   solid Subject/500 hover fill. First use in this project. ── */
+.img-zoom-btn {
+  position: absolute; top: 10px; right: 10px; z-index: 5;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #fff; border: 2px solid var(--subject-500);
+  display: flex; align-items: center; justify-content: center;
+  padding: 0; cursor: pointer; color: var(--subject-500);
+}
+.img-zoom-btn:hover { background: var(--subject-500); color: #fff; }
+.img-zoom-btn:focus-visible { outline: 2px solid var(--subject-700); outline-offset: 2px; }
+.img-zoom-btn__icon { width: 20px; height: 20px; display: block; }
+
+/* Generic zoom-clone inner wrapper — sibling to .img-zoom-btn inside the
+   image frame, holding just the <img> (see index.html's markup contract
+   comment). Cloned into #img-zoom-stage on open, same mechanism as
+   ValueInputQuestion's own .scq-img-inner (S9/S10/S15/S16), but kept as
+   a SEPARATE class rather than reused: .scq-img-inner carries its own
+   380×380 frame sizing plus a haknaya1.jpg-specific #img-zoom-stage
+   aspect-ratio override (see that rule's own comment) that would
+   distort any other image cloned through it. .zoom-img-inner is a bare
+   passthrough with no sizing opinion of its own — the shared
+   `#img-zoom-stage img { object-fit:contain; ... }` rule (not scoped to
+   any particular inner-wrapper class) already un-crops/contain-fits
+   whatever image lands inside it, so no per-consumer override is
+   needed here the way haknaya1.jpg required one. */
+.zoom-img-inner { display: block; width: 100%; height: 100%; }
+
+/* S2 override — the button moves OUT of the image, into the gap to its
+   physical right (producer instruction). Inside the frame it sat on top
+/* Zoom modal — positioned absolute within #app (not position:fixed to
+   the viewport) so it scales together with the rest of the canvas via
+   scaleApp(), matching this project's existing overlay convention
+   (e.g. .scq-popup) rather than the generic fixed-to-viewport pattern.
+   Deliberately NOT the standard clone-based stage (see index.html
+   comment on #s2-zoom-modal): the live #s2-widget is reparented in so
+   the slider stays draggable/clickable while enlarged. */
+.img-zoom-modal {
+  position: absolute; inset: 0;
+  z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+}
+.img-zoom-modal.hidden { display: none !important; }
+.img-zoom-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(255, 255, 255, 0.78);
+}
+.img-zoom-panel {
+  position: relative; z-index: 1;
+  width: 480px; height: 640px;
+  background: #fff; border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  box-sizing: border-box;
+  padding: 60px 24px 24px;
+  display: flex; align-items: center; justify-content: center;
+}
+.img-zoom-close-btn {
+  position: absolute; top: 16px; left: 16px; /* top-left per spec, regardless of RTL */
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #fff; border: 2px solid var(--subject-500);
+  display: flex; align-items: center; justify-content: center;
+  padding: 0; cursor: pointer; color: var(--subject-500);
+}
+.img-zoom-close-btn:hover { background: var(--subject-500); color: #fff; }
+.img-zoom-close-btn:focus-visible { outline: 2px solid var(--subject-700); outline-offset: 2px; }
+.img-zoom-close-btn svg { width: 15px; height: 15px; display: block; }
+.s2-zoom-stage {
+  position: relative;
+  height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+/* While the widget is reparented into the zoom modal, hide the now-
+   empty small frame (including its zoom button, which shouldn't be
+   clickable while its own modal is already open) instead of showing
+   an empty duplicate slot under the translucent backdrop. */
+#s2-img-frame.s2-source-hidden { visibility: hidden; }
+
+/* Standard clone-based zoom modal (#img-zoom-modal) — the generic 660×660
+   spec from _global-components.md. S2's shared-named .img-zoom-panel rule
+   above is actually a screen-specific override (480×640, sized for its
+   widget); this reinstates the documented generic size for every OTHER
+   consumer of the shared classes via ID-scoped override. */
+#img-zoom-modal .img-zoom-panel { width: 660px; height: 660px; padding: 24px; }
+/* `.img-zoom-panel`'s own `align-items:center` means a flex ITEM's height
+   never auto-stretches — the stage needs a DEFINITE height for the img
+   percentage chain below to resolve. */
+/* QA 12.08: adaptive panel — height fills most of the canvas (grows on
+   tall windows), width fits the image; the img drives the chain. */
+#img-zoom-modal .img-zoom-panel { width: auto; height: 88%; max-width: 90%; padding: 24px; }
+#img-zoom-stage { width: auto; height: 100%; display: flex; align-items: center; justify-content: center; }
+#img-zoom-stage .zoom-img-inner { width: auto; height: 100%; }
+#img-zoom-stage img { height: 100%; width: auto; max-width: 100%; object-fit: contain; display: block; }
+
+/* ═══════════════════════════════════════════════════════
+   S1 — scroll acquisition screen (slides 4-9)
+   One continuous scroll: story → recipe (zoom) → single-attempt
+   question → doubling explanation → ratio definition → flip cards.
+   Scrollbar per the approved Figma spec (PopupPage 275:6982):
+   12px, #E9EBEF track, #666769 thumb, physical right via the
+   LTR-container / RTL-inner trick.
+   ═══════════════════════════════════════════════════════ */
+.rs-scroll {
+  position: absolute;
+  inset: 0 0 74px 0;
+  overflow-y: auto;
+  direction: ltr;               /* native scrollbar on the physical right */
+}
+.rs-scroll::-webkit-scrollbar { width: 12px; }
+.rs-scroll::-webkit-scrollbar-track { background: #E9EBEF; border-radius: 100px; }
+.rs-scroll::-webkit-scrollbar-thumb { background: #666769; border-radius: 100px; }
+.rs-scroll { scrollbar-color: #666769 #E9EBEF; scrollbar-width: auto; }
+
+.rs-inner {
+  direction: rtl;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 44px 40px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+}
+.rs-block { display: flex; flex-direction: column; gap: 18px; }
+.rs-title { font-size: 26px; font-weight: 700; color: var(--subject-500); }
+.rs-text  { font-size: 22px; line-height: 1.6; color: #222; }
+
+/* §1 story */
+.rs-story-img {
+  display: block;
+  width: 100%; max-width: 720px;
+  margin: 0 auto;
+  border-radius: 16px;
+  border: 0.5px solid rgba(174, 174, 174, 0.5);
+}
+
+/* §2 recipe — framed portrait image with the shared zoom button */
+.rs-recipe-frame {
+  position: relative;
+  width: 360px;
+  margin: 0 auto;
+  border-radius: 16px;
+  border: 0.5px solid rgba(174, 174, 174, 0.5);
+  background: #fff;
+  padding: 8px;
+}
+.rs-recipe-frame .zoom-img-inner img { width: 100%; display: block; border-radius: 12px; }
+
+/* §3 single-attempt question — pills reuse the shared .scq-opt look;
+   the companion character (detective pose) stands beside the options */
+.rs-question-row { display: flex; gap: 32px; align-items: flex-start; }
+.rs-question-main { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.rs-q-char { width: 180px; flex-shrink: 0; align-self: center; }
+.rs-q-char img { width: 100%; object-fit: contain; display: block; }
+.rs-check { position: static; align-self: flex-start; }
+.rs-feedback {
+  display: none;
+  border-radius: 14px;
+  padding: 14px 20px;
+  font-size: 20px;
+  line-height: 1.5;
+}
+.rs-feedback.is-correct { display: block; background: var(--correct-bg, #EDF8ED); }
+.rs-feedback.is-wrong   { display: block; background: var(--incorrect-bg, #FFF0F4); }
+
+/* §4 doubling explanation — image row with live-text labels */
+.rs-double-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.rs-double-group {
+  display: flex; align-items: flex-end; gap: 12px;
+  padding: 16px;
+  border: 1.5px solid #ececec; border-radius: 16px;
+  background: #fff;
+}
+.rs-double-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.rs-double-item img { height: 110px; object-fit: contain; display: block; }
+.rs-double-label { font-size: 19px; font-weight: 600; color: #222; white-space: nowrap; }
+.rs-double-op { font-size: 34px; font-weight: 700; color: var(--subject-500); }
+
+/* §5 flip cards — FlipCardsReveal (720-templates reference) */
+.rs-cards {
+  display: flex; justify-content: center; gap: 48px;
+  direction: ltr;
+}
+.frc-card {
+  width: 280px; height: 280px;
+  background: none; border: none; padding: 0;
+  cursor: pointer;
+  perspective: 1000px;
+  font-family: inherit;
+}
+.frc-card-inner {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.5s;
+}
+.frc-card.is-flipped .frc-card-inner { transform: rotateY(-180deg); }
+.frc-card-front, .frc-card-back {
+  position: absolute; inset: 0;
+  padding: 14px;
+  border-radius: 16px;
+  border: 2px solid var(--subject-300);
+  background: #fff;
+  backface-visibility: hidden;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px;
+}
+.frc-card-front img {
+  width: 100%; height: 190px;
+  object-fit: cover; object-position: center;
+  border-radius: 12px; display: block;
+}
+.frc-card-front .frc-card-title {
+  font-size: 21px; font-weight: 700; color: #222;
+  text-align: center; direction: rtl;
+}
+.frc-card-back { transform: rotateY(-180deg); background: var(--subject-100); }
+.frc-card-back-content {
+  width: 100%; text-align: center; direction: rtl;
+  font-size: 20px; line-height: 1.45; color: #222;
+}
+.frc-card-back-content strong { display: block; margin-bottom: 6px; }
+.frc-card:focus-visible { outline: 2px solid var(--subject-700); outline-offset: 2px; }
+
+/* S1 flow overrides — the vendored percent-02 question CSS positions
+   .scq-answers absolutely for its fixed quiz screens; inside the scroll
+   flow everything is static and full-width-capped. */
+#s1 .scq-answers, #s4 .scq-answers {
+  position: static;
+  display: flex; flex-direction: column; gap: 12px;
+  width: auto;
+}
+#s1 .scq-opt, #s4 .scq-opt { width: 100%; max-width: 604px; }
+
+/* §2 recipe row — image right (RTL start), doubling text beside it,
+   both under the "השתמשתם במתכון הבא." heading (pptx layout) */
+.rs-recipe-row { display: flex; align-items: center; gap: 36px; }
+.rs-recipe-row .rs-recipe-frame { margin: 0; flex-shrink: 0; }
+.rs-recipe-texts {
+  flex: 1; max-width: 560px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   S2/S3 — standalone MultipleChoiceQuestion (slides 10-11).
+   Stacked layout: intro → bullets → sticker row → question → options.
+   Option pills / mcq checkboxes / popup are the shared vendored
+   percent-02 components above.
+   ═══════════════════════════════════════════════════════ */
+.qs-stack {
+  position: absolute; top: 48px; right: 64px; left: 64px; bottom: 96px;
+  display: flex; flex-direction: column; gap: 14px;
+  direction: rtl;
+}
+.qs-bullets {
+  margin: 0; padding-right: 28px;
+  font-family: 'Assistant', sans-serif; font-size: 22px; color: #222;
+  line-height: 1.45;
+}
+.qs-stickers { width: 640px; max-width: 100%; height: auto; align-self: flex-start; margin: 10px 0; }
+.qs-stickers--small { width: 300px; }
+.qs-qtext { position: static; width: auto; padding-top: 4px; }
+.qs-qsub { font-weight: 400; color: #222; font-size: 22px; }
+/* the vendored .scq-answers base is absolutely positioned — static here */
+#s2 .scq-answers, #s3 .scq-answers {
+  position: static; width: auto;
+  display: flex; flex-direction: column; gap: 10px;
+}
+#s2 .scq-opt, #s3 .scq-opt { min-height: 52px; }
+
+/* stacked-fraction sizing inside option pills / running text */
+.frac {
+  display: inline-flex; flex-direction: column; align-items: center;
+  /* proportionally smaller than the running text, but never below the
+     18px floor (producer rule 16.08.26) */
+  vertical-align: middle; font-size: max(18px, 0.82em); line-height: 1.15;
+  font-weight: 700;
+}
+.frac-num, .frac-den { display: block; padding: 0 3px; }
+.frac-num { border-bottom: 2px solid currentColor; }
+.frac--big { font-size: 44px; }
+
+/* ═══════════════════════════════════════════════════════
+   S4 — scroll screen (slides 12-21) specifics
+   ═══════════════════════════════════════════════════════ */
+.ratio-input-row {
+  display: flex; align-items: center; gap: 12px;
+  margin: 4px 0 0;
+  direction: ltr; justify-content: flex-end;   /* inputs sit at the physical right */
+}
+.ratio-colon {
+  font-family: 'Assistant', sans-serif; font-size: 32px; font-weight: 700;
+  color: #303030;
+}
+.viq-input-box {
+  width: 96px; height: 52px;
+  border: 1.5px solid rgba(174, 174, 174, 0.5); border-radius: 10px;
+  background: #fff;
+  font-family: 'Assistant', sans-serif; font-weight: 700; font-size: 24px;
+  text-align: center; color: #303030;
+}
+.viq-input-box::-webkit-inner-spin-button,
+.viq-input-box::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.viq-input-box { -moz-appearance: textfield; appearance: textfield; }
+.viq-input-box:focus { outline: none; border-color: var(--subject-500); }
+.viq-input-box.correct { border-color: #609e12; }
+.viq-input-box.error   { border-color: #b20010; }
+.viq-input-box:disabled { background: #f7f7f7; color: #303030; opacity: 1; }
+
+.rs-subq { margin-top: 18px; }
+
+/* ── statement assessment (slide 18) ── */
+.saq-rows { display: flex; flex-direction: column; gap: 10px; max-width: 720px; }
+.saq-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 10px 18px;
+  border: 1px solid rgba(174, 174, 174, 0.5); border-radius: 14px;
+  background: #fff;
+}
+.saq-text {
+  font-family: 'Assistant', sans-serif; font-size: 22px; color: #222;
+}
+.saq-toggle { display: flex; gap: 8px; flex-shrink: 0; }
+.saq-pill {
+  min-width: 64px; padding: 6px 18px;
+  border: 1.5px solid rgba(174, 174, 174, 0.6); border-radius: 1000px;
+  background: #fff; color: #303030;
+  font-family: 'Assistant', sans-serif; font-size: 20px; font-weight: 600;
+  cursor: pointer;
+}
+.saq-pill:hover:not(:disabled) { border-color: var(--subject-500); }
+.saq-pill.selected {
+  border-color: var(--subject-500); background: var(--subject-100);
+  color: var(--subject-700);
+}
+.saq-pill:disabled { cursor: default; }
+.saq-row.row-correct  { border-color: #609e12; background: #f4faee; }
+.saq-row.row-wrong    { border-color: #b20010; background: #fff5f5; }
+.saq-row.row-revealed { border-color: #609e12; background: #f4faee; }
+.saq-row.row-revealed .saq-pill.selected { border-color: #609e12; background: #edf8ed; color: #303030; }
+
+/* ── reduction flip cards (slides 19-20): text fronts/backs.
+     Front colours per the client's reference renders (cyan front,
+     near-black back) — not subject-themed by design. ── */
+.rs-cards--text .frc-card { width: 218px; height: 240px; }
+.frc-front--text {
+  display: flex; align-items: center; justify-content: center;
+  background: #00b0f0; color: #fff;
+}
+.frc-front--text .frac--big .frac-num { border-bottom-width: 3px; }
+.frc-ratio {
+  font-family: 'Assistant', sans-serif; font-size: 44px; font-weight: 700;
+  color: #fff;
+}
+.frc-back--text {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; text-align: center;
+  color: #fff;   /* the .frac spans inherit — without this they vanish on the dark back */
+}
+.frc-back--text p {
+  margin: 0;
+  font-size: 19px; line-height: 1.35; color: #fff;
+}
+.frc-ratio-sm { font-size: 24px; font-weight: 700; color: #fff; }
+.rs-cards--text .frc-card-back { background: #262626; }
+
+/* ── slide 14: speech bubble beside the companion character.
+     percent-02 .s1-bubble geometry (241x137 tail-right sprite); here the
+     bubble sits to the character's RIGHT, so the shape is mirrored and
+     the text keeps clear of the LEFT-side tail. ── */
+.rs-char-bubble-group {
+  display: flex; align-items: center; flex-shrink: 0;
+}
+.rs-bubble { position: relative; width: 241px; height: 137px; flex-shrink: 0; }
+.rs-bubble-shape {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  transform: scaleX(-1);
+  display: block;
+}
+.rs-bubble-text {
+  position: absolute;
+  right: 0; left: 6.81%;   /* keep the text clear of the left-side tail */
+  top: 50%; transform: translateY(-50%);
+  padding: 12px;
+  font-family: 'Assistant', sans-serif;
+  font-size: 20px; font-weight: 400; color: #000;
+  text-align: center; direction: rtl; line-height: 1.25;
+}
+
+/* ── tail-down bubble (above the character's head) + vertical group ── */
+.char-bubble-vert {
+  display: flex; flex-direction: column; align-items: center;
+  flex-shrink: 0; gap: 0;
+}
+.rs-bubble--down { width: 216px; height: 110px; }
+.rs-bubble-shape--down { transform: none; }
+.rs-bubble-text--down {
+  left: 0; right: 0;
+  top: calc(50% - 5px);   /* keep clear of the bottom tail */
+  padding: 10px 14px 18px;
+}
+.rs-q-char--sm { width: 180px; height: 180px; }
+.rs-q-char--sm img { width: 100%; height: 100%; object-fit: contain; }
+
+/* ── slide 21: fruit bowl + closing row ── */
+.rs-fruit-img { width: 400px; height: auto; flex-shrink: 0; }
+.rs-closing-row {
+  display: flex; align-items: center; justify-content: center; gap: 40px;
+  margin-top: 28px;
+}
+.rs-closing-text { font-size: 26px; }
+
+/* ═══════════════════════════════════════════════════════
+   S5 — TransitionScreen (slide 22). percent-02 s1-content shape.
+   ═══════════════════════════════════════════════════════ */
+.s1-content {
+  position: absolute; inset: 0 0 74px 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 24px;
+}
+.s1-text {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  text-align: center;
+}
+.s1-title {
+  font-family: 'Assistant', sans-serif; font-size: 40px; font-weight: 700;
+  color: #303030; margin: 0;
+}
+.s1-subtitle {
+  font-family: 'Assistant', sans-serif; font-size: 28px; font-weight: 700;
+  color: #303030; margin: 0;
+}
+.s1-video-wrap { position: relative; width: 640px; height: 360px; flex-shrink: 0; }
+.s5-hug-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+/* shared intro text for question screens (percent-02 .s9-intro) */
+.s9-intro {
+  font-family: 'Assistant', sans-serif;
+  font-size: 22px; font-weight: 400; color: #222;
+  text-align: right; direction: rtl; line-height: 1.4;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Hint button + full-canvas hint overlay (vendored from percent-02,
+   approved) — shared by every question screen that offers a רמז.
+   ═══════════════════════════════════════════════════════ */
+.scq-hint {
+  position: absolute;
+  bottom: 17px; left: 180px;
+  z-index: 12;
+  height: 40px; box-sizing: border-box;   /* Figma 1731:45026 — same pill as continue */
+  min-width: 140px;
+  padding: 0 20px;
+  background: #fff; border: 1px solid var(--subject-700); border-radius: 1000px;
+  color: var(--subject-500);
+  font-family: 'Assistant', sans-serif; font-size: 20px; font-weight: 400;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; direction: rtl;
+}
+.scq-hint-icon { width: 26px; height: 22.288px; flex-shrink: 0; color: var(--subject-500); }
+.scq-hint-overlay {
+  position: absolute; inset: 0;
+  z-index: 60;
+  background: rgba(255, 255, 255, 0.78);
+  display: flex; align-items: center; justify-content: center;
+}
+.scq-hint-overlay.hidden { display: none !important; }
+.scq-hint-popup {
+  background: var(--subject-500); border-radius: 48px;
+  padding: 40px;
+  display: flex; flex-direction: column; align-items: center; gap: 24px;
+  width: 546px; max-width: 92%;
+}
+.scq-hint-text {
+  width: 462px; max-width: 100%; direction: rtl;
+  display: flex; flex-direction: column; gap: 24px;
+  color: #fff;
+}
+.scq-hint-title {
+  width: 100%; text-align: right; position: relative;
+  padding-right: 56px;
+  font-family: 'Assistant', sans-serif; font-weight: 700; font-size: 32px;
+  color: #fff; line-height: normal; margin: 0;
+}
+.scq-hint-title-icon {
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 27.4px; display: block;
+}
+.scq-hint-body {
+  width: 100%; text-align: right;
+  font-family: 'Assistant', sans-serif; font-weight: 400; font-size: 24px;
+  color: #fff; line-height: normal;
+}
+.scq-hint-body p { margin: 0 0 12px; }
+.scq-hint-body p:last-child { margin-bottom: 0; }
+.scq-hint-close {
+  width: 196px; padding: 16px 40px;
+  border: none; border-radius: 1000px; background: #fff;
+  color: #303030;
+  font-family: 'Assistant', sans-serif; font-size: 24px; font-weight: 400;
+  cursor: pointer; white-space: nowrap;
+}
+.scq-hint-close:hover { font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════════
+   Guided Instruction (S6-S10, slides 23-27) — percent-02 S18/S19
+   shells vendored; the hard-coded percent-02 purple is replaced by
+   var(--subject-500) so the card tracks this unit's Math theme.
+   ═══════════════════════════════════════════════════════ */
+.s18-question {
+  position: absolute;
+  top: 40px; left: 0; right: 0;
+  padding: 0 40px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 32px;
+  direction: rtl;
+}
+.s18-title-band {
+  width: 100%; max-width: 1050px; height: 30px;
+  display: flex; align-items: center;
+}
+.s18-title {
+  font-family: 'Assistant', sans-serif;
+  font-size: 40px; font-weight: 700; line-height: 1;
+  color: var(--subject-500);
+  margin: 0; white-space: nowrap;
+}
+.s18-card {
+  width: 700px;
+  border: 3px solid var(--subject-500);
+  border-radius: 24px;
+  padding: 18px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 20px;
+}
+.s18-text-group {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 14px;
+}
+.s18-lead, .s18-scenario, .s18-ask {
+  width: 100%; margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-size: 22px; line-height: 1.3;
+  text-align: right; direction: rtl;
+}
+.s18-lead     { font-weight: 700; color: #303030; }
+.s18-scenario { font-weight: 600; color: #303030; }
+.s18-ask      { font-weight: 700; color: #303030; }   /* producer 12.08: bold black, not Subject/500 */
+.guided-next-note {
+  /* sits below the exercise card, outside the .s18-question flow */
+  position: absolute; right: 40px; top: 560px;
+  width: auto; font-weight: 700;
+}
+
+/* tile strip inside the exercise card */
+.tile-strip-wrap { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.tile-dim {
+  font-family: 'Assistant', sans-serif; font-size: 18px; color: #666;
+  padding-right: 4px;
+}
+.tile-strip { display: flex; direction: ltr; gap: 3px; }
+.tile {
+  width: 49px; height: 46px;
+  background: #efe9df;
+  border: 1px solid #d8cfc0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.tile--decorated { background: none; border-color: #b9c4de; }
+.tile--decorated img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* companion character, bottom-left (slide 23's own placement) */
+.guided-char {
+  position: absolute; left: 8px; bottom: 78px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.guided-char img { width: 196px; height: 196px; object-fit: contain; display: block; }
+
+/* purple step card (left side) */
+.s19-guided-card {
+  position: absolute; left: 30px; top: 130px;
+  width: 461px;
+  box-sizing: border-box;
+  background: var(--subject-500);
+  border-radius: 24px;
+  padding: 26px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 20px;
+  direction: rtl;
+}
+.s19-bulb { width: 28px; height: 28px; flex-shrink: 0; }
+.s19-twxt {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 24px;
+}
+.s19-per1, .s19-per3 {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: flex-start;
+}
+.s19-per1 { gap: 16px; }
+.s19-per3 { gap: 20px; }
+.s19-step-label, .s19-elaboration, .s19-question-line {
+  width: 100%; margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-size: 20px; line-height: 1.3;
+  color: #fff;
+  text-align: right; direction: rtl;
+}
+.s19-step-label, .s19-question-line { font-weight: 700; }
+.s19-elaboration { font-weight: 400; }
+.s19-closing { font-weight: 700; }
+.s19-options {
+  /* two short options sit SIDE BY SIDE, as in the slides (producer 12.08) */
+  width: 100%;
+  display: flex; flex-direction: row; align-items: stretch;
+  gap: 12px;
+}
+.s19-opt {
+  flex: 1; min-width: 0; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #fff;
+  border: none; border-radius: 1000px;
+  cursor: pointer;
+}
+.s19-opt-text {
+  font-family: 'Assistant', sans-serif;
+  font-size: 18px; font-weight: 400;
+  color: var(--subject-500);
+  text-align: right; direction: rtl;
+}
+.s19-opt-badge {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 18px; height: 18px; flex-shrink: 0;
+  border-radius: 50%;
+}
+.s19-opt-badge svg { display: block; }
+.s19-badge-correct svg { width: 10.4px; height: 7.5px; }
+.s19-badge-incorrect svg { width: 10px; height: 10px; }
+.s19-opt:hover:not(:disabled) { background: var(--subject-300); }
+.s19-opt:hover:not(:disabled) .s19-opt-text { font-weight: 600; }
+.s19-opt.correct, .s19-opt.incorrect { background: var(--subject-300); }
+.s19-opt.correct .s19-opt-text, .s19-opt.incorrect .s19-opt-text { font-weight: 600; }
+.s19-opt.correct .s19-badge-correct { display: flex; background: #609e12; border: 2px solid #609e12; }
+.s19-opt.incorrect .s19-badge-incorrect { display: flex; background: #b20010; border: 2px solid #b20010; }
+.s19-opt:disabled { cursor: default; }
+
+/* ═══════════════════════════════════════════════════════
+   Question-progress strip (practice screens, slides 31-36):
+   6 stations "שאלה N" — done-correct ✓ / done-wrong ✕ / current /
+   future, per the script's own reference strip.
+   ═══════════════════════════════════════════════════════ */
+.qprog {
+  position: absolute; top: 34px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: flex-start;
+  direction: rtl;
+}
+.qprog-station {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  width: 96px;
+}
+.qprog-dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-sizing: border-box;
+  background: #f1f1f3; border: 2px solid #d5d6da;
+  position: relative;
+}
+.qprog-dot::after {
+  content: ''; width: 8px; height: 8px; border-radius: 50%;
+  background: #c9cad0;
+}
+.qprog-station.is-current .qprog-dot { background: #fff; border-color: var(--subject-500); }
+.qprog-station.is-current .qprog-dot::after { background: var(--subject-500); }
+.qprog-station.is-correct .qprog-dot,
+.qprog-station.is-wrong  .qprog-dot { background: var(--subject-500); border-color: var(--subject-500); }
+.qprog-station.is-correct .qprog-dot::after,
+.qprog-station.is-wrong  .qprog-dot::after { display: none; }
+.qprog-dot svg { width: 12px; height: 12px; display: none; }
+.qprog-station.is-correct .qprog-dot svg.qp-tick { display: block; }
+.qprog-station.is-wrong   .qprog-dot svg.qp-x    { display: block; }
+.qprog-label {
+  font-family: 'Assistant', sans-serif; font-size: 18px; color: #b9bac0;
+  white-space: nowrap;
+}
+.qprog-station.is-current .qprog-label { color: #303030; font-weight: 700; }
+.qprog-station.is-correct .qprog-label,
+.qprog-station.is-wrong   .qprog-label { color: #303030; }
+.qprog-line {
+  height: 2px; width: 64px; margin: 12px -16px 0;
+  background: #d5d6da;
+}
+.qprog-line.is-done { background: var(--subject-500); }
+.qs-stack--prog { top: 84px; }
+
+/* mid-size side image (chocolate) */
+.scq-img--mid { width: 380px; height: 300px; padding: 0; }
+.scq-img--mid .zoom-img-inner, .scq-img--mid .zoom-img-inner img {
+  width: 100%; height: 100%; object-fit: contain;
+}
+/* practice screens sit under the progress strip — pull the question
+   block up from the base 139px */
+#s15 .scq-question, #s16 .scq-question,
+#s17 .scq-question, #s18 .scq-question, #s19 .scq-question { top: 100px; }
+.s2-right-col {
+  position: absolute; right: 0; top: 0;
+  width: 785px;
+  display: flex; flex-direction: column; gap: 14px;
+  direction: rtl;
+}
+.s2-right-col .scq-qtext, .qs-qtext {
+  /* the vendored base is display:flex-column, which turns every inline
+     span into its own row — block restores natural line flow */
+  display: block;
+  position: static; width: auto; padding-top: 0;
+}
+.qs-stack .scq-answers, .s2-right-col .scq-answers {
+  /* structural override for EVERY stacked/side-column question screen:
+     static flow; the group shrinks to its WIDEST pill and every pill
+     stretches to match — uniform width per slide (producer 12.08) */
+  position: static;
+  width: fit-content; max-width: 100%;
+  display: flex; flex-direction: column; gap: 10px;
+  align-items: stretch;
+  margin-right: 0;   /* group hugs the physical right via the RTL column */
+}
+.qs-stack .scq-opt, .s2-right-col .scq-opt {
+  width: auto;
+  white-space: nowrap;
+}
+/* long statement options may wrap — nowrap only where lines are short */
+#s29 .scq-opt, #s34 .scq-opt, #s36 .scq-opt { white-space: normal; }
+
+/* pizzas (S14) */
+.pizza-row { display: flex; gap: 56px; justify-content: flex-start; margin: 2px 0; }
+.pizza-fig { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.pizza-fig img { width: 168px; height: 168px; display: block; }
+.pizza-fig figcaption {
+  font-family: 'Assistant', sans-serif; font-size: 24px; font-weight: 700; color: #303030;
+}
+.dq-rows { display: flex; flex-direction: column; gap: 10px; }
+.dq-row {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Assistant', sans-serif; font-size: 20px; color: #222;
+}
+.dq-text { line-height: 1.3; }
+.dq-select {
+  min-width: 84px; height: 40px;
+  border: 1.5px solid rgba(174, 174, 174, 0.6); border-radius: 10px;
+  background: #fff;
+  font-family: 'Assistant', sans-serif; font-size: 20px; font-weight: 700; color: #303030;
+  text-align: center; cursor: pointer; direction: rtl;
+}
+.dq-select:focus { outline: none; border-color: var(--subject-500); }
+.dq-select.correct { border-color: #609e12; background: #f4faee; }
+.dq-select.error   { border-color: #b20010; background: #fff5f5; }
+.dq-select:disabled { cursor: default; opacity: 1; }
+
+/* chocolate price rows (S16) */
+.viq-rows { display: flex; flex-direction: column; gap: 9px; max-width: 560px; }
+.viq-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  font-family: 'Assistant', sans-serif; font-size: 20px; color: #222;
+}
+.viq-row-label { line-height: 1.3; }
+.viq-row-input { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.viq-row .viq-input-box { width: 84px; height: 40px; font-size: 22px; }
+.viq-unit { font-size: 20px; color: #222; }
+
+/* bouquet applet (S17/S18/S19) */
+.bouquet-stage {
+  position: absolute; left: 0; top: 0;
+  width: 380px; height: 380px;
+}
+.bouquet-wreath { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bouquet-flowers { position: absolute; inset: 0; }
+.bouquet-flowers img {
+  position: absolute; width: 52px; height: 52px;
+  transform: translate(-50%, -50%);
+}
+.bq-controls {
+  display: flex; flex-direction: column; gap: 14px;
+  margin-top: 6px;
+}
+.bq-ctrl-row { display: flex; align-items: center; gap: 10px; }
+.bq-btn {
+  min-width: 116px; padding: 8px 14px;
+  border: 1.5px solid var(--subject-500); border-radius: 1000px;
+  background: #fff; color: var(--subject-500);
+  font-family: 'Assistant', sans-serif; font-size: 18px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+}
+.bq-btn:hover:not(:disabled) { background: var(--subject-100); }
+.bq-btn:disabled { opacity: 0.45; cursor: default; }
+.bq-count {
+  min-width: 52px; height: 42px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px solid rgba(174, 174, 174, 0.6); border-radius: 10px;
+  font-family: 'Assistant', sans-serif; font-size: 22px; font-weight: 700; color: #303030;
+  background: #fff;
+}
+.bq-count.correct { border-color: #609e12; background: #f4faee; }
+.bq-count.error   { border-color: #b20010; background: #fff5f5; }
+.bq-ctrl-label {
+  font-family: 'Assistant', sans-serif; font-size: 18px; color: #222;
+}
+
+/* transition extras (S13) */
+.s13-pre, .s13-mid {
+  font-family: 'Assistant', sans-serif; font-size: 24px;
+  color: #303030; margin: 0;
+}
+.s13-pre { font-weight: 400; }
+.s13-mid { font-weight: 400; }
+.s13-char-wrap { height: 320px; }
+/* bubble LEFT of the character, tail (unmirrored sprite) pointing right
+   at the monster — slide 30's own wedgeRectCallout placement */
+.s13-bubble {
+  position: absolute; left: 16px; top: 56px;
+  width: 241px; height: 137px;
+}
+.s13-bubble .rs-bubble-shape { transform: none; }
+.s13-bubble .rs-bubble-text { left: 0; right: 6.81%; }
+
+/* ═══════════════════════════════════════════════════════
+   Part-02+ screens (slides 38-56)
+   ═══════════════════════════════════════════════════════ */
+/* ratio exercises (reduce/expand rows) — LTR math after the Hebrew letter */
+.ratio-ex-rows { display: flex; flex-direction: column; gap: 14px; }
+.ratio-ex-row { display: flex; align-items: center; gap: 14px; }
+.ratio-ex-letter {
+  font-family: 'Assistant', sans-serif; font-size: 22px; font-weight: 700;
+  color: #303030; min-width: 26px;
+}
+.ratio-ex {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'Assistant', sans-serif; font-size: 24px; font-weight: 600;
+  color: #303030;
+}
+/* fixed-width given-ratio segment → the =, boxes and colons align as
+   columns across all rows (producer 12.08) */
+.ratio-ex-given { display: inline-block; min-width: 104px; text-align: left; }
+.viq-input-box.viq-sm { width: 72px; height: 42px; font-size: 22px; }
+
+/* S22: character + "עכשיו הפוך!" callout at the left of the rows */
+.s22-char-group {
+  position: absolute; left: 40px; bottom: 110px;
+  display: flex; align-items: center; direction: ltr; gap: 0;
+}
+.rs-bubble--beside { position: relative; width: 220px; height: 120px; flex-shrink: 0; }
+
+
+/* recipe-for-30 card bits */
+.recipe30-title {
+  margin: 0 0 2px;
+  font-family: 'Assistant', sans-serif; font-size: 20px; font-weight: 700;
+  color: var(--subject-500);
+}
+.viq-given {
+  min-width: 72px; height: 42px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px solid #609e12; border-radius: 10px; background: #f4faee;
+  font-family: 'Assistant', sans-serif; font-size: 22px; font-weight: 700; color: #303030;
+}
+.scq-img--tall { width: 340px; height: 430px; padding: 0; }
+.scq-img--tall .zoom-img-inner, .scq-img--tall .zoom-img-inner img {
+  width: 100%; height: 100%; object-fit: contain;
+}
+
+/* light data table (desserts / water amounts) */
+.data-table {
+  border-collapse: collapse;
+  font-family: 'Assistant', sans-serif; font-size: 19px; color: #222;
+  background: #fff;
+  align-self: flex-start;
+}
+.data-table th, .data-table td {
+  border: 1px solid #c9ced8;
+  padding: 7px 16px;
+  text-align: center;
+}
+.data-table thead th {
+  background: var(--subject-100);
+  font-weight: 700; color: #303030;
+}
+.data-table tbody td:first-child { font-weight: 600; text-align: right; }
+.data-table--wide { font-size: 20px; }
+.data-table--wide th, .data-table--wide td { padding: 10px 20px; }
+.s29-flex { display: flex; gap: 48px; align-items: flex-start; }
+.s29-flex .qcol { display: flex; flex-direction: column; gap: 12px; }
+
+/* class task (slides 50-51) */
+.task-card {
+  width: 760px;
+  border: 3px solid var(--subject-500); border-radius: 24px;
+  padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.task-inputs { display: flex; flex-direction: column; gap: 14px; max-width: 560px; }
+.task-input {
+  height: 48px; padding: 0 18px;
+  border: 1.5px solid rgba(174, 174, 174, 0.6); border-radius: 12px;
+  background: #fff;
+  font-family: 'Assistant', sans-serif; font-size: 22px; color: #303030;
+  direction: rtl;
+}
+.task-input:focus { outline: none; border-color: var(--subject-500); }
+.s13-bubble--wide { width: 265px; height: 150px; }
+
+/* ═══════════════════════════════════════════════════════
+   Peak question + finale (slides 57-65)
+   ═══════════════════════════════════════════════════════ */
+.s37-content { gap: 16px; }
+.s37-content .s13-pre { font-size: 22px; }
+
+/* scenario screens — full-bleed photo + overlay text card */
+.scene-bg { position: absolute; inset: 0 0 74px 0; overflow: hidden; }
+.scene-bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scene-card {
+  position: absolute; top: 64px; right: 60px;
+  width: 620px;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 20px;
+  padding: 24px 28px;
+  display: flex; flex-direction: column; gap: 14px;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.25);
+}
+.scene-title {
+  margin: 0;
+  font-family: 'Assistant', sans-serif; font-size: 24px; font-weight: 700;
+  color: var(--subject-500); line-height: 1.3;
+}
+.scene-text {
+  margin: 0;
+  font-family: 'Assistant', sans-serif; font-size: 22px; font-weight: 400;
+  color: #222; line-height: 1.4;
+}
+
+/* graph side image + axis labels */
+.scq-img--graph { width: 400px; height: 420px; padding: 0; }
+.scq-img--graph .zoom-img-inner, .scq-img--graph .zoom-img-inner img {
+  width: 100%; height: 100%; object-fit: contain;
+}
+.graph-axis-y {
+  position: absolute; top: -4px; left: 6px;
+  font-family: 'Assistant', sans-serif; font-size: 18px; font-weight: 600; color: #38506b;
+  direction: rtl;
+}
+.graph-axis-x {
+  position: absolute; bottom: -2px; right: -6px;
+  font-family: 'Assistant', sans-serif; font-size: 18px; font-weight: 600; color: #38506b;
+  direction: rtl;
+}
+
+/* graph-choice cards (slide 62) */
+.graph-cards { display: flex; gap: 32px; margin-top: 6px; }
+.graph-card {
+  position: relative;
+  width: 268px; padding: 14px 12px 8px;
+  background: #fff;
+  border: 2px solid var(--subject-500); border-radius: 18px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer;
+}
+.graph-card img { width: 100%; height: auto; display: block; }
+.graph-card-letter {
+  font-family: 'Assistant', sans-serif; font-size: 24px; font-weight: 700; color: #303030;
+}
+.graph-card .mcq-check { position: absolute; top: 10px; right: 10px; }
+.graph-card:focus-visible { outline: 3px solid var(--subject-350); outline-offset: 2px; }
+.graph-card.selected { background: var(--subject-100); }
+.graph-card.correct  { border-color: #609e12; background: #f4faee; }
+.graph-card.wrong    { border-color: #b20010; background: #fff5f5; }
+.graph-card:disabled { cursor: default; }
+
+/* ═══════════════════════════════════════════════════════
+   Click-gesture hint — Figma "Desktop Click Hint" (2852:21114):
+   static cursor; Ripple Ring 1/2 + 8 spark dots carry the 2s looping
+   timeline (keyframes taken verbatim from the Figma motion data).
+   Used on S1: over the first flip card (2881:25530 placement) and
+   beside the scrollbar with a slow drag-down drift (2808:22566 /
+   Cursor Drag 2904:27290 — click bursts along a vertical path).
+   ═══════════════════════════════════════════════════════ */
+.click-hint {
+  position: absolute;
+  width: 300px; height: 300px;
+  pointer-events: none;
+  z-index: 20;
+}
+.click-hint.hidden { display: none !important; }
+.click-hint__ripple1 {
+  position: absolute; left: 95px; top: 95px; width: 110px; height: 110px;
+  animation: hintR1Op 2s linear infinite, hintR1Scale 2s linear infinite;
+}
+.click-hint__ripple2 {
+  position: absolute; left: 136px; top: 136px; width: 28px; height: 28px;
+  animation: hintR2Op 2s linear infinite, hintR2Scale 2s linear infinite;
+}
+.click-hint__spark {
+  position: absolute; left: 148px; top: 148px; width: 5px; height: 5px;
+  animation: hintSparkOp 2s linear infinite, hintSparkMove 2s linear infinite;
+  animation-delay: var(--d, 0ms);
+}
+.click-hint__cursor {
+  position: absolute; left: 148px; top: 149px; width: 21.5px; height: 33px;
+}
+.click-hint img { width: 100%; height: 100%; display: block; }
+
+@keyframes hintR1Op {
+  0%   { animation-timing-function: cubic-bezier(0.2, 0.4, 0.4, 1); opacity: 0; }
+  5%   { animation-timing-function: ease-out; opacity: 0.85; }
+  35%  { animation-timing-function: ease-out; opacity: 0.65; }
+  45%  { animation-timing-function: cubic-bezier(0.6, 0, 1, 1); opacity: 0.35; }
+  50%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+@keyframes hintR1Scale {
+  0%    { animation-timing-function: cubic-bezier(0.2, 0.4, 0.4, 1); scale: 0.05 0.05; }
+  7.5%  { animation-timing-function: ease-out; scale: 0.22 0.22; }
+  22.5% { animation-timing-function: ease-out; scale: 0.6 0.6; }
+  37.5% { animation-timing-function: ease-out; scale: 0.85 0.85; }
+  50%   { scale: 1 1; }
+  100%  { scale: 1 1; }
+}
+@keyframes hintR2Op {
+  0%   { animation-timing-function: cubic-bezier(0.05, 0.9, 0.1, 1); opacity: 0; }
+  3%   { animation-timing-function: cubic-bezier(0.4, 0, 1, 1); opacity: 0.75; }
+  10%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+@keyframes hintR2Scale {
+  0%   { animation-timing-function: cubic-bezier(0.05, 0.9, 0.1, 1); scale: 0.2 0.2; }
+  3%   { animation-timing-function: cubic-bezier(0.4, 0, 1, 1); scale: 1 1; }
+  10%  { scale: 1.1 1.1; }
+  100% { scale: 1.1 1.1; }
+}
+@keyframes hintSparkOp {
+  0%    { animation-timing-function: cubic-bezier(0.05, 0.9, 0.1, 1); opacity: 0; }
+  8.5%  { animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); opacity: 0.9; }
+  30%   { animation-timing-function: cubic-bezier(0.4, 0, 1, 1); opacity: 0.7; }
+  47.5% { opacity: 0; }
+  100%  { opacity: 0; }
+}
+@keyframes hintSparkMove {
+  0%    { animation-timing-function: cubic-bezier(0.05, 0.9, 0.1, 1); translate: 0 0; }
+  8.5%  { animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          translate: calc(var(--dx, 0px) * 0.725) calc(var(--dy, 0px) * 0.725); }
+  24%   { translate: var(--dx, 0px) var(--dy, 0px); }
+  100%  { translate: var(--dx, 0px) var(--dy, 0px); }
+}
+
+/* S1 placements */
+#s1-hint-cards, #s4-hint-cards {
+  /* centered over the FIRST card (rightmost in RTL — physically last in
+     the LTR .rs-cards row); positioned by JS against the card */
+  margin: 0;
+}
+#s1-hint-scroll, #s4-hint-scroll {
+  /* beside the scrollbar, upper right of the viewport-fixed screen area,
+     drifting down like the Cursor Drag path */
+  right: 18px; top: 60px;
+  animation: hintDrift 4s ease-in-out infinite;
+}
+@keyframes hintDrift {
+  0%, 15%  { transform: translateY(0); }
+  60%, 70% { transform: translateY(90px); }
+  100%     { transform: translateY(0); }
+}
+/* the drift wrapper positions its right edge near the bar; the hint frame
+   is 300px wide so pull it so the cursor (center) sits by the scrollbar */
+#s1-hint-scroll, #s4-hint-scroll { right: -135px; }   /* anchor (cursor tip) lands on the scrollbar */
+
+@media (prefers-reduced-motion: reduce) {
+  .click-hint { display: none !important; }
+}
+
+/* ═══ unit.css ═══ */
+/* methodica-math-ratio-02 — unit-specific styles on top of the
+   vendored engine stylesheet (style.css). */
+
+/* S1 — battery chat card (built per the WhatsApp-style reference) */
+.chat-card {
+  position: absolute; left: 20px; top: 0;
+  width: 360px;
+  border: 3px solid rgba(201, 206, 216, 0.6); border-radius: 22px;
+  overflow: hidden;
+  background: #efe7dc;
+  font-family: 'Assistant', sans-serif;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.10);
+}
+.chat-head {
+  background: #075e54; color: #fff;
+  padding: 12px 18px;
+  font-size: 20px; font-weight: 700;
+}
+.chat-head .chat-sub {
+  display: block;
+  font-size: 18px; font-weight: 400; opacity: 0.85;
+}
+.chat-body { padding: 16px 14px 20px; display: flex; flex-direction: column; gap: 10px; }
+.chat-msg {
+  background: #fff; border-radius: 12px;
+  padding: 8px 12px 10px;
+  max-width: 85%;
+  align-self: flex-start;
+  font-size: 18px; color: #222;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}
+.chat-msg--self { background: #d9fdd3; align-self: flex-end; }
+.chat-name {
+  display: block;
+  font-size: 18px; font-weight: 700; color: var(--subject-500);
+  margin-bottom: 2px;
+}
+
+/* S2 — staged reveal */
+.reveal-text, .reveal-char {
+  opacity: 0; transform: translateY(14px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-text.is-shown, .reveal-char.is-shown { opacity: 1; transform: none; }
+.reveal-text { display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
+.s2-bubble-wide { width: 340px; height: 170px; }
+.s2-bubble-wide .rs-bubble-text--down { font-size: 20px; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal-text, .reveal-char { transition: none; }
+}
+
+/* S3 — expression table */
+.expr-table { max-width: 760px; }
+.expr-table td { text-align: right; }
+.expr-table tbody td:first-child { white-space: nowrap; font-weight: 700; }
+.expr-table .row-hl td { background: var(--subject-100); }
+
+/* class-groups art beside the part-to-whole text */
+.rs-groups-img {
+  width: 420px; height: auto; flex-shrink: 0;
+  border-radius: 14px;
+}
+
+/* trophy comparison (stretched SVG shows the distortion) */
+.cup-row { display: flex; align-items: flex-end; gap: 44px; margin: 8px 0 4px; flex-shrink: 0; }
+/* beside-the-text layout: slightly smaller cups so the row fits */
+.rs-question-row .cup-row .cup-box { transform-origin: bottom; }
+.rs-question-row .cup-row { transform: scale(0.88); transform-origin: bottom left; }
+.cup-fig { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.cup-box img { width: 100%; height: 100%; display: block; }
+.cup-fig figcaption {
+  font-family: 'Assistant', sans-serif; font-size: 18px; color: #303030;
+  text-align: center; line-height: 1.35;
+}
+
+/* keep/doesn't-keep badge on the flip-card backs */
+.keep-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 1000px;
+  font-size: 18px; font-weight: 700;
+}
+.keep-badge--yes { background: #3f7d1c; color: #fff; }
+.keep-badge--no  { background: #b20010; color: #fff; }
+.rs-cards--text .frc-card { width: 272px; height: 300px; }
+#s3 .rs-cards { justify-content: center; width: 100%; gap: 12px; }
+#s3 .frc-back--text { gap: 6px; padding: 10px 6px 8px; justify-content: flex-start; }
+#s3 .frc-back--text p { font-size: 18px; line-height: 1.3; text-align: center; }
+#s3 .frc-back--text span[dir="ltr"] { white-space: nowrap; }
+#s3 .frc-back-title { font-size: 19px; text-align: center; }
+#s3 .keep-badge { margin-top: auto; font-size: 18px; }
+
+/* click-hints for this unit's scroll screen (engine rules are id-scoped) */
+#s3-hint-cards { margin: 0; }
+#s3-hint-scroll {
+  right: -135px; top: 60px;
+  animation: hintDrift 4s ease-in-out infinite;
+}
+
+/* thick-border emphasis for the fraction row (second table) */
+.expr-table .row-hl td {
+  background: var(--subject-100);
+  border-top: 3px solid var(--subject-500);
+  border-bottom: 3px solid var(--subject-500);
+}
+.expr-table .row-hl td:first-child { border-right: 3px solid var(--subject-500); }
+.expr-table .row-hl td:last-child  { border-left: 3px solid var(--subject-500); }
+
+/* §4: the class-groups art sits ABOVE its text */
+.groups-stack { display: flex; flex-direction: column; gap: 16px; }
+.groups-stack .rs-groups-img { align-self: center; width: 560px; }
+
+/* numbered subgroups (slide 7) */
+.subgroup-list {
+  margin: 0; padding-right: 28px;
+  font-family: 'Assistant', sans-serif; font-size: 22px; color: #222;
+  line-height: 1.5; font-weight: 600;
+}
+
+/* section separation: the keep-the-ratio story starts well clear of the
+   previous section's character (no two monsters in one viewport) */
+.rs-spaced-top { margin-top: 150px; }
+
+/* slide 16: only the first line is bold — the engine subtitle is bold
+   by default, this slide's second line is regular */
+#s4 .s1-subtitle { font-weight: 400; }
+
+/* flip-card back titles (כפל: / חילוק: / ...) per slide 14 */
+.frc-back-title {
+  margin: 0;
+  font-size: 21px; font-weight: 700; color: #fff;
+  width: 100%; text-align: right;
+}
+.frc-back--text { justify-content: flex-start; padding-top: 6px; }
+.frc-back--text p { text-align: right; }
+
+/* ═══════════════════════════════════════════════════════
+   Guided Instruction (S6-S10, slides 23-27) — percent-02 S18/S19
+   shells vendored; the hard-coded percent-02 purple is replaced by
+   var(--subject-500) so the card tracks this unit's Math theme.
+   ═══════════════════════════════════════════════════════ */
+.s18-question {
+  position: absolute;
+  top: 40px; left: 0; right: 0;
+  padding: 0 40px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 32px;
+  direction: rtl;
+}
+.s18-title-band {
+  width: 100%; max-width: 1050px; height: 30px;
+  display: flex; align-items: center;
+}
+.s18-title {
+  font-family: 'Assistant', sans-serif;
+  font-size: 40px; font-weight: 700; line-height: 1;
+  color: var(--subject-500);
+  margin: 0; white-space: nowrap;
+}
+.s18-card {
+  width: 700px;
+  border: 3px solid var(--subject-500);
+  border-radius: 24px;
+  padding: 18px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 20px;
+}
+.s18-text-group {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 14px;
+}
+.s18-lead, .s18-scenario, .s18-ask {
+  width: 100%; margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-size: 22px; line-height: 1.3;
+  text-align: right; direction: rtl;
+}
+.s18-lead     { font-weight: 700; color: #303030; }
+.s18-scenario { font-weight: 600; color: #303030; }
+.s18-ask      { font-weight: 700; color: #303030; }   /* producer 12.08: bold black, not Subject/500 */
+.guided-next-note {
+  /* sits below the exercise card, outside the .s18-question flow */
+  position: absolute; right: 40px; top: 560px;
+  width: auto; font-weight: 700;
+}
+
+/* tile strip inside the exercise card */
+.tile-strip-wrap { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.tile-dim {
+  font-family: 'Assistant', sans-serif; font-size: 18px; color: #666;
+  padding-right: 4px;
+}
+.tile-strip { display: flex; direction: ltr; gap: 3px; }
+.tile {
+  width: 49px; height: 46px;
+  background: #efe9df;
+  border: 1px solid #d8cfc0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.tile--decorated { background: none; border-color: #b9c4de; }
+.tile--decorated img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* companion character, bottom-left (slide 23's own placement) */
+.guided-char {
+  position: absolute; left: 8px; bottom: 78px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.guided-char img { width: 196px; height: 196px; object-fit: contain; display: block; }
+
+/* purple step card (left side) */
+.s19-guided-card {
+  position: absolute; left: 30px; top: 130px;
+  width: 461px;
+  box-sizing: border-box;
+  background: var(--subject-500);
+  border-radius: 24px;
+  padding: 26px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 20px;
+  direction: rtl;
+}
+.s19-bulb { width: 28px; height: 28px; flex-shrink: 0; }
+.s19-twxt {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 24px;
+}
+.s19-per1, .s19-per3 {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: flex-start;
+}
+.s19-per1 { gap: 16px; }
+.s19-per3 { gap: 20px; }
+.s19-step-label, .s19-elaboration, .s19-question-line {
+  width: 100%; margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-size: 20px; line-height: 1.3;
+  color: #fff;
+  text-align: right; direction: rtl;
+}
+.s19-step-label, .s19-question-line { font-weight: 700; }
+.s19-elaboration { font-weight: 400; }
+.s19-closing { font-weight: 700; }
+.s19-options {
+  /* two short options sit SIDE BY SIDE, as in the slides (producer 12.08) */
+  width: 100%;
+  display: flex; flex-direction: row; align-items: stretch;
+  gap: 12px;
+}
+.s19-opt {
+  flex: 1; min-width: 0; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #fff;
+  border: none; border-radius: 1000px;
+  cursor: pointer;
+}
+.s19-opt-text {
+  font-family: 'Assistant', sans-serif;
+  font-size: 18px; font-weight: 400;
+  color: var(--subject-500);
+  text-align: right; direction: rtl;
+}
+.s19-opt-badge {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 18px; height: 18px; flex-shrink: 0;
+  border-radius: 50%;
+}
+.s19-opt-badge svg { display: block; }
+.s19-badge-correct svg { width: 10.4px; height: 7.5px; }
+.s19-badge-incorrect svg { width: 10px; height: 10px; }
+.s19-opt:hover:not(:disabled) { background: var(--subject-300); }
+.s19-opt:hover:not(:disabled) .s19-opt-text { font-weight: 600; }
+.s19-opt.correct, .s19-opt.incorrect { background: var(--subject-300); }
+.s19-opt.correct .s19-opt-text, .s19-opt.incorrect .s19-opt-text { font-weight: 600; }
+.s19-opt.correct .s19-badge-correct { display: flex; background: #609e12; border: 2px solid #609e12; }
+.s19-opt.incorrect .s19-badge-incorrect { display: flex; background: #b20010; border: 2px solid #b20010; }
+.s19-opt:disabled { cursor: default; }
+
+
+/* ═══════════════════════════════════════════════════════
+   Question-progress strip (practice screens, slides 31-36):
+   6 stations "שאלה N" — done-correct ✓ / done-wrong ✕ / current /
+   future, per the script's own reference strip.
+   ═══════════════════════════════════════════════════════ */
+.qprog {
+  position: absolute; top: 34px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: flex-start;
+  direction: rtl;
+}
+.qprog-station {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  width: 96px;
+}
+.qprog-dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-sizing: border-box;
+  background: #f1f1f3; border: 2px solid #d5d6da;
+  position: relative;
+}
+.qprog-dot::after {
+  content: ''; width: 8px; height: 8px; border-radius: 50%;
+  background: #c9cad0;
+}
+.qprog-station.is-current .qprog-dot { background: #fff; border-color: var(--subject-500); }
+.qprog-station.is-current .qprog-dot::after { background: var(--subject-500); }
+.qprog-station.is-correct .qprog-dot,
+.qprog-station.is-wrong  .qprog-dot { background: var(--subject-500); border-color: var(--subject-500); }
+.qprog-station.is-correct .qprog-dot::after,
+.qprog-station.is-wrong  .qprog-dot::after { display: none; }
+.qprog-dot svg { width: 12px; height: 12px; display: none; }
+.qprog-station.is-correct .qprog-dot svg.qp-tick { display: block; }
+.qprog-station.is-wrong   .qprog-dot svg.qp-x    { display: block; }
+.qprog-label {
+  font-family: 'Assistant', sans-serif; font-size: 18px; color: #b9bac0;
+  white-space: nowrap;
+}
+.qprog-station.is-current .qprog-label { color: #303030; font-weight: 700; }
+.qprog-station.is-correct .qprog-label,
+.qprog-station.is-wrong   .qprog-label { color: #303030; }
+.qprog-line {
+  height: 2px; width: 64px; margin: 12px -16px 0;
+  background: #d5d6da;
+}
+.qprog-line.is-done { background: var(--subject-500); }
+.qs-stack--prog { top: 84px; }
+
+
+/* ── statement assessment (slide 18) ── */
+.saq-rows { display: flex; flex-direction: column; gap: 10px; max-width: 720px; }
+.saq-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 10px 18px;
+  border: 1px solid rgba(174, 174, 174, 0.5); border-radius: 14px;
+  background: #fff;
+}
+.saq-text {
+  font-family: 'Assistant', sans-serif; font-size: 22px; color: #222;
+}
+.saq-toggle { display: flex; gap: 8px; flex-shrink: 0; }
+.saq-pill {
+  min-width: 64px; padding: 6px 18px;
+  border: 1.5px solid rgba(174, 174, 174, 0.6); border-radius: 1000px;
+  background: #fff; color: #303030;
+  font-family: 'Assistant', sans-serif; font-size: 20px; font-weight: 600;
+  cursor: pointer;
+}
+.saq-pill:hover:not(:disabled) { border-color: var(--subject-500); }
+.saq-pill.selected {
+  border-color: var(--subject-500); background: var(--subject-100);
+  color: var(--subject-700);
+}
+.saq-pill:disabled { cursor: default; }
+.saq-row.row-correct  { border-color: #609e12; background: #f4faee; }
+.saq-row.row-wrong    { border-color: #b20010; background: #fff5f5; }
+.saq-row.row-revealed { border-color: #609e12; background: #f4faee; }
+.saq-row.row-revealed .saq-pill.selected { border-color: #609e12; background: #edf8ed; color: #303030; }
+
+
+/* ── unit-02 practice specifics ── */
+.scq-question { position: absolute; top: 110px; right: 40px; width: 1188px; height: auto; }
+.scq-img--mid { width: 380px; height: 330px; padding: 0; }
+.scq-img--mid .zoom-img-inner, .scq-img--mid .zoom-img-inner img {
+  width: 100%; height: 100%; object-fit: contain;
+}
+.qs-stack {
+  position: absolute; top: 96px; right: 64px; left: 64px; bottom: 96px;
+  display: flex; flex-direction: column; gap: 14px; direction: rtl;
+}
+.qs-stack--prog { top: 100px; }
+.qs-qtext { position: static; width: auto; padding-top: 4px; }
+.qs-qsub { font-weight: 400; color: #222; font-size: 20px; }
+/* fill-in-the-sentence rows (pptx slides 54/56): the box sits INSIDE the
+   sentence where the blank is, not on a row of its own */
+.qs-fill {
+  margin: 0; font-family: 'Assistant', sans-serif;
+  font-size: 20px; font-weight: 400; color: #222;
+  line-height: 2.2; direction: rtl;
+}
+.viq-input-box.viq-inline {
+  width: 76px; height: 40px; font-size: 22px;
+  vertical-align: middle; margin: 0 6px;
+}
+.qs-stack .scq-answers, .s2-right-col .scq-answers {
+  position: static; width: fit-content; max-width: 100%;
+  display: flex; flex-direction: column; gap: 10px; align-items: stretch;
+}
+#s17 .scq-opt, #s18 .scq-opt, #s22 .scq-opt, #s23 .scq-opt { white-space: normal; }
+/* screens whose pptx slide carries no picture: the question fills the full
+   canvas width instead of leaving the image column empty */
+#s22 .s2-right-col, #s42 .s2-right-col, #s44 .s2-right-col,
+#s45 .s2-right-col, #s46 .s2-right-col, #s49 .s2-right-col { width: 1188px; }
+#s22 .scq-question { top: 170px; }
+#s22 .s2-right-col .scq-answers { align-self: stretch; }
+.viq-input-box.viq-sm { width: 76px; height: 44px; font-size: 22px; }
+.viq-input-box.viq-xs {
+  width: 58px; height: 34px; font-size: 18px; border-radius: 8px;
+}
+.viq-unit { font-family: 'Assistant', sans-serif; font-size: 20px; color: #222; }
+.ratio-colon { font-family: 'Assistant', sans-serif; font-size: 30px; font-weight: 700; color: #303030; }
+.ratio-input-row { display: flex; align-items: center; gap: 10px; direction: ltr; justify-content: flex-end; }
+/* fraction with two input boxes (slide 36 part א) */
+.frac--input {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 6px;
+  font-size: inherit;
+}
+.frac--input .frac-num, .frac--input .frac-den { border: none; padding: 0; display: block; }
+.frac--input .frac-num { border-bottom: 3px solid #303030; padding-bottom: 6px; }
+.frac--input .frac-den { padding-top: 6px; }
+#s24 .ratio-input-row { justify-content: flex-end; padding-left: 24px; }
+
+/* guided: the claim card's disabled yes/no pills (preview only) */
+.s18-ask--plain { color: #303030; font-weight: 400; }
+.gq-pills { display: flex; gap: 12px; }
+.gq-pill {
+  min-width: 92px; padding: 7px 22px;
+  border: 2px solid var(--subject-500); border-radius: 1000px;
+  background: #fff; color: #303030;
+  font-family: 'Assistant', sans-serif; font-size: 19px; text-align: center;
+  opacity: 0.55;
+}
+#s5 .guided-char { left: 16px; bottom: 84px; }
+
+/* slides 26/33: the practice-rules line is bold in the script */
+#s14 .s13-mid, #s21 .s13-mid { font-weight: 700; }
+/* guided step cards: the script's step question lines are REGULAR
+   (only the exercise claim is bold) */
+#s6 .s19-question-line, #s8 .s19-question-line, #s9 .s19-question-line,
+#s11 .s19-question-line, #s12 .s19-question-line { font-weight: 400; }
+
+/* ratios and fractions NEVER wrap (producer rule 15.08) */
+/* numbers are authored in reading order — pin LTR so bidi cannot swap the
+   operands of "a : b" inside the RTL page (unicode-bidi:isolate alone does not) */
+.ratio { white-space: nowrap; direction: ltr; unicode-bidi: isolate; }
+.frac { white-space: nowrap; }
+/* statement fractions read as part of the sentence, not as an emphasis
+   (producer 20.08) — the .frac base weight is 700, override it here */
+.saq-text .frac { font-weight: 400; }
+.s19-elaboration, .s18-ask, .rs-text, .s9-intro, .scq-opt-text { text-wrap: pretty; }
+
+/* guided step card: four operations in a 2x2 grid (slide 23) */
+.s19-options--grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.s19-options--grid .s19-opt { justify-content: center; }
+
+/* reveal screens: the claim's answer is marked on the yes/no pills */
+.gq-pills--answered .gq-pill { opacity: 0.45; }
+.gq-pills--answered .gq-pill.is-answer {
+  opacity: 1;
+  border-color: #3f7d1c; color: #1e5c12; font-weight: 700;
+  position: relative; padding-left: 44px;
+}
+.gq-pills--answered .gq-pill.is-answer::after {
+  content: ''; position: absolute; left: 12px; top: 50%;
+  width: 22px; height: 22px; margin-top: -11px;
+  border-radius: 50%; background: #3f7d1c center / 13px 9px no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10.4 7.5' fill='none'%3E%3Cpath d='M3.36 7.52C3.07 7.52 2.78 7.4 2.57 7.19L0.19 4.81C-0.06 4.55-0.06 4.14 0.19 3.88C0.45 3.62 0.86 3.62 1.12 3.88L3.36 6.12L9.29 0.19C9.55-0.06 9.96-0.06 10.22 0.19C10.48 0.45 10.48 0.86 10.22 1.12L4.15 7.19C3.94 7.4 3.66 7.52 3.36 7.52Z' fill='white'/%3E%3C/svg%3E");
+}
+
+/* guided step options: keep breathing room even when the label wraps */
+#s3 .s19-opt, .s19-opt { padding: 12px 22px; }
+.s19-options .s19-opt { min-height: 52px; }
+.s19-options:not(.s19-options--grid) .s19-opt { flex: 1; }
+.s19-opt-text { line-height: 1.3; }
+
+/* ── part-3 screens (slides 38-63) ── */
+/* wide label rows: cap the row so the input column sits right after the
+   longest label instead of being flung to the far edge of the canvas */
+.viq-rows--wide { max-width: 760px; }
+.viq-rows--wide .viq-row { align-items: center; gap: 20px; }
+.ratio-pair { display: inline-flex; align-items: center; gap: 8px; }
+.note-inline { font-size: 18px; color: #666; }
+.saq-done { color: #3f7d1c; font-size: 22px; font-weight: 700; }
+
+/* research table (slides 45-47) */
+.ai-table { width: 100%; font-size: 18px; }
+.ai-table td, .ai-table th { padding: 10px 12px; vertical-align: middle; }
+/* column proportions copied from the pptx table grid (slides 45-47):
+   # 72px | תוצאת המחקר 460px | מסקנה 328px | pills 242px */
+.ai-table { table-layout: fixed; }
+.ai-table td:first-child { font-weight: 700; text-align: center; }
+.ai-table td:first-child,  .ai-table th:first-child  { width: 6.6%; }
+.ai-table td:nth-child(2), .ai-table th:nth-child(2) { width: 41.7%; }
+.ai-table td:nth-child(3), .ai-table th:nth-child(3) { width: 29.8%; }
+.ai-table td:nth-child(4), .ai-table th:nth-child(4) { width: 21.9%; }
+.ai-table td:nth-child(2), .ai-table td:nth-child(3) { text-align: right; }
+.ai-table .saq-toggle { flex-direction: column; gap: 6px; }
+.ai-table .saq-pill { min-width: 176px; font-size: 18px; padding: 5px 12px; white-space: nowrap; }
+.ai-table tr.row-past { opacity: 0.55; }
+.ai-table tr.row-correct td { background: #f4faee; }
+.ai-table tr.row-wrong td { background: #fff5f5; }
+
+/* peak-question scenario screens reuse the scene shell */
+.scene-bg { position: absolute; inset: 0 0 74px 0; overflow: hidden; }
+.scene-bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scene-card {
+  position: absolute; top: 70px; right: 60px; width: 640px;
+  background: rgba(255, 255, 255, 0.94); border-radius: 20px; padding: 24px 28px;
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.22);
+}
+.scene-title {
+  margin: 0; font-family: 'Assistant', sans-serif; font-size: 22px; font-weight: 400;
+  color: var(--subject-500); line-height: 1.3;   /* regular per the script's runs */
+}
+.scene-text {
+  margin: 0; font-family: 'Assistant', sans-serif; font-size: 21px; color: #222; line-height: 1.45;
+}
+
+/* geometry figures fill their frame (the 130° triangle is wide and flat) */
+#s31 .scq-img--mid, #s32 .scq-img--mid { width: 430px; height: 360px; }
+
+
+/* ── scene card variant: bottom-centred (dev 47 / pptx 59) ── */
+#s47 .scene-card {
+  top: auto; bottom: 96px; right: 50%; transform: translateX(50%);
+  width: 760px; text-align: center;
+}
+#s47 .scene-text { text-align: center; }
+
+/* ── finale: the companion's confetti clip replaces the still ── */
+.finale-video {
+  width: 100%; height: 100%; object-fit: contain;
+  display: block; background: #fff;   /* clips are white-backed; no black bars */
+}
+#s51 .s1-video-wrap { width: 640px; height: 360px; }
+
+
+/* S19/S20: the figure is tall (square side 8, triangle height 16 — a true 1:2),
+   so it needs the screen's vertical room rather than the default mid slot */
+#s19 .scq-img--mid, #s20 .scq-img--mid { width: auto; }
+#s19 .scq-img--mid img, #s20 .scq-img--mid img { height: 470px; width: auto; max-width: none; }
+
+
+/* ── the answers/my-answers switch on a finished multi-select (deck slide 22).
+   Sits in the bottom bar beside the hint pill, in the same pill shape. ── */
+.answers-toggle {
+  position: absolute;
+  bottom: 17px; left: 336px;
+  z-index: 12;
+  height: 40px; box-sizing: border-box;
+  min-width: 190px; padding: 0 20px;
+  background: #fff; border: 1px solid var(--subject-700); border-radius: 1000px;
+  color: var(--subject-500);
+  font-family: 'Assistant', sans-serif; font-size: 20px; font-weight: 400;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; direction: rtl;
+}
+.answers-toggle.hidden { display: none; }
+
+/* the "no hint on this question" note is the deck's own aside, not fine print */
+.note-standalone {
+  margin: 6px 0 0;
+  font-size: 20px; color: #555; direction: rtl;
+}
+
+/* ── the two peak screens (deck slides 53-54) carried a lot of air: the intro
+   breaks by clause and the answer sits closer to the question ── */
+#s41 .s9-intro, #s42 .s9-intro, #s43 .s9-intro { line-height: 1.5; }
+/* .scq-question is a zero-height positioning wrapper, so the peak screens are
+   balanced by nudging their two absolute children down together rather than by
+   centring anything. They carry no stepper, so the space it used to hold goes
+   back into the layout. */
+#s41 .scq-img, #s42 .scq-img, #s43 .scq-img, #s44 .scq-img,
+#s45 .scq-img, #s46 .scq-img, #s48 .scq-img, #s49 .scq-img,
+#s41 .s2-right-col, #s42 .s2-right-col, #s43 .s2-right-col, #s44 .s2-right-col,
+#s45 .s2-right-col, #s46 .s2-right-col, #s48 .s2-right-col, #s49 .s2-right-col { top: 70px; }
+#s41 .scq-qtext, #s42 .scq-qtext, #s43 .scq-qtext { margin-top: 18px; }
+#s41 .ratio-input-row, #s43 .ratio-input-row { margin-top: 14px; }
+#s42 .qs-fill { margin-top: 14px; line-height: 2.1; }

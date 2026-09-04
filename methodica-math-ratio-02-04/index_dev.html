@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>DEV — יחס 01-02</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #1a1a2e; font-family: monospace; }
+
+    #dev-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 44px;
+      background: #f9ca24; color: #1a1a2e;
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 12px; z-index: 9999; font-size: 13px; font-weight: 700;
+      direction: ltr;
+      transition: background 0.2s ease;
+    }
+    /* review status of the CURRENT screen colors the whole bar:
+       green = approved, striped strong-yellow = needs fixing */
+    #dev-bar.st-ok  { background: #2ecc71; }
+    #dev-bar.st-fix {
+      background: repeating-linear-gradient(45deg, #f9ca24 0 18px, #f39c12 18px 36px);
+    }
+    .st-btn {
+      height: 28px; width: 34px; border: none; border-radius: 4px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+    #st-ok    { background: #1e8f4e; color: #fff; }
+    #st-fix   { background: #b06f00; color: #fff; }
+    #st-clear { background: #1a1a2e; color: #f9ca24; }
+    #st-badge {
+      min-width: 74px; text-align: center;
+      padding: 3px 10px; border-radius: 1000px;
+      background: rgba(26, 26, 46, 0.85); color: #fff; font-size: 12px;
+    }
+    #dev-bar span { background: #1a1a2e; color: #f9ca24; padding: 2px 8px; border-radius: 4px; }
+    #dev-bar button {
+      height: 28px; padding: 0 12px; border: none; border-radius: 4px;
+      background: #1a1a2e; color: #f9ca24; font-weight: 700; cursor: pointer; font-size: 13px;
+    }
+    #dev-bar button:hover { background: #333; }
+    #dev-bar input[type=number] {
+      width: 54px; height: 28px; border: none; border-radius: 4px;
+      text-align: center; font-size: 14px; font-weight: 700;
+    }
+    #dev-bar select {
+      height: 28px; max-width: 260px; border: none; border-radius: 4px;
+      background: #1a1a2e; color: #f9ca24; font-weight: 700; font-size: 13px;
+      padding: 0 8px; cursor: pointer; direction: rtl;
+    }
+    #dev-label { margin-left: 6px; }
+
+    #lomda-frame {
+      position: fixed; top: 44px; left: 0; right: 0; bottom: 0;
+      border: none; width: 100%; height: calc(100% - 44px);
+    }
+  </style>
+</head>
+<body>
+
+<div id="dev-bar">
+  <span>DEV</span>
+  <button onclick="nav(+1)" title="קדימה (RTL: שמאל = קדימה)">◀</button>
+  <span id="dev-label">S 0 / ?</span>
+  <button onclick="nav(-1)" title="אחורה (RTL: ימין = אחורה)">▶</button>
+  <input type="number" id="jump-input" min="0" value="0" onkeydown="if(event.key==='Enter')jumpTo()">
+  <button onclick="jumpTo()">Go</button>
+  <select id="screen-select" onchange="send(parseInt(this.value, 10))"></select>
+  <span id="st-badge">—</span>
+  <button class="st-btn" id="st-ok"    onclick="setStatus('ok')"    title="מאושר — עברתי ואישרתי">✓</button>
+  <button class="st-btn" id="st-fix"   onclick="setStatus('fix')"   title="דורש תיקון">!</button>
+  <button class="st-btn" id="st-clear" onclick="setStatus(null)"    title="איפוס סטטוס">↺</button>
+  <span style="margin-right:auto; font-size:11px; font-weight:400;">Ctrl+← קדימה &nbsp;|&nbsp; Ctrl+→ אחורה</span>
+</div>
+
+<iframe id="lomda-frame" src="index.html?dev=1"></iframe>
+
+<script>
+  const UNIT_ID = 'methodica-math-ratio-02-04';
+  /* this component owns screens 30-37 of the unit's global numbering */
+  const PART_START = 30, PART_END = 37;
+  let cur = 30;
+  let total = 1;
+
+  const frame  = document.getElementById('lomda-frame');
+  const label  = document.getElementById('dev-label');
+  const input  = document.getElementById('jump-input');
+  const select = document.getElementById('screen-select');
+
+  /* Named screens — extend as screens are added */
+  const SCREEN_NAMES = [
+    'בחירת דמות',
+    'שאלת פתיחה: מי יטען ראשון?',
+    'חשיפה: אז מה קרה כאן?',
+    'גלילה: ביטויי יחס + שמירה על היחס',
+    'מעבר: לקראת תרגול מונחה',
+    'מונחה: הצגת התרגיל (ציפוי)',
+    'מונחה: שלב 1 — כתיב מתמטי',
+    'מונחה: פתרון סעיף א',
+    'מונחה: שלב 2 — סוג היחס',
+    'מונחה: שלב 3 — משקל הציפוי',
+    'מונחה: פתרון סעיף ב',
+    'מונחה: שלב 4 — איזו פעולה',
+    'מונחה: שלב 5 — חיבור ויחס',
+    'מונחה: פתרון סעיף ג',
+    'מעבר: תרגול ראשון (4 שאלות)',
+    'תרגול א1: עוגה (נכון/לא נכון)',
+    'תרגול א1ב: מתי היחס נשמר',
+    'תרגול א2: גשם (בחירה)',
+    'תרגול א3: סרטון (רב-בחירה)',
+    'תרגול א4א: גובה המשולש',
+    'תרגול א4ב: יחס השטחים',
+    'מעבר: תרגול שני (3 שאלות)',
+    'תרגול ב1: סדנאות (רב-בחירה)',
+    'תרגול ב2: אינסטגרם (רב-בחירה)',
+    'תרגול ב3: מצב שקט (קלט)',
+    'מעבר: לקראת שאלות מתקדמות',
+    'תרגול ג1: חטיף — יחסים',
+    'תרגול ג1ב: תווית — נכון/לא נכון',
+    'תרגול ג2א: משולשים — יחסים',
+    'תרגול ג2ב: משולשים — שמירת יחס',
+    'מעבר: 3 שאלות מתקדמות',
+    'מתקדם 1א: זוויות במשולש',
+    'מתקדם 1ב: משולש שווה שוקיים',
+    'מתקדם 2: מחקר AI — מסקנה 1',
+    'מתקדם 2: מחקר AI — מסקנה 2',
+    'מתקדם 2: מחקר AI — מסקנה 3',
+    'מתקדם 3א: משחק הקלפים',
+    'מתקדם 3ב: פי כמה קלפים',
+    'מעבר: שאלת השיא',
+    'תרחיש: מופע הלהקות',
+    'תרחיש: סוגי הכרטיסים',
+    'שיא א1: היחס כשבר',
+    'שיא א2: משמעות היחס',
+    'שיא ב1: היחס המצומצם',
+    'שיא ב2: משמעות היחס',
+    'שיא ג: האם היחס נשמר',
+    'שיא ד: כרטיסי הצוות',
+    'תרחיש: ניתוח הנתונים',
+    'שיא ה: שלושת רבעי המושבים',
+    'שיא ו: ההכנסות',
+    'תרחיש: עזרתם למגמה!',
+    'סיום: השלמת את היחידה!',
+  ];
+  SCREEN_NAMES.forEach((name, i) => {
+    if (i < PART_START || i > PART_END) return;   // this component's screens only
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = i + ' — ' + name;
+    select.appendChild(opt);
+  });
+
+  window.addEventListener('message', e => {
+    if (e.data?.type === 'DEV_READY') {
+      total = e.data.total;
+      updateLabel();
+    }
+    if (e.data?.type === 'DEV_SCREEN') {
+      cur = e.data.screen;
+      input.value = cur;
+      if ([...select.options].some(o => Number(o.value) === cur)) select.value = cur;
+      updateLabel();
+    }
+  });
+
+  function send(n) {
+    frame.contentWindow.postMessage({ type: 'DEV_GOTO', screen: n }, '*');
+    cur = n;
+    input.value = n;
+    select.value = n;
+    updateLabel();
+  }
+
+  function nav(delta) {
+    const next = Math.max(PART_START, Math.min(PART_END, cur + delta));
+    send(next);
+  }
+
+  function jumpTo() {
+    const n = parseInt(input.value, 10);
+    if (!isNaN(n) && n >= PART_START && n <= PART_END) send(n);
+  }
+
+  function updateLabel() {
+    label.textContent = 'S ' + cur + ' / ' + PART_END;
+    renderStatus();
+  }
+
+  /* ── review status (producer workflow): green = approved, yellow =
+     needs fixing. Persisted per unit in localStorage. ── */
+  const REVIEW_KEY = 'dev_review_' + UNIT_ID;
+  function loadReview() {
+    try { return JSON.parse(localStorage.getItem(REVIEW_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function saveReview(r) {
+    try { localStorage.setItem(REVIEW_KEY, JSON.stringify(r)); } catch (e) {}
+  }
+  function setStatus(st) {
+    const r = loadReview();
+    if (st) r[cur] = st; else delete r[cur];
+    saveReview(r);
+    renderStatus();
+  }
+  function renderStatus() {
+    const r = loadReview();
+    const bar = document.getElementById('dev-bar');
+    bar.classList.toggle('st-ok',  r[cur] === 'ok');
+    bar.classList.toggle('st-fix', r[cur] === 'fix');
+    const badge = document.getElementById('st-badge');
+    badge.textContent = r[cur] === 'ok' ? 'מאושר ✓' : r[cur] === 'fix' ? 'לתיקון !' : '—';
+    [...select.options].forEach(o => {
+      const n = Number(o.value);
+      const base = o.dataset.base || o.textContent;
+      o.dataset.base = base;
+      o.textContent = (r[n] === 'ok' ? '✓ ' : r[n] === 'fix' ? '⚠ ' : '') + base;
+    });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.key === 'ArrowLeft')  nav(+1);
+    if (e.ctrlKey && e.key === 'ArrowRight') nav(-1);
+  });
+  renderStatus();
+</script>
+</body>
+</html>

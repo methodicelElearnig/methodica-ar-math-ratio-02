@@ -1,0 +1,30 @@
+# Line endings, pinned so every clone agrees.
+#
+# Without this file the repo's line endings depend on each machine's core.autocrlf,
+# which is a per-installation setting nobody sets deliberately — on Windows Git it
+# defaults to true, on macOS to input. Two people can then commit the same file and
+# see a whole-file diff.
+#
+# This records the state that already holds rather than changing it: every text blob
+# committed here is already LF. Verified with `git ls-files --eol` — 175 text files,
+# zero i/crlf, zero i/mixed. So adding this renormalises nothing.
+#
+# `eol=lf` additionally pins the WORKING TREE to LF on Windows, where core.autocrlf=true
+# would otherwise check out CRLF. That matters here because deployments are assembled by
+# hand-copying the working tree: with this, the copied files are byte-identical no matter
+# whose machine they came from.
+
+* text=auto eol=lf
+
+# Explicit binary, so auto-detection is never the only thing standing between a font
+# file and corruption. These match what git already infers today.
+*.ttf  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+
+# SVG is XML — text, not an image format, as far as git is concerned. Stated explicitly
+# because it is the largest group of files in the unit (120 of them) and because
+# "*.svg binary" is a common and silently damaging mistake: it would kill diffs and
+# merges on the illustrations.
+*.svg  text eol=lf

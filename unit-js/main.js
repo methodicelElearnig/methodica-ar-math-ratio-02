@@ -1,8 +1,8 @@
-/* methodica-math-ratio-01-02 — engine vendored from ratio-01-01
+/* methodica-math-ratio-02 — engine vendored from ratio-01-01
    (percent-02 lineage, approved behaviors). Built maven-first. */
 
 window.lomdaState = { selectedCharacter: null };
-const CHARACTER_STORAGE_KEY = 'methodica_math_ratio_01_02_selectedCharacter';
+const CHARACTER_STORAGE_KEY = 'methodica_math_ratio_02_selectedCharacter';
 const TOTAL_SCREENS = 52; // slides 2-63: learning, guided, practice A/B/C, advanced, peak question, finale
 let currentScreen = window.PART_CONFIG ? window.PART_CONFIG.start : 0;   /* a component opens on ITS first screen; the markup marks that one active */
 
@@ -1415,8 +1415,8 @@ function submitReport() {
   if (errEl) errEl.setAttribute('hidden', '');
   var now  = new Date();
   var meta = window.METADATA || {
-    learningUnitId: 'methodica-math-ratio-01',
-    id: 'methodica-math-ratio-01-02',
+    learningUnitId: 'methodica-math-ratio-02',
+    id: 'methodica-math-ratio-02',
   };
   var body = new URLSearchParams();
   body.append('entry.301404029_year',  now.getFullYear());
