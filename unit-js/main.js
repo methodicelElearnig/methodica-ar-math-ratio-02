@@ -156,6 +156,15 @@ function resetScreenState(n) {
     if (img) img.src = characterAsset(POSE[n] || 'selection');
   }
   if (n === 51) {
+    /* ── No video reporting in this unit, deliberately ──
+       ../unit-js/50-loader.js calls xapiWireVideos(), which wires any video[data-xapi-report].
+       None of this unit's three <video> elements carries that attribute, so it is a no-op:
+       screen 0's two clips are looping decoration inside the character-choice cards (the learner
+       never plays or pauses them), and this one is a confetti reward. xapiWireVideos reports
+       'paused'/'played' against a QUESTION object via xapiQ(item, qKey), so wiring these would
+       attribute interaction to a question the learner is not answering — item 001/q1 in part 01,
+       and in part 05 an arbitrary one of the peak question's eight. Left unreported pending the
+       content owner; add the attributes if 720 asks for video events on decorative clips. */
     // finale: the companion's confetti clip, one per character
     const v = document.getElementById('s51-video');
     if (v) {
@@ -329,6 +338,10 @@ window.addEventListener('pointercancel', () => { mcqDragPopup = null; });
 
 
 function openHint(sid) {
+  /* ⚠️ Only here, in the branch that actually OPENS the overlay. The hint is a `hidden` toggle,
+     and reporting from a toggle would send a second 'requested.1' on every close. The dedupe in
+     xapiRequestedHint covers the three ways an overlay can be closed and reopened. */
+  xapiHint(sid);
   document.getElementById(sid + '-hint-overlay')?.classList.remove('hidden');
 }
 function closeHint(sid) {
@@ -363,6 +376,7 @@ function s1Check() {
   if (s1Done) { advanceScreen(); return; }
   if (!s1Selected) return;
   const ok = s1Selected === 'd';
+  xapiReport('s1', ok, s1Selected);
   document.querySelectorAll('#s1 .scq-opt').forEach(o => {
     o.disabled = true;
     o.classList.remove('selected');
@@ -380,6 +394,7 @@ function s1Check() {
   s1Done = true;
   const chk = document.getElementById('s1-check');
   if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+  try { flushResumeSave(); } catch (e) {}   /* answer committed — see the flush contract in qFinish */
 }
 
 /* ─── S2 — staged reveal (slide 4): text → character+bubble → continue ─── */
@@ -463,16 +478,18 @@ function s3q1Check() {
   s3q1Attempts++;
   const opts = document.querySelectorAll('#s3q1-block .scq-opt');
   const isCorrect = setsEqual(s3q1Selected, S3Q1_CORRECT);
-  const finish = () => {
+  const finish = (wasOk) => {
+    xapiReport('s3q1', wasOk, [...s3q1Selected].sort().join(','));
     s3State.q1 = true;
     opts.forEach(o => { o.disabled = true; });
     document.getElementById('s3q1-check').disabled = true;
     s3UpdateGate();
+    try { flushResumeSave(); } catch (e) {}
   };
   if (isCorrect) {
     opts.forEach(o => { if (S3Q1_CORRECT.has(o.dataset.id)) { o.classList.remove('selected'); o.classList.add('correct'); } });
     s3Feedback('s3q1-feedback', true, '<strong>כל הכבוד!</strong><br>' + S3Q1_EXPLAIN);
-    finish();
+    finish(true);
   } else if (s3q1Attempts >= 2) {
     opts.forEach(o => {
       o.classList.remove('selected');
@@ -480,7 +497,7 @@ function s3q1Check() {
       else if (s3q1Selected.has(o.dataset.id)) o.classList.add('wrong');
     });
     s3Feedback('s3q1-feedback', false, '<strong>זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:</strong><br>' + S3Q1_EXPLAIN);
-    finish();
+    finish(false);
   } else {
     s3q1Selected.forEach(id => {
       if (!S3Q1_CORRECT.has(id)) {
@@ -511,6 +528,7 @@ function s3q2Check() {
   const right = document.getElementById('s3q2-right');
   if (left.value.trim() === '' || right.value.trim() === '') return;
   const ok = Number(left.value) === 1 && Number(right.value) === 4;
+  xapiReport('s3q2', ok, left.value.trim() + ':' + right.value.trim());
   s3State.q2 = true;
   left.disabled = true; right.disabled = true;
   left.classList.add(ok ? 'correct' : 'error');
@@ -521,6 +539,7 @@ function s3q2Check() {
     (ok ? '' : '<br>התשובה הנכונה היא <span dir="ltr"><strong>1 : 4</strong></span>'));
   document.getElementById('s3q2-check').disabled = true;
   s3UpdateGate();
+  try { flushResumeSave(); } catch (e) {}
 }
 
 /* §7/§8/§10 — single-attempt yes/no checks (slides 11, 12, 15) */
@@ -560,6 +579,7 @@ function s3ynCheck(qid) {
   if (!sel) return;
   const block = document.getElementById(qid + '-check').closest('.rs-block');
   const ok = sel === cfg.correct;
+  xapiReport(qid, ok, sel);
   block.querySelectorAll('.scq-opt').forEach(o => {
     o.disabled = true;
     o.classList.remove('selected');
@@ -571,6 +591,7 @@ function s3ynCheck(qid) {
   s3State[cfg.flag] = true;
   document.getElementById(qid + '-check').disabled = true;
   s3UpdateGate();
+  try { flushResumeSave(); } catch (e) {}
 }
 function s3q3Select(id) { s3ynSelect('s3q3', id); }
 function s3q3Check()    { s3ynCheck('s3q3'); }
@@ -825,6 +846,8 @@ function mcqCheck(q) {
 }
 
 function mcqFinish(q) {
+  /* correctness from the sets, not from the attempt count — two wrong attempts also finish */
+  xapiReport(q.id, setsEqual(q.selected, q.correctIds), [...q.selected].sort().join(','));
   q.answered = true;
   q.done = true;
   /* keep what the learner actually picked, so the two views can be compared */
@@ -835,6 +858,9 @@ function mcqFinish(q) {
   document.querySelectorAll('#' + q.id + ' ' + (q.optSelector || '.scq-opt')).forEach(o => { o.disabled = true; });
   const chk = document.getElementById(q.id + '-check');
   if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+  /* setQResult for these lives in mcqPracticeCheck, which owns the "did this call answer it"
+     test — not repeated here. */
+  try { flushResumeSave(); } catch (e) {}
 }
 
 function mcqUpdateBar(q) {
@@ -900,12 +926,14 @@ function scqCheck(sid) {
     if (o) { o.classList.remove('selected'); o.classList.add(cls); }
   };
   const finish = (wasOk) => {
+    xapiReport(sid, wasOk, xapiAnswerText(document.querySelector('#' + sid + ' .scq-opt[data-id="' + q.selected + '"]')));
     q.done = true;
     document.querySelectorAll('#' + sid + ' .scq-opt').forEach(o => { o.disabled = true; });
     const chk = document.getElementById(sid + '-check');
     if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
     hideHintButton(sid);
     setQResult(sid, wasOk);
+    try { flushResumeSave(); } catch (e) {}
   };
   if (ok) {
     mark(q.correctId, 'correct');
@@ -972,12 +1000,14 @@ function s15Check() {
     });
   };
   const finish = (wasOk) => {
+    xapiReport('s15', wasOk, Object.keys(S15_CORRECT).map(k => k + ':' + s15Picks[k]).join(', '));
     s15Done = true;
     document.querySelectorAll('#s15 .saq-pill').forEach(pp => { pp.disabled = true; });
     const chk = document.getElementById('s15-check');
     if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
     hideHintButton('s15');
     setQResult('s15', wasOk);
+    try { flushResumeSave(); } catch (e) {}
   };
   if (ok) { mark(false); showPopup('s15', '#edf8ed', 'כל הכבוד!', S15_BODY); finish(true); }
   else if (s15Attempts >= 2) { mark(true); showPopup('s15', '#ffdbdc', 'זה לא מדויק, בואו נבין למה.', S15_BODY); finish(false); }
@@ -1069,10 +1099,12 @@ function s19Check() {
   s19Attempts++;
   const ok = Number(v) === 16;
   const finish = (wasOk) => {
+    xapiReport('s19', wasOk, v);
     s19Done = true; el.disabled = true;
     const chk = document.getElementById('s19-check');
     if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
     hideHintButton('s19'); setQResult('s19', wasOk);
+    try { flushResumeSave(); } catch (e) {}
   };
   if (ok) { el.classList.add('correct'); showPopup('s19', '#edf8ed', 'כל הכבוד!', S19_BODY); finish(true); }
   else if (s19Attempts >= 2) {
@@ -1111,10 +1143,12 @@ function s20Check() {
   const L = document.getElementById('s20-left'), R = document.getElementById('s20-right');
   const ok = Number(v[0]) === 1 && Number(v[1]) === 2;
   const finish = (wasOk) => {
+    xapiReport('s20', wasOk, v.join(':'));
     s20Done = true; L.disabled = true; R.disabled = true;
     const chk = document.getElementById('s20-check');
     if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
     hideHintButton('s20'); setQResult('s20', wasOk);
+    try { flushResumeSave(); } catch (e) {}
   };
   if (ok) { L.classList.add('correct'); R.classList.add('correct'); showPopup('s20', '#edf8ed', 'כל הכבוד!', S20_BODY); finish(true); }
   else if (s20Attempts >= 2) {
@@ -1156,11 +1190,16 @@ function s24Check() {
   const ok = okEach.every(Boolean);
   const ids = ['s24a-num', 's24a-den', 's24b-left', 's24b-right'];
   const finish = (wasOk) => {
+    /* Two catalogue questions on one screen: א is the fraction (inputs 0-1), ב the ratio
+       (inputs 2-3). Reported separately with their own verdicts, per metadata item 003. */
+    xapiReport('s24a', !!(okEach[0] && okEach[1]), v[0] + '/' + v[1]);
+    xapiReport('s24b', !!(okEach[2] && okEach[3]), v[2] + ':' + v[3]);
     s24Done = true;
     ids.forEach(id => { document.getElementById(id).disabled = true; });
     const chk = document.getElementById('s24-check');
     if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
     hideHintButton('s24'); setQResult('s24', wasOk);
+    try { flushResumeSave(); } catch (e) {}
   };
   if (ok) {
     ids.forEach(id => document.getElementById(id).classList.add('correct'));
@@ -1270,9 +1309,41 @@ function qFinish(sid, ok) {
   if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
   hideHintButton(sid);
   if (QPROG[sid]) setQResult(sid, ok);
+  /* ⚠️ The flush contract: this is where an answer is COMMITTED, so the state write must be
+     synchronous and NO return may sit between the two. goTo() only arms a debounced save, and a
+     learner who answers and then leaves inside that window would lose the answer — worse, a stale
+     timer can fire AFTER a forward write and send the next launch back into the finished part. */
+  try { flushResumeSave(); } catch (e) {}
 }
 /* the unit gives two attempts; a question may ask for one (producer 03.09) */
 function qMaxAttempts(q) { return q.maxAttempts || 2; }
+
+/* Report a generic-engine screen. Called from qCheck at the moment the question resolves, where
+   the per-row verdicts are still in hand — several screens carry more than one catalogue question
+   (see XAPI_QMAP), and one statement per screen would lose that. */
+function xapiReportQScreen(sid, q, ok, each, vals) {
+  if (sid === 's26' && each) {                       /* three ratio rows -> q1, q2, q3 */
+    for (var r = 0; r < 3; r++) {
+      xapiReport('s26r' + r, !!(each[2 * r] && each[2 * r + 1]),
+                 vals ? vals[2 * r] + ':' + vals[2 * r + 1] : null);
+    }
+    return;
+  }
+  if (sid === 's28' && each) {                       /* two ratio rows -> q1, q2 */
+    for (var s = 0; s < 2; s++) {
+      xapiReport('s28r' + s, !!(each[2 * s] && each[2 * s + 1]),
+                 vals ? vals[2 * s] + ':' + vals[2 * s + 1] : null);
+    }
+    return;
+  }
+  if (sid === 's33' || sid === 's34' || sid === 's35') { xapiReportAiTable(sid, ok); return; }
+  var answer = (q.type === 'input') ? (vals || []).join(', ')
+             : (q.type === 'saq')   ? Object.keys(q.answers).map(function (k) {
+                                        return k + ':' + (q.picks ? q.picks[k] : '');
+                                      }).join(', ')
+             : (q.selected == null ? '' : String(q.selected));
+  xapiReport(sid, ok, answer);
+}
 
 function qCheck(sid) {
   const q = Q[sid];
@@ -1280,9 +1351,13 @@ function qCheck(sid) {
   if (q.done) { advanceScreen(); return; }
   const scr = document.getElementById(sid);
   let ok, snapshot;
+  /* Hoisted out of the input branch so the reporting call at the bottom can still see the
+     per-input verdicts — several screens carry more than one catalogue question. */
+  let _each = null, _vals = null;
   if (q.type === 'input') {
     const vals = q.inputs.map(id => document.getElementById(id).value.trim());
     if (vals.some(v => v === '')) return;
+    _vals = vals;
     snapshot = JSON.stringify(vals);
     /* `accept` lists whole answer vectors that are all correct — the deck's
        slide 28 takes each ratio either unreduced or reduced, but not mixed
@@ -1291,6 +1366,7 @@ function qCheck(sid) {
     const hit = sets.find(set => vals.every((v, i) => qNum(v) === set[i]));
     ok = !!hit;
     const each = vals.map((v, i) => qNum(v) === (hit || q.answers)[i]);
+    _each = each;
     q.attempts++;
     if (ok || q.attempts >= qMaxAttempts(q)) {
       q.inputs.forEach((id, i) => {
@@ -1333,8 +1409,17 @@ function qCheck(sid) {
     if (ok) mark(q.answers, 'correct');
     else { mark(q.selected, 'wrong'); if (q.attempts >= qMaxAttempts(q)) mark(q.answers, 'correct'); }
   }
-  if (ok) { showPopup(sid, '#edf8ed', q.ok, q.body); qFinish(sid, true); }
-  else if (q.attempts >= qMaxAttempts(q)) { showPopup(sid, '#ffdbdc', q.bad, q.body.concat(q.reveal || [])); qFinish(sid, false); }
+  /* Report BEFORE qFinish: qFinish flushes the state document, and the ledger the flush persists
+     must already know this answer went out. Both terminal branches report; the retry branch does
+     not — an unresolved question has no verdict to send. */
+  if (ok) {
+    xapiReportQScreen(sid, q, true, _each, _vals);
+    showPopup(sid, '#edf8ed', q.ok, q.body); qFinish(sid, true);
+  }
+  else if (q.attempts >= qMaxAttempts(q)) {
+    xapiReportQScreen(sid, q, false, _each, _vals);
+    showPopup(sid, '#ffdbdc', q.bad, q.body.concat(q.reveal || [])); qFinish(sid, false);
+  }
   else {
     q.lastWrong = snapshot;
     showPopup(sid, '#ffdbdc', 'זה לא מדוייק, ננסה שוב?', []);
@@ -2264,4 +2349,123 @@ function finishUnit() {
    restoreFeedback. */
 function partBoot() {
   goTo(window.PART_CONFIG ? window.PART_CONFIG.start : 0);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   xAPI — how a call site names the question it is reporting
+
+   ── Why the item is NOT in this map ──
+   It comes from SCREEN_TO_SUBCONTENT, per component, so an xAPI statement and a learner problem
+   report can never disagree about where the learner was standing. This map only says which
+   CATALOGUE QUESTION a given answer belongs to.
+
+   One map serves all five components: xapiKeyFor() returns null when SCREEN_TO_SUBCONTENT has no
+   entry for that screen, so the other components' rows are inert rather than wrong.
+
+   ── Keys are logical answers, not screens ──
+   Several screens carry more than one catalogue question (s24 has two, s26 three, s28 two), and
+   conversely the AI table is ONE catalogue question spread over three screens. So a key is
+   '<screen><row>' where it has to be.
+
+   Question numbers are the catalogue's own — verified against metadata/*.json question order:
+     part 01  002/q5 is the four reveal cards, which are not graded, so s3q5 reports q6
+     part 03  004/q1..q3 are the three ratio rows of s26, 004/q4 is the s27 matching
+     part 04  002/q1 is the whole AI table: s33, s34 and s35 are its three rows
+   ═══════════════════════════════════════════════════════════════════ */
+var XAPI_QMAP = {
+  /* part 01 */
+  s1:    [1,  'q1'],
+  s3q1:  [3,  'q1'], s3q2: [3, 'q2'], s3q3: [3, 'q3'], s3q4: [3, 'q4'], s3q5: [3, 'q6'],
+  /* part 02 */
+  s15:   [15, 'q1'], s16: [16, 'q2'],
+  s17:   [17, 'q1'],
+  s18:   [18, 'q1'],
+  s19:   [19, 'q1'], s20: [20, 'q2'],
+  /* part 03 */
+  s22:   [22, 'q1'],
+  s23:   [23, 'q1'],
+  s24a:  [24, 'q1'], s24b: [24, 'q2'],
+  s26r0: [26, 'q1'], s26r1: [26, 'q2'], s26r2: [26, 'q3'], s27: [27, 'q4'],
+  s28r0: [28, 'q1'], s28r1: [28, 'q2'], s29: [29, 'q3'],
+  /* part 04 */
+  s31:   [31, 'q1'], s32: [32, 'q2'],
+  s33:   [33, 'q1'], s34: [34, 'q1'], s35: [35, 'q1'],
+  s36:   [36, 'q1'], s37: [37, 'q2'],
+  /* part 05 */
+  s41:   [41, 'q1'], s42: [42, 'q2'], s43: [43, 'q3'], s44: [44, 'q4'],
+  s45:   [45, 'q5'], s46: [46, 'q6'], s48: [48, 'q7'], s49: [49, 'q8']
+};
+
+function xapiKeyFor(key) {
+  var e = XAPI_QMAP[key];
+  if (!e) return null;
+  var m = (typeof SCREEN_TO_SUBCONTENT !== 'undefined') ? SCREEN_TO_SUBCONTENT[e[0]] : null;
+  if (!m) return null;                     /* another component's screen */
+  return { item: m[0], qKey: e[1] };
+}
+
+/* Screen-level lookup, for the hint button — a hint belongs to the screen, not to one row. */
+function xapiScreenKey(sid) {
+  var n = parseInt(String(sid).replace(/\D/g, ''), 10);
+  var keys = Object.keys(XAPI_QMAP);
+  for (var i = 0; i < keys.length; i++) {
+    if (XAPI_QMAP[keys[i]][0] === n) return xapiKeyFor(keys[i]);
+  }
+  return null;
+}
+
+/* Is this the LAST question of its item? Drives 'answered.last' vs 'answered', so it must be the
+   item's real question count — DERIVED from the metadata, never hardcoded at the call site. A
+   hardcoded true would emit 'answered.last' on q1 of a two-question item and never on q2, which is
+   exactly what a first pass at this did. */
+function _xapiIsLastQuestion(item, qKey) {
+  try {
+    var sc = (window.METADATA && window.METADATA.subContent) || [];
+    for (var i = 0; i < sc.length; i++) {
+      var id = String(sc[i].id).replace(/\/+$/, '');
+      if (id.slice(-(item.length + 1)) !== '-' + item) continue;
+      return qKey === 'q' + ((sc[i].questions || []).length);
+    }
+  } catch (e) {}
+  return false;
+}
+
+/* Every reporting call site in this file goes through here. ⚠️ Swallowing on purpose: a reporting
+   failure must never stop the learner. XAPI_Q_RESULTS is written by xapiAnswered on its first
+   line, outside its own gate and try, so the score survives even with reporting off. */
+function xapiReport(key, correct, answer) {
+  var k = xapiKeyFor(key);
+  if (!k) return;
+  try { xapiAnswered(k.item, k.qKey, correct, _xapiIsLastQuestion(k.item, k.qKey), answer); }
+  catch (e) {}
+}
+
+function xapiHint(sid) {
+  var k = xapiScreenKey(sid);
+  if (!k) return;
+  try { xapiRequestedHint(k.item, k.qKey); } catch (e) {}
+}
+
+/* The AI table (part 04, item 002) is ONE catalogue question over screens 33/34/35. Reporting each
+   screen as q1 would overwrite XAPI_Q_RESULTS three times and leave the last row's verdict standing
+   for the whole question. Instead: report once, when the third row is answered, with the AND. */
+var _aiRows = ['s33', 's34', 's35'];
+
+/* ⚠️ currentSid/currentOk are passed in because this runs BEFORE qFinish — at that moment the
+   row being answered has neither its `done` flag nor its qResults entry yet, so reading them
+   would make the third row look unanswered and the question would never be reported at all. */
+function xapiReportAiTable(currentSid, currentOk) {
+  var verdicts = _aiRows.map(function (s) {
+    if (s === currentSid) return !!currentOk;
+    if (Q[s] && Q[s].done) return qResults[s] === true;
+    return null;                                   /* still unanswered */
+  });
+  if (verdicts.indexOf(null) !== -1) return;       /* wait for the last row */
+  var answer = _aiRows.map(function (s) {
+    return Object.keys(Q[s].answers).map(function (r) {
+      return r + ':' + (Q[s].picks ? Q[s].picks[r] : '');
+    }).join('');
+  }).join(' | ');
+  xapiReport('s33', verdicts.every(Boolean), answer);
 }
