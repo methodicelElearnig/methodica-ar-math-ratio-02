@@ -41,6 +41,37 @@
     </symbol>
   </svg>
 
+  <!-- Boot cover. Hides the window in which this component's first screen is already visible but
+       the resume document has not been read yet — without it a returning learner sees the part's
+       own first screen flash before the restore replaces it.
+
+       A SIBLING of #app, not a child: #app is moved and scaled by scaleApp(), and a child would
+       inherit that transform and stop covering the viewport. Inline-STYLED so a stale CSS cache
+       cannot leave it invisible, and removed by an inline SCRIPT that depends on no JS file at
+       all — a 40-resume.js that failed to load must not be able to leave a learner facing a
+       blank page.
+
+       The 11000ms ceiling is calibrated: 50-loader.js's metadata poll allows 10s on its own, on
+       top of two serial CDN scripts. An earlier 6s ceiling lifted the cover mid-restore and
+       reproduced the exact flash the cover exists to prevent. -->
+  <div id="boot-cover" style="position:fixed;inset:0;z-index:9999;background:#ffffff"></div>
+  <script>
+  (function () {
+    var t0 = Date.now();
+    function tick() {
+      var c = document.getElementById('boot-cover');
+      if (!c || !c.parentNode) return;
+      if (window.__resumeInFlight && Date.now() - t0 < 11000) { setTimeout(tick, 100); return; }
+      c.parentNode.removeChild(c);
+    }
+    setTimeout(tick, 800);
+  })();
+  </script>
+
+  <!-- aria-live region for announce() in ../unit-js/main.js -->
+  <div id="a11y-announcer" role="status" aria-live="polite" aria-atomic="true"
+       style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap"></div>
+
   <div id="app">
 
     <button class="flag-btn" type="button" aria-label="מצאתם בעיה?">
@@ -330,7 +361,12 @@
   </div>
 
   </div>
-  <script src="script.js?v=1"></script>
-  <script src="../unit-js/main.js?v=1"></script>
+  <script src="../unit-js/10-identity.js?v=1"></script>
+  <script src="../unit-js/20-xapi.js?v=1"></script>
+  <script src="../unit-js/40-resume.js?v=1"></script>
+  <script src="../unit-js/50-loader.js?v=1"></script>
+  <script src="script.js?v=2"></script>
+  <script src="../unit-js/main.js?v=2"></script>
+  <script src="../unit-js/90-boot.js?v=1"></script>
 </body>
 </html>

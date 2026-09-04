@@ -54,8 +54,17 @@ function scaleApp() {
   app.style.left      = '0px';
   app.style.top       = '0px';
 }
-window.addEventListener('resize', scaleApp);
-scaleApp();
+/* The resize listener and the first scaleApp() call moved to ../unit-js/90-boot.js. This file must
+   stay free of top-level side effects that the boot order depends on: scaleApp() has to run after
+   initResumeResetHatch() (which rewrites the URL) and before anything measures #app. */
+
+/* Screen-reader announcement. #a11y-announcer is an aria-live region in every index.html. */
+function announce(msg) {
+  var el = document.getElementById('a11y-announcer');
+  if (!el) return;
+  el.textContent = '';
+  setTimeout(function () { el.textContent = msg; }, 30);
+}
 
 
 /* ─── Navigation ────────────────────────────────────────── */
@@ -1367,18 +1376,23 @@ defQ('s49', { type: 'scq', answers: 'a', ok: 'נכון!', bad: 'זה לא מדו
 
 /* ═══════════════════════════════════════════════════════════
    REPORT MODAL — "מצאתם בעיה?" (template-library/ReportModal —
-   approved 09.08; same behavior in all 720 projects). Sends to the
-   shared Google Form; unit/component IDs inlined until metadata files
-   exist (then switch to window.METADATA like the reference).
+   approved 09.08; same behavior in all 720 projects).
+
+   Deliberately NOT replaced by ../unit-js/25-report.js: that file needs DOM this unit does not
+   have (#report-type-wrapper, #report-thanks-modal, .report-custom-select and a
+   .report-select-option list), so adopting it would mean rewriting the dialog markup in all five
+   index.html and the CSS in all five styles.css for no learner-visible gain. See unit-js/README.md.
+
+   shortId() is NOT declared here — ../unit-js/10-identity.js owns it. The copy that used to sit
+   here was `split('/').pop()` with no trailing-slash trim, which returns '' for a canonical id
+   (they all end in '/'), so every report would have carried empty unit/component/item fields the
+   moment window.METADATA started arriving.
+
+   SCREEN_TO_SUBCONTENT is NOT declared here either — it is per-component and lives in each
+   script.js. A shared copy would load AFTER script.js and silently overwrite the real one.
    ═══════════════════════════════════════════════════════════ */
-function shortId(u){ return String(u || '').split('/').pop(); }
 
 var REPORT_FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSfFq5XFtH1pPpLgV5RWT4m3NanYPW5GKremqTvkp6zKjEGqcw/formResponse';
-
-/* screen -> [subContent suffix, page-in-item]; null = no matching subContent.
-   No metadata authored for ratio-01 yet — the report carries the raw
-   screen number as the page reference. */
-var SCREEN_TO_SUBCONTENT = { 0: null, 1: null };
 
 function openReportModal() {
   document.getElementById('report-modal').removeAttribute('hidden');
@@ -1456,7 +1470,11 @@ function resetReportForm() {
     .forEach(function(el) { el.removeAttribute('hidden'); });
 }
 /* Wire the flag button + char counter + Esc-to-close */
-(function wireReport() {
+/* Called from ../unit-js/90-boot.js, not run on load. It was a top-level IIFE, which cannot
+   participate in the boot order and — worse — would be skipped in silence if anything above it in
+   this file threw at load time, leaving the flag button dead with no console error. That exact
+   failure has happened in this family. */
+function initReportModal() {
   var flagBtn = document.querySelector('.flag-btn');
   if (flagBtn) flagBtn.addEventListener('click', openReportModal);
   var reportTextarea = document.getElementById('report-text');
@@ -1473,7 +1491,7 @@ function resetReportForm() {
     if (confirmModal && !confirmModal.hasAttribute('hidden')) { forceCloseReportModal(); return; }
     if (reportModal && !reportModal.hasAttribute('hidden'))  { tryCloseReportModal();   return; }
   });
-})();
+}
 
 
 /* ─── Standard shared image-zoom modal (percent-02 pattern): any
