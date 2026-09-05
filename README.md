@@ -1,4 +1,4 @@
-# methodica-math-ratio-02 — ביטויי יחס ושמירה על היחס (יעד 1.2)
+# methodica-math-ratio-02 — ביטוי יחס בדרכים שונות (יעד 1.2)
 
 The 52-screen unit, in the client's multi-component structure.
 
@@ -74,11 +74,15 @@ Found while mapping screens to catalogue items; all need the מפתחת / produc
 2. **Item `-02-01-002` q1 is a mis-extraction** — slide 7 is a select-all-that-apply where all four
    representations are correct; the metadata turned one option into a standalone `true-false` keyed
    "לא נכון".
-3. **The unit title and `learningObjective` are unconfirmed.** `metadata/` currently carries
-   `זיהוי מצבי יחס`, which is **ratio-01's** title and in fact this unit's נושא; the deck's slide 1
-   gives יעד 1.2 as *"התלמיד ידע לבטא יחס בדרכים שונות"*, which is where this README's title comes
-   from. `learningObjective` is `…RATIO.ALG-EXPR`, unverified.
+3. **The unit title is corrected here and still wrong in the deck.** The extraction carried
+   `זיהוי מצבי יחס`, which is **ratio-01's** title and is in fact this unit's נושא, not its יעד. The
+   correct title is **`ביטוי יחס בדרכים שונות`** (content owner, 2026-09-04) and it is what
+   `metadata/`, the root README and every `<title>` now use. ⚠️ The storyboard and
+   `../../metadata-src/` still carry the wrong one — re-extracting or re-copying from either will
+   reintroduce it.
+4. **`learningObjective` is unverified.** `metadata/` carries `…RATIO.ALG-EXPR`, which has not been
+   checked against `learning-objectives.json`.
 
-Consequence: the runtime never reads `correctAnswers`, so reporting is unaffected — but **do not run
-`send-metadata.ps1` outside `-DryRun`** until 1–3 are resolved, or the catalogue will hold answer keys
-that contradict the shipped lomda.
+Consequence: the runtime never reads `correctAnswers` or `title`, so reporting is unaffected — but
+**do not run `send-metadata.ps1` outside `-DryRun`** until 1, 2 and 4 are resolved, or the catalogue
+will hold answer keys that contradict the shipped lomda.
