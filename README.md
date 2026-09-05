@@ -80,9 +80,28 @@ Found while mapping screens to catalogue items; all need the מפתחת / produc
    `metadata/`, the root README and every `<title>` now use. ⚠️ The storyboard and
    `../../metadata-src/` still carry the wrong one — re-extracting or re-copying from either will
    reintroduce it.
-4. **`learningObjective` is unverified.** `metadata/` carries `…RATIO.ALG-EXPR`, which has not been
-   checked against `learning-objectives.json`.
 
 Consequence: the runtime never reads `correctAnswers` or `title`, so reporting is unaffected — but
-**do not run `send-metadata.ps1` outside `-DryRun`** until 1, 2 and 4 are resolved, or the catalogue
+**do not run `send-metadata.ps1` outside `-DryRun`** until 1 and 2 are resolved, or the catalogue
 will hold answer keys that contradict the shipped lomda.
+
+## `learningObjective` — verified
+
+`metadata/` carries `MOE.MATH.G8.NUM.RATIO-PROP-SCL.RATIO.ALG-EXPR`, and it is **valid**.
+`GET /api/v1/objectives` returns exactly three objectives under this unit's subTopic
+`MOE.MATH.G8.NUM.RATIO-PROP-SCL.RATIO`:
+
+| Code | |
+|---|---|
+| **`.ALG-EXPR`** | לבטא יחס באמצעות ביטויים אלגבריים ← **this unit** |
+| `.QTY-TYPE` | יחס בין כמויות מאותו הסוג או מסוגים שונים (כגון: מהירות) |
+| `.REAS` | חשיבה שעוסקת ביחס |
+
+Of the three, `.ALG-EXPR` is the only one about *expressing* a ratio, so it is the right fit for
+יעד 1.2. ⚠️ Worth knowing that its catalogue gloss says *באמצעות ביטויים אלגבריים* while this unit
+teaches expression as a fraction, verbally and as a number pair — the code is correct because it is
+the closest of the three that exist, not because the wording matches.
+
+⚠️ **Do not "fix" this to `.RECOG` or `.IDENTIFY`.** Neither exists in Kata. `.RECOG` is what
+`metadata-src/` and ratio-01's own `metadata/` carry, so it will look authoritative — ratio-01's
+unit record has an invalid objective code, which is a question for that unit, not this one.
