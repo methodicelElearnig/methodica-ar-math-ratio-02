@@ -85,23 +85,19 @@ Consequence: the runtime never reads `correctAnswers` or `title`, so reporting i
 **do not run `send-metadata.ps1` outside `-DryRun`** until 1 and 2 are resolved, or the catalogue
 will hold answer keys that contradict the shipped lomda.
 
-## `learningObjective` — verified
+## `learningObjective`
 
-`metadata/` carries `MOE.MATH.G8.NUM.RATIO-PROP-SCL.RATIO.ALG-EXPR`, and it is **valid**.
-`GET /api/v1/objectives` returns exactly three objectives under this unit's subTopic
-`MOE.MATH.G8.NUM.RATIO-PROP-SCL.RATIO`:
+`metadata/` carries `MOE.MATH.G8.NUM.RATIO-PROP-SCL.RATIO.ALG-EXPR`. The code **exists** in Kata
+under this unit's subTopic `MOE.MATH.G8.NUM.RATIO-PROP-SCL.RATIO`, and it is what the extraction
+chose for יעד 1.2 — *לבטא יחס בדרכים שונות*.
 
-| Code | |
-|---|---|
-| **`.ALG-EXPR`** | לבטא יחס באמצעות ביטויים אלגבריים ← **this unit** |
-| `.QTY-TYPE` | יחס בין כמויות מאותו הסוג או מסוגים שונים (כגון: מהירות) |
-| `.REAS` | חשיבה שעוסקת ביחס |
+⚠️ **`GET /api/v1/objectives` is PAGED.** A single response is not the whole list. Reading one page
+as complete produced a confident, wrong conclusion here once — that the subTopic had "exactly three"
+objectives and that ratio-01's `.RECOG` therefore did not exist. `.RECOG` is valid, and ratio-01's
+use of it was settled correctly in that project. **Page to the end before concluding a code is
+absent**, and do not change this unit's code on the strength of a partial listing.
 
-Of the three, `.ALG-EXPR` is the only one about *expressing* a ratio, so it is the right fit for
-יעד 1.2. ⚠️ Worth knowing that its catalogue gloss says *באמצעות ביטויים אלגבריים* while this unit
-teaches expression as a fraction, verbally and as a number pair — the code is correct because it is
-the closest of the three that exist, not because the wording matches.
-
-⚠️ **Do not "fix" this to `.RECOG` or `.IDENTIFY`.** Neither exists in Kata. `.RECOG` is what
-`metadata-src/` and ratio-01's own `metadata/` carry, so it will look authoritative — ratio-01's
-unit record has an invalid objective code, which is a question for that unit, not this one.
+Not established here: whether `.ALG-EXPR` is the *best* of the available objectives for this unit,
+as opposed to a valid one. Its catalogue gloss reads *לבטא יחס באמצעות ביטויים אלגבריים*, while this
+unit teaches expressing a ratio as a fraction, verbally and as a number pair. That is a question for
+the מפתחת, and it needs the full objective list to answer.
