@@ -81,9 +81,29 @@ Found while mapping screens to catalogue items; all need the מפתחת / produc
    `../../metadata-src/` still carry the wrong one — re-extracting or re-copying from either will
    reintroduce it.
 
-Consequence: the runtime never reads `correctAnswers` or `title`, so reporting is unaffected — but
-**do not run `send-metadata.ps1` outside `-DryRun`** until 1 and 2 are resolved, or the catalogue
-will hold answer keys that contradict the shipped lomda.
+Consequence: the runtime never reads `correctAnswers`, so **reporting is unaffected** — items and
+questions resolve by id, not by answer key. Issues 1 and 2 are content defects in the catalogue
+record, not in the lomda.
+
+## Catalogue state
+
+**Pushed to Kata 2026-09-04** — 1 unit + 5 components + 16 items + 43 questions, `created=22
+updated=1 failed=0`, and read back with `retrieve-metadata.ps1` to confirm title, subTopic,
+learningObjective and every item/question count round-trip.
+
+⚠️ **It carries the two known-wrong answer keys above** (issues 1 and 2). That was a deliberate
+call — get the catalogue objects in place so reporting has something real to point at, and correct
+the content afterwards.
+
+Re-pushing after a fix is safe: `send-metadata.ps1` **upserts** (GET by `uniqueKey`, then PATCH if
+present, POST if not), so it can be run as often as needed and will update in place rather than
+duplicate.
+
+> On reading `metadata-from/` back: `retrieve-metadata.ps1` **reconstructs** id URLs from its
+> `-IdBase` and trims the trailing slash, so retrieved ids look like `…/methodica-math-ratio-02-01`
+> against our `…/methodica-math-ratio-02-01/`. That is the script's formatting, not a difference in
+> what Kata stores — Kata keys on `uniqueKey`, the last path segment with slashes trimmed. Do not
+> "fix" `metadata/` to match a retrieval.
 
 ## `learningObjective`
 
