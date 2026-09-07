@@ -148,3 +148,61 @@ Not established here: whether `.ALG-EXPR` is the *best* of the available objecti
 as opposed to a valid one. Its catalogue gloss reads *לבטא יחס באמצעות ביטויים אלגבריים*, while this
 unit teaches expressing a ratio as a fraction, verbally and as a number pair. That is a question for
 the מפתחת, and it needs the full objective list to answer.
+
+## Deployments
+
+`deployments/` sits **outside** this repo, beside `git-repo/`, and is not version-controlled.
+`git status` here will never mention it and `git checkout` can never bring it back — which is why
+the tooling below exists.
+
+### Build and verify with the tools, not by hand
+
+Three PowerShell 7 scripts in `docs-and-tools/`, byte-identical to
+`methodica-math-ratio-01`'s — both units have had the same shape since the 2026-09-07 asset hoist,
+so one definition covers both:
+
+| script | what it is |
+|---|---|
+| `package-allowlist.ps1` | the **single** definition of what ships. Dot-sourced by the other two; not runnable alone. |
+| `build-package.ps1` | cuts a package containing exactly that, then verifies its own output |
+| `verify-package.ps1` | asserts an existing package **is** exactly that, at any later date |
+
+```bash
+pwsh -File docs-and-tools/build-package.ps1 -DryRun    # what ships, and what does not
+pwsh -File docs-and-tools/build-package.ps1            # cut today's package
+pwsh -File docs-and-tools/verify-package.ps1           # re-check the newest package, any time
+```
+
+Both tools read the one allowlist, so a package cannot be built to one definition and checked
+against another. `verify-package.ps1` exits 0/1 and runs four checks: **FORWARD** (every packaged
+file byte-identical to the tree), **REVERSE** (every file the allowlist says should ship is
+present), **HYGIENE** (no secret or dev file), **COMMIT** (tree clean, and no *shipped* file changed
+since the commit `DEPLOY.md` names). REVERSE is the one a plain diff misses — a file *added* to the
+tree after a package was cut is invisible to a forward-only comparison and ships as a 404.
+
+Worth knowing before you run them:
+
+- ⚠️ **Allowlist, never denylist.** `docs-and-tools/` holds `kata-api-key.txt`; one missing denylist
+  entry would publish a live key. `-DryRun` prints the excluded set too — read that half, it is
+  where a secret would hide if a rule were wrong. Here it correctly holds the key, every `.ps1`,
+  `_test/`, `metadata-from/`, the five `index_dev.html` and the READMEs.
+- The builder **refuses a dirty tree** (a package must be reproducible from a commit) and **refuses
+  to overwrite a non-empty target without `-Force`**. `-Force` preserves `DEPLOY.md`, the one file
+  in a package written by hand and not reproducible from the tree.
+- `DEPLOY.md` must keep its ``commit **`<sha>`**`` line — `verify-package.ps1` parses the first such
+  match to tell a current package from a stale one.
+
+### Packages on disk
+
+- **`2026-09-07/`** — current and the only one. 67 files, 8,335,946 bytes ≈ 8.34 MB, built by
+  `build-package.ps1` from commit `dc41d94` and verified: 66/66 both directions, zero drift,
+  **zero duplicate blobs**. Ships `unit-css/` and `unit-assets/` as siblings of the five component
+  folders; no component carries a `styles.css` or an `assets/fonts/` any more. See its `DEPLOY.md`,
+  which also records an earlier same-date package built against `3b09766`, before the asset hoist —
+  never uploaded, replaced in place. If you hold a copy taken earlier that day, discard it.
+
+**Nothing has been uploaded to the CDN**: every `math/ratio/02/…` path still returns HTTP 200 with
+**0 bytes**, re-measured 2026-09-07 against a deliberately bogus path and a live control. That CDN
+answers 200 for absent paths, so verify an upload by **byte size**, never by status code — and check
+`unit-css/styles.css` and one file under `unit-assets/` specifically, since those are the two an
+upload checklist written before the asset hoist would silently omit.
