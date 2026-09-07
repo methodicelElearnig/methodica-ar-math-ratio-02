@@ -22,6 +22,7 @@
 *.png  binary
 *.jpg  binary
 *.jpeg binary
+*.mp4  binary
 
 # SVG is XML — text, not an image format, as far as git is concerned. Stated explicitly
 # because it is the largest group of files in the unit (120 of them) and because

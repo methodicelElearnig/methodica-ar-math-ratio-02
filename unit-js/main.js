@@ -24,16 +24,16 @@ function setNavLabel(btn, label) {
    headphones pose: both supplied 14.08. */
 const CHARACTER_ASSETS = {
   'character-1': {
-    selection: 'assets/img/character-1-selection.png',
-    headphones: 'assets/img/character-1-headphones.png',
-    baker: 'assets/img/character-1-baker.png',
-    peak: 'assets/img/character-1-peak.png',
+    selection: '../unit-assets/img/character-1-selection.png',
+    headphones: '../unit-assets/img/character-1-headphones.png',
+    baker: '../unit-assets/img/character-1-baker.png',
+    peak: '../unit-assets/img/character-1-peak.png',
   },
   'character-2': {
-    selection: 'assets/img/character-2-selection.png',
-    headphones: 'assets/img/character-2-headphones.png',
-    baker: 'assets/img/character-2-baker.png',
-    peak: 'assets/img/character-2-peak.png',
+    selection: '../unit-assets/img/character-2-selection.png',
+    headphones: '../unit-assets/img/character-2-headphones.png',
+    baker: '../unit-assets/img/character-2-baker.png',
+    peak: '../unit-assets/img/character-2-peak.png',
   },
 };
 function characterAsset(pose) {
@@ -170,8 +170,15 @@ function resetScreenState(n) {
     if (v) {
       const id = CHARACTER_ASSETS[window.lomdaState.selectedCharacter]
         ? window.lomdaState.selectedCharacter : 'character-1';
-      const src = 'assets/video/' + id + '-finale.mp4';
-      if (!v.src.endsWith(src)) v.src = src;
+      const src = '../unit-assets/video/' + id + '-finale.mp4';
+      /* Compare the ATTRIBUTE, not v.src. The .src getter reflects the RESOLVED
+         absolute URL, with any ../ already normalised away — so an endsWith()
+         against this relative string can never match, the guard silently dies,
+         and the clip is re-assigned on every entry to 51. Re-assigning restarts
+         media resource selection: the confetti visibly re-flashes on every back
+         navigation and on every resume onto this screen. getAttribute() returns
+         what we last wrote, so it survives any future path change too. */
+      if (v.getAttribute('src') !== src) v.src = src;
       v.currentTime = 0;
       v.play().catch(() => {});
     }
@@ -636,12 +643,12 @@ function makeClickHint(id) {
   el.id = id;
   el.setAttribute('aria-hidden', 'true');
   el.innerHTML =
-    '<div class="click-hint__ripple1"><img src="assets/img/hint/ripple-ring-1.svg" alt=""></div>' +
-    '<div class="click-hint__ripple2"><img src="assets/img/hint/ripple-ring-2.svg" alt=""></div>' +
+    '<div class="click-hint__ripple1"><img src="../unit-assets/img/hint/ripple-ring-1.svg" alt=""></div>' +
+    '<div class="click-hint__ripple2"><img src="../unit-assets/img/hint/ripple-ring-2.svg" alt=""></div>' +
     SPARK_DIRS.map(([dx, dy], i) =>
-      `<div class="click-hint__spark" style="--dx:${dx}px; --dy:${dy}px; --d:${i * 3}ms"><img src="assets/img/hint/spark.svg" alt=""></div>`
+      `<div class="click-hint__spark" style="--dx:${dx}px; --dy:${dy}px; --d:${i * 3}ms"><img src="../unit-assets/img/hint/spark.svg" alt=""></div>`
     ).join('') +
-    '<div class="click-hint__cursor"><img src="assets/img/hint/cursor.svg" alt=""></div>';
+    '<div class="click-hint__cursor"><img src="../unit-assets/img/hint/cursor.svg" alt=""></div>';
   return el;
 }
 
