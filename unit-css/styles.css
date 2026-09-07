@@ -1,46 +1,58 @@
-/* ═══ style.css ═══ */
+/* ═══ unit-css/styles.css ═══ */
 /* ═══════════════════════════════════════════════════════
-   css/style.css  —  methodica-math-ratio-01-01 — vendored from the approved methodica-math-percent-02-01 engine
+   methodica-math-ratio-02 — ONE stylesheet for the whole unit,
+   vendored from the approved methodica-math-percent-02-01 engine.
    Canvas: 1280 × 710 px   (720 reference engine)
+
+   Every component links this as ../unit-css/styles.css?v=N. It used to be
+   five byte-identical copies, one per component, with nothing asserting they
+   matched — so one edited copy was a silent per-component divergence.
    ═══════════════════════════════════════════════════════ */
 
 /* ─── Local fonts (Assistant) ───────────────────────────
-   Loaded from assets/fonts/ — used before Google Fonts CDN.
-   Google Fonts <link> in index.html remains as network fallback.
+   Loaded from ../unit-assets/fonts/ — resolved from THIS file's directory
+   (unit-css/), not from the component page that links it. That is why one
+   ../ is correct and two is the classic bug: ratio-01 shipped six stylesheets
+   pointing one level too high and rendered the whole unit in a fallback face
+   with no error anywhere.
+
+   These @font-face rules are the ONLY font entry point. There is no Google
+   Fonts <link> anywhere in this unit — do not reinstate the claim that there
+   is, which is what the vendored comment used to say.
    ───────────────────────────────────────────────────────── */
 @font-face {
   font-family: 'Assistant';
-  src: url('assets/fonts/Assistant-ExtraLight.ttf') format('truetype');
+  src: url('../unit-assets/fonts/Assistant-ExtraLight.ttf') format('truetype');
   font-weight: 200; font-style: normal; font-display: swap;
 }
 @font-face {
   font-family: 'Assistant';
-  src: url('assets/fonts/Assistant-Light.ttf') format('truetype');
+  src: url('../unit-assets/fonts/Assistant-Light.ttf') format('truetype');
   font-weight: 300; font-style: normal; font-display: swap;
 }
 @font-face {
   font-family: 'Assistant';
-  src: url('assets/fonts/Assistant-Regular.ttf') format('truetype');
+  src: url('../unit-assets/fonts/Assistant-Regular.ttf') format('truetype');
   font-weight: 400; font-style: normal; font-display: swap;
 }
 @font-face {
   font-family: 'Assistant';
-  src: url('assets/fonts/Assistant-Medium.ttf') format('truetype');
+  src: url('../unit-assets/fonts/Assistant-Medium.ttf') format('truetype');
   font-weight: 500; font-style: normal; font-display: swap;
 }
 @font-face {
   font-family: 'Assistant';
-  src: url('assets/fonts/Assistant-SemiBold.ttf') format('truetype');
+  src: url('../unit-assets/fonts/Assistant-SemiBold.ttf') format('truetype');
   font-weight: 600; font-style: normal; font-display: swap;
 }
 @font-face {
   font-family: 'Assistant';
-  src: url('assets/fonts/Assistant-Bold.ttf') format('truetype');
+  src: url('../unit-assets/fonts/Assistant-Bold.ttf') format('truetype');
   font-weight: 700; font-style: normal; font-display: swap;
 }
 @font-face {
   font-family: 'Assistant';
-  src: url('assets/fonts/Assistant-ExtraBold.ttf') format('truetype');
+  src: url('../unit-assets/fonts/Assistant-ExtraBold.ttf') format('truetype');
   font-weight: 800; font-style: normal; font-display: swap;
 }
 
