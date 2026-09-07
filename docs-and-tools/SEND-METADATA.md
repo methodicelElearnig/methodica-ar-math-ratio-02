@@ -159,7 +159,7 @@ is read straight from the metadata.
 
 ## Going the other way
 
-[`retrieve-metadata.ps1`](RETRIEVE-METADATA.md) pulls a unit back out of the catalog
+[`retrieve-metadata.ps1`](retrieve-metadata.ps1) pulls a unit back out of the catalog
 into `metadata-from/` at the repo root, in this same file format, so you can diff the
 catalog against the repo:
 

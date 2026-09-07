@@ -15,7 +15,7 @@ replaces the rule; they just stop it depending on memory.
 
 | File | What it does |
 |---|---|
-| `verify-report.js` | **Structure.** 884 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
+| `verify-report.js` | **Structure.** 889 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
 | `statement-flow.js` | **Behaviour.** 42 assertions. Which statements actually leave when a learner does something, in what order, carrying what result — and, more importantly, which ones do **not** leave when the same screen is reached again by a reload or the back button. |
 | `xapi-720-k.js` | A local stand-in for the CDN library, backed by `sessionStorage`. Loaded in the browser through `?xapiLib=`, and executed directly by both harnesses. |
 
@@ -51,6 +51,10 @@ NODE_PATH=... node _test/verify-report.js ../../deployments/2026-09-07
 
 Against the 2026-09-07 package this is **clean — 884/884, zero failures**, because nothing
 in this unit's suite needs a file the package excludes.
+
+884 rather than the 889 of a working-tree run, because a package holds only `DEPLOY.md`,
+which carries no links, so the `docs resolve` section has nothing to check and contributes
+5 fewer assertions. A lower total here is expected; a *failure* is not.
 
 ⚠️ **Do not assume that stays true.** The sibling unit `methodica-math-ratio-01` runs
 1675/9 against its own package, and all nine failures are assertions that want

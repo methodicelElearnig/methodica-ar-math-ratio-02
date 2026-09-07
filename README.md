@@ -57,7 +57,7 @@ that omits them is a unit with no stylesheet and no fonts. See `unit-js/README.m
 - `metadata/` — unit + per-component JSONs: 1 unit, 5 components, 16 items, 43 questions. Extracted
   from the deck and normalised to the shape live Kata accepts. ⚠️ **Not yet pushed** — see *Known
   content issues*.
-- `_test/` — headless regression harness, 884 + 42 assertions across two suites. **Never shipped**,
+- `_test/` — headless regression harness, 889 + 42 assertions across two suites. **Never shipped**,
   including its stub library — the allowlist excludes it twice over, by name and by the
   leading-underscore rule. See its README for what each suite covers, and
   [`Documentation/GITHUB-GH.md`](../../../Documentation/GITHUB-GH.md) for how to run them:

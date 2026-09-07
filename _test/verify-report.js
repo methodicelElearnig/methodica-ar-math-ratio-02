@@ -724,6 +724,49 @@ function checkAssetContract() {
   }
 }
 
+/* ══════════════ 11. The documentation resolves ══════════════
+   Prose is not executed, so nothing here was ever checked. In this repo four links
+   to Documentation/ were dead for as long as they existed: unit-js/README.md reached
+   ../../../Documentation/, but from unit-js/ the correct depth is ../../../../ —
+   three levels lands on <project>/Documentation, which does not exist. The two
+   companion links a reader is pointed at first, including the one the file calls
+   "the authoritative guide", both 404'd.
+
+   Only relative targets are checked. http(s), mailto and bare #anchors are somebody
+   else's problem; a #fragment on a real file is stripped before the existence test. */
+
+function checkDocLinks() {
+  const mds = [];
+  (function walk(dir) {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (e.name === '.git' || e.name === 'node_modules') continue;
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (/\.md$/i.test(e.name)) mds.push(p);
+    }
+  })(BASE);
+
+  /* A package holds only DEPLOY.md, which carries no links — so only demand a full
+     set of documents when this is a working tree. */
+  if (fs.existsSync(path.join(BASE, '_test'))) {
+    ok('docs', 'the repo has its .md files to check', mds.length >= 4, String(mds.length));
+  }
+
+  for (const f of mds) {
+    const rel = path.relative(BASE, f).replace(/\\/g, '/');
+    const links = [...fs.readFileSync(f, 'utf8').matchAll(/\]\(([^)\s]+)\)/g)]
+      .map(m => m[1])
+      .filter(u => !/^(?:https?:|mailto:|#|<)/i.test(u));
+    for (const u of [...new Set(links)]) {
+      const target = u.split('#')[0];
+      if (!target) continue;
+      const resolved = path.resolve(path.dirname(f), target);
+      ok('docs', rel + ' → ' + u + ' resolves', fs.existsSync(resolved),
+        'looked for ' + path.relative(BASE, resolved));
+    }
+  }
+}
+
 /* ══════════════ run ══════════════ */
 
 const SUITES = [
@@ -737,6 +780,7 @@ const SUITES = [
   ['flush on commit', checkFlushOnCommit],
   ['report layer', checkReportLayer],
   ['asset contract', checkAssetContract],
+  ['docs resolve', checkDocLinks],
 ];
 
 for (const [name, fn] of SUITES) {
@@ -751,4 +795,45 @@ console.log('\n' + passes + ' assertions passed, ' + failures.length + ' failed'
 if (failures.length) {
   console.log('\n' + failures.join('\n'));
   process.exit(1);
+}
+
+/* ══════════════ documentation reconciliation ══════════════
+   NOT an ok() assertion, and that is deliberate: it needs the FINAL total, and an
+   assertion that ran late enough to know the total would also have incremented it —
+   it could never agree with a number written down before it ran. So it runs after
+   the summary and fails the process on its own.
+
+   It exists because documented counts went stale silently and repeatedly: this
+   family had `~1000`, `~53`, `1540 + 56` and `~885` in prose while the suites ran
+   quite different numbers. A count nothing checks is worse than no count, because
+   it is read as authoritative.
+
+   Only this suite's own number is checked here; statement-flow.js checks its own. */
+{
+  const claims = [];
+  for (const rel of ['_test/README.md', 'README.md']) {
+    const p = path.join(BASE, rel);
+    if (!fs.existsSync(p)) continue;
+    const md = fs.readFileSync(p, 'utf8');
+    /* "**Structure.** 884 assertions"  and  "884 + 42 assertions" — this suite is
+       the first number in the pair, statement-flow.js the second. */
+    for (const m of md.matchAll(/\*\*Structure\.\*\*\s+([\d,]+)\s+assertions/g)) {
+      claims.push({ rel, text: m[0], n: +m[1].replace(/,/g, '') });
+    }
+    for (const m of md.matchAll(/([\d,]+)\s*\+\s*[\d,]+\s+assertions/g)) {
+      claims.push({ rel, text: m[0], n: +m[1].replace(/,/g, '') });
+    }
+  }
+  const wrong = claims.filter(c => c.n !== passes);
+  if (wrong.length) {
+    console.log('\nDOCUMENTATION IS STALE — this suite ran ' + passes + ' assertions:');
+    for (const c of wrong) {
+      console.log('  ' + c.rel + ' claims ' + c.n + '  ("' + c.text.trim() + '")');
+    }
+    console.log('Update those to ' + passes + ', or the number stops meaning anything.');
+    process.exit(1);
+  }
+  if (claims.length) {
+    console.log('docs agree: ' + claims.length + ' documented count(s) all say ' + passes);
+  }
 }
