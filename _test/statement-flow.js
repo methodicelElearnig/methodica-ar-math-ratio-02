@@ -323,6 +323,57 @@ function replayIsSilent() {
   b.dom.window.close();
 }
 
+/* ══════════════ 7b. An item answered before a reload still closes after it ══════════════
+   xapi-720-k.js gates an item's 'completed' on xapiItemAnswered[itemId], which it fills ONLY
+   from an 'answered' passing through in the SAME page load:
+
+       if (sttmContext?.expectsAnswer && !xapiItemAnswered[_cid]) {
+           console.log("[XAPI] item left unanswered — deferring 'completed': " + _cid);
+           return;          // "deferring" is a DROP — there is no queue, flush or retry
+
+   A resume deliberately re-sends no answers, so without xapiSeedAnsweredFromResume()
+   (../unit-js/20-xapi.js, called at the end of applyExecutionState) the close below is
+   silently dropped — while sendStatementOnce, having called the sender, still marks the
+   ledger sent. The statement is then lost for good: the lomda never asks again and the
+   library has no retry of any kind. The trigger is the ordinary path — answer, leave, come
+   back, continue.
+
+   Found live against Kata on 07.09.26 and invisible to this suite until _test/xapi-720-k.js
+   learned the guard, so keep both halves: deleting the stub's guard makes this assertion
+   vacuous rather than failing. */
+
+function itemClosesAfterReload() {
+  /* Session one: answer s26, which is item 004's question, and keep the payload. */
+  const a = boot('03');
+  a.finishBoot();
+  a.clear();
+  a.exec(`goTo(26);
+    var v = {'s26-0a':'1.3','s26-0b':'10','s26-1a':'1','s26-1b':'5','s26-2a':'1','s26-2b':'10'};
+    Object.keys(v).forEach(function(id){ document.getElementById(id).value = v[id]; });
+    qCheck('s26');`);
+  const payload = JSON.parse(a.val('JSON.stringify(capturePartPayload())'));
+  a.dom.window.close();
+
+  /* Session two: a fresh window — so a fresh library with an empty xapiItemAnswered, which is
+     the whole point — replaying that payload. */
+  const b = boot('03');
+  b.clear();
+  b.finishBoot(payload, undefined);
+  eq('reclose', 'the replay itself closes nothing', 
+    b.stmts().filter(x => x.verb === 'completed').length, 0);
+
+  /* Screen 26 is in item 004 and screen 28 in item 005, so this crossing closes 004 — the
+     item answered in the previous session. Nothing was closed above, so every 'completed'
+     here belongs to this crossing. */
+  b.exec('goTo(28);');
+  const closed = b.stmts().filter(x => x.verb === 'completed').map(x => x.opts.objectId);
+  ok('reclose', 'an item answered before the reload still closes after it',
+    closed.length === 1 && /-03-004\/$/.test(String(closed[0])),
+    'closed ' + closed.length + ': ' + closed.join(','));
+  b.dom.window.close();
+}
+
+
 /* ══════════════ 8. Reporting off is genuinely off ══════════════
    The load-bearing property: without ?slxapi the lomda must behave exactly as it did
    before instrumentation. Here the library is never delivered at all, which is the
@@ -383,6 +434,7 @@ const SUITES = [
   ['one question across three screens', questionAcrossScreens],
   ['no duplicate completed', noDuplicateCompleted],
   ['the replay is silent', replayIsSilent],
+  ['an answered item closes after a reload', itemClosesAfterReload],
   ['reporting off is off', reportingOff],
   ['the cross-part seam', crossPartSeam],
 ];

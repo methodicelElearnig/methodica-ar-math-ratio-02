@@ -27,11 +27,11 @@ Every part's `index.html` opens with the unit stylesheet and ends with exactly t
 <link rel="stylesheet" href="../unit-css/styles.css?v=2">   <!-- in <head>, one for the unit -->
 …
 <script src="../unit-js/10-identity.js?v=1"></script>
-<script src="../unit-js/20-xapi.js?v=1"></script>
+<script src="../unit-js/20-xapi.js?v=2"></script>
 <script src="../unit-js/40-resume.js?v=1"></script>
 <script src="../unit-js/50-loader.js?v=1"></script>
 <script src="script.js?v=2"></script>              <!-- per-part: CONFIG ONLY -->
-<script src="../unit-js/main.js?v=3"></script>     <!-- engine + screen logic + hooks -->
+<script src="../unit-js/main.js?v=4"></script>     <!-- engine + screen logic + hooks -->
 <script src="../unit-js/90-boot.js?v=1"></script>  <!-- the ONLY side effects -->
 ```
 
