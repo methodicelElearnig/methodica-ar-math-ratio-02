@@ -5,12 +5,18 @@ package, **including the stub library**. `xapi-720-k.js` shares a basename with 
 library by design (the `XAPI_USING_G` gate reads the filename), and in a sibling project the
 stub was once pushed under the library's name.
 
+That is no longer left to whoever cuts the package. `docs-and-tools/package-allowlist.ps1`
+excludes this folder twice over — `_test` by name, and any path segment starting with an
+underscore — and `verify-package.ps1`'s HYGIENE check scans a finished package for `_*` again,
+so the stub reaching a release now fails a script rather than a code review. Neither guard
+replaces the rule; they just stop it depending on memory.
+
 ## What is here
 
 | File | What it does |
 |---|---|
-| `verify-report.js` | **Structure.** ~885 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
-| `statement-flow.js` | **Behaviour.** ~42 assertions. Which statements actually leave when a learner does something, in what order, carrying what result — and, more importantly, which ones do **not** leave when the same screen is reached again by a reload or the back button. |
+| `verify-report.js` | **Structure.** 884 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
+| `statement-flow.js` | **Behaviour.** 42 assertions. Which statements actually leave when a learner does something, in what order, carrying what result — and, more importantly, which ones do **not** leave when the same screen is reached again by a reload or the back button. |
 | `xapi-720-k.js` | A local stand-in for the CDN library, backed by `sessionStorage`. Loaded in the browser through `?xapiLib=`, and executed directly by both harnesses. |
 
 ## Running
@@ -32,6 +38,28 @@ NODE_PATH=/tmp/lomda-test/node_modules node _test/verify-report.js && NODE_PATH=
 Exit 0 = everything passed. `statement-flow.js` prints one `Not implemented: navigation to
 another Document` line — that is jsdom reacting to the real `location.replace()` in
 `leaveToPart()`, and it is expected.
+
+### Pointing the suite at a deployment package
+
+Both harnesses take an alternative base path as their first argument. Use it before an
+upload: it asserts against the bytes that will actually ship, not against the tree they
+were copied from.
+
+```bash
+NODE_PATH=... node _test/verify-report.js ../../deployments/2026-09-07
+```
+
+Against the 2026-09-07 package this is **clean — 884/884, zero failures**, because nothing
+in this unit's suite needs a file the package excludes.
+
+⚠️ **Do not assume that stays true.** The sibling unit `methodica-math-ratio-01` runs
+1675/9 against its own package, and all nine failures are assertions that want
+`_test/xapi-720-k.js` or an `index_dev.html` — files a package correctly omits. Add one
+assertion here that reads a development file and this run stops being clean, without
+anything being wrong. Read the failure list, not the exit code.
+
+The real gate for a package is `docs-and-tools/verify-package.ps1`, which knows what a
+package is meant to contain and exits 0 on a good one.
 
 ## The selection criterion
 
