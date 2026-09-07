@@ -562,6 +562,168 @@ function checkReportLayer() {
     /No video reporting in this unit, deliberately/.test(src));
 }
 
+/* ══════════════ 10. The asset contract ══════════════
+   Every failure mode in this section is SILENT in a browser. A missing font renders
+   in a fallback face that looks plausible; a missing <img> renders as nothing at all.
+   No exception, no console message beyond a network 404 nobody is watching.
+
+   And nothing else in this file can see any of it: checkLoad builds its JSDOM with
+   default `resources`, so jsdom never fetches <link rel=stylesheet>, <img> or <video>
+   — it only hand-executes <script src>. Before this section existed, moving every
+   asset in the unit broke exactly zero assertions.
+
+   ratio-01 shipped this bug: all six of its stylesheets reached the fonts as
+   ../assets/fonts/ while the fonts sat in <component>/assets/fonts/, so the entire
+   unit rendered in a fallback typeface and no assertion noticed.
+
+   The invariant, stated once:
+
+     shared code  (unit-js/*.js, unit-css/styles.css)  references ONLY ../unit-assets/
+     a component's own markup (index.html)             references ONLY assets/, in itself
+
+   unit-js/main.js is ONE file executed from five different folders. A bare 'assets/…'
+   literal there resolves to a different file per component — and to nothing at all in
+   the components that do not hold it. That is not hypothetical: before the hoist, the
+   8-pose CHARACTER_ASSETS table named baker/headphones assets that existed only in 01
+   and peak assets that existed only in 05, and it worked purely because CHAR_SCREENS
+   happened to map pose -> screen -> owning component correctly. */
+
+/* Block comments only: the sole comment-borne 'assets/' mention in the shared layer is
+   20-xapi.js's note about component 01's own selection clips, and no // line comment in
+   unit-js/ mentions a path. Stripping // as well would truncate 'https://…' literals. */
+const stripBlockComments = s => s.replace(/\/\*[\s\S]*?\*\//g, '');
+
+/* Directory segments must be lowercase — on a case-sensitive host a mixed-case segment
+   404s. FILE names are exempt: the Assistant faces are legitimately capitalised. */
+const dirSegsLower = u => u.split('/').slice(0, -1)
+  .filter(s => s && s !== '..')
+  .every(s => s === s.toLowerCase());
+
+function checkAssetContract() {
+  const sharedAssets = path.join(BASE, 'unit-assets');
+  const cssPath = path.join(BASE, 'unit-css', 'styles.css');
+
+  /* ── the shared roots exist ── */
+  ok('assets', 'unit-css/styles.css is the one stylesheet for the unit', fs.existsSync(cssPath));
+  const fontsDir = path.join(sharedAssets, 'fonts');
+  const faces = fs.existsSync(fontsDir)
+    ? fs.readdirSync(fontsDir).filter(f => /\.ttf$/i.test(f)) : [];
+  ok('assets', 'unit-assets/fonts/ holds the shared faces', faces.length >= 7,
+    faces.length ? faces.join(',') : 'missing');
+
+  /* ── and nothing re-grows a per-component copy of what was hoisted ── */
+  for (const c of COMPONENTS) {
+    const dir = path.join(BASE, PART_DIR(c));
+    ok('assets', c + ': keeps no styles.css of its own',
+      !fs.existsSync(path.join(dir, 'styles.css')));
+    ok('assets', c + ': keeps no assets/fonts/ of its own',
+      !fs.existsSync(path.join(dir, 'assets', 'fonts')));
+  }
+
+  /* ── every url() in the stylesheet resolves FROM THE STYLESHEET'S OWN DIRECTORY ──
+     which is how a browser resolves a relative url() — NOT from the document that
+     links it. Being wrong by one ../ here is the whole of the ratio-01 bug. */
+  if (fs.existsSync(cssPath)) {
+    const css = fs.readFileSync(cssPath, 'utf8');
+    const urls = [...css.matchAll(/url\(\s*['"]?([^'")]+)['"]?\s*\)/g)]
+      .map(m => m[1].trim())
+      .filter(u => !/^(?:data:|https?:|\/\/|#)/.test(u));
+    ok('assets', 'styles.css references local assets to check', urls.length > 0,
+      String(urls.length));
+    for (const u of [...new Set(urls)]) {
+      const resolved = path.resolve(path.dirname(cssPath), u.split(/[?#]/)[0]);
+      ok('assets', 'styles.css url(' + u + ') resolves', fs.existsSync(resolved),
+        'looked for ' + path.relative(BASE, resolved));
+      ok('assets', 'styles.css url(' + u + ') has lowercase directories', dirSegsLower(u), u);
+      ok('assets', 'styles.css url(' + u + ') points into unit-assets/',
+        u.startsWith('../unit-assets/'), u);
+    }
+  }
+
+  /* ── shared code references ONLY ../unit-assets/, and every literal it names
+        resolves from EVERY component ── */
+  const sharedCode = fs.readdirSync(path.join(BASE, 'unit-js'))
+    .filter(f => f.endsWith('.js')).sort()
+    .map(f => ['unit-js/' + f, path.join(BASE, 'unit-js', f)]);
+
+  for (const [label, p] of sharedCode) {
+    const src = stripBlockComments(fs.readFileSync(p, 'utf8'));
+
+    const bare = [...src.matchAll(/(?:['"`]|src=")assets\//g)].map(m => m[0]);
+    ok('assets', label + ' names no component-local assets/ path',
+      bare.length === 0, bare.length + ' bare literal(s): ' + bare.join(' '));
+
+    const lits = [...src.matchAll(/['"`](\.\.\/unit-assets\/[^'"`]*)/g)].map(m => m[1]);
+    for (const u of [...new Set(lits)]) {
+      ok('assets', label + ': ' + u + ' has lowercase directories', dirSegsLower(u), u);
+      /* A literal ending in a slash is a CONCATENATION PREFIX (main.js builds the
+         finale clip's name at runtime); assert the directory. Otherwise assert the file. */
+      const isPrefix = u.endsWith('/');
+      for (const c of COMPONENTS) {
+        const resolved = path.resolve(BASE, PART_DIR(c), u);
+        ok('assets', label + ': ' + u + ' resolves from part ' + c,
+          fs.existsSync(resolved) &&
+          (isPrefix ? fs.statSync(resolved).isDirectory() : fs.statSync(resolved).isFile()),
+          'looked for ' + path.relative(BASE, resolved));
+      }
+    }
+  }
+
+  /* The two finale clips are named by concatenation in main.js and by nothing else, so
+     the literal sweep above can only reach their directory. Name them explicitly. */
+  for (const id of ['character-1', 'character-2']) {
+    ok('assets', 'unit-assets/video/' + id + '-finale.mp4 exists (main.js builds this name)',
+      fs.existsSync(path.join(sharedAssets, 'video', id + '-finale.mp4')));
+  }
+
+  /* Every pose the shared table can hand out must exist — this is the assertion that
+     turns a mis-placed CHAR_SCREENS entry into a failure instead of a blank <img>. */
+  const mainSrc = fs.readFileSync(path.join(BASE, 'unit-js', 'main.js'), 'utf8');
+  const poses = [...mainSrc.matchAll(/\b(selection|headphones|baker|peak):\s*'([^']+)'/g)];
+  ok('assets', 'CHARACTER_ASSETS declares both characters in all four poses',
+    poses.length === 8, String(poses.length));
+  for (const [, pose, u] of poses) {
+    ok('assets', 'CHARACTER_ASSETS ' + pose + ' -> ' + u + ' exists',
+      fs.existsSync(path.resolve(BASE, PART_DIR('01'), u)), u);
+  }
+
+  /* ── the <link>: one stylesheet, the unit's, with a ?v= uniform across parts ──
+     §2's cache-buster contract only ever inspected <script src> tags starting
+     ../unit-js/, so the stylesheet's ?v= was unguarded in both respects. */
+  let linkV = null, linkC = null;
+  for (const c of COMPONENTS) {
+    const dir = path.join(BASE, PART_DIR(c));
+    const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
+    const links = [...html.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)].map(m => m[1]);
+    eq('assets', c + ': links exactly one stylesheet', links.length, 1);
+    const [url, q] = (links[0] || '').split('?');
+    ok('assets', c + ': links the unit stylesheet', url === '../unit-css/styles.css', String(url));
+    ok('assets', c + ': the stylesheet href resolves',
+      !!url && fs.existsSync(path.resolve(dir, url)), String(url));
+    const v = (q || '').replace(/^v=/, '');
+    ok('cachebust', c + ': the stylesheet carries a ?v= at all', v !== '', String(links[0]));
+    if (linkV === null) { linkV = v; linkC = c; }
+    else ok('cachebust', 'styles.css has the same ?v= in every part', linkV === v,
+      'part ' + linkC + '=' + linkV + ' vs ' + c + '=' + v);
+  }
+
+  /* ── a component's own markup stays inside its own folder ── */
+  for (const c of COMPONENTS) {
+    const dir = path.join(BASE, PART_DIR(c));
+    const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
+    const srcs = [...html.matchAll(/<(?:img|video|source)[^>]+src="([^"]+)"/g)]
+      .map(m => m[1].trim())
+      .filter(u => u && !/^(?:data:|https?:|\/\/)/.test(u));
+    for (const u of [...new Set(srcs)]) {
+      ok('assets', c + ': <img|video> ' + u + ' resolves',
+        fs.existsSync(path.resolve(dir, u.split(/[?#]/)[0])), 'looked for ' + u);
+      ok('assets', c + ': ' + u + ' is component-local, not reaching up',
+        !u.startsWith('../'), u);
+      ok('assets', c + ': ' + u + ' has lowercase directories', dirSegsLower(u), u);
+    }
+  }
+}
+
 /* ══════════════ run ══════════════ */
 
 const SUITES = [
@@ -574,6 +736,7 @@ const SUITES = [
   ['boot cover', checkBootCover],
   ['flush on commit', checkFlushOnCommit],
   ['report layer', checkReportLayer],
+  ['asset contract', checkAssetContract],
 ];
 
 for (const [name, fn] of SUITES) {
