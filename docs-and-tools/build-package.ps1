@@ -40,6 +40,12 @@
 .PARAMETER NoDeployStub
     Do not write a draft DEPLOY.md when the target has none.
 
+.PARAMETER DiscardPackageDocs
+    ⚠️ With -Force, destroy the existing DEPLOY.md instead of carrying it across.
+    DEPLOY.md is written by hand and is NOT in git, so this cannot be undone. The
+    default is to preserve it: it is the one file in a package that cannot be rebuilt
+    from the tree.
+
 .PARAMETER RepoRoot
     The tree to build from. Default: one level up from this script's docs-and-tools/ home.
 
@@ -65,6 +71,7 @@ param(
     [switch] $DryRun,
     [switch] $AllowDirty,
     [switch] $NoDeployStub,
+    [switch] $DiscardPackageDocs,
     [string] $RepoRoot
 )
 
@@ -142,8 +149,26 @@ if (Test-Path -LiteralPath $OutDir) {
             Write-Host '  Pass -Force to re-cut it in place, and record the re-cut in its DEPLOY.md.'
             exit 1
         }
+        # DEPLOY.md is the ONE file in a package that cannot be rebuilt from the tree:
+        # it is written by hand, it is not in git, and deployments/ is outside the repo.
+        # A -Force re-cut carries it across rather than destroying it.
+        $preserved = @{}
+        if (-not $DiscardPackageDocs) {
+            foreach ($n in $PackageOnlyFiles) {
+                $p = Join-Path $OutDir $n
+                if (Test-Path -LiteralPath $p) { $preserved[$n] = [IO.File]::ReadAllBytes($p) }
+            }
+        }
         Write-Host ("  -Force: deleting {0} existing file(s)" -f $existing.Count) -ForegroundColor Yellow
         Remove-Item -LiteralPath $OutDir -Recurse -Force
+        New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
+        foreach ($n in $preserved.Keys) {
+            [IO.File]::WriteAllBytes((Join-Path $OutDir $n), $preserved[$n])
+            Write-Host ("  preserved {0} across the re-cut ({1:N0} bytes)" -f $n, $preserved[$n].Length)
+        }
+        if ($DiscardPackageDocs) {
+            Write-Host '  -DiscardPackageDocs: the existing DEPLOY.md was destroyed' -ForegroundColor Yellow
+        }
     }
 }
 New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
