@@ -20,9 +20,12 @@
     file ADDED to the tree after the package was cut is invisible to a forward-only
     comparison, and ships as a 404.
 
-    ⚠️ THE ALLOWLIST BELOW IS THE SOURCE OF TRUTH for what ships. It is an allowlist,
-    never a denylist, because docs-and-tools/ holds kata-api-key.txt — a denylist with
-    one missing entry publishes a live API key. Change it here and nowhere else.
+    ⚠️ What ships is defined in package-allowlist.ps1, NOT here. build-package.ps1
+    reads the same file, which is what stops a package being built to one definition
+    and checked against another. Change what ships there and nowhere else.
+
+    It is an allowlist and never a denylist: docs-and-tools/ holds kata-api-key.txt,
+    so a denylist with one missing entry publishes a live API key.
 
     Runtime: PowerShell 7+. No network, no writes: this script only reads.
 
@@ -58,40 +61,11 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # ============================================================================
-# THE ALLOWLIST — what a deployment package contains
+# The allowlist lives in ONE place, shared with build-package.ps1. That shared
+# file is what stops a package being BUILT to one definition and CHECKED against
+# another. Change what ships there, never here.
 # ============================================================================
-# Read as: a repo-relative path ships if it matches one of these rules AND is not
-# knocked out by an EXCLUDE rule. Both are applied to the whole path, not the name.
-
-# Directories that never contribute a single file, whatever is inside them.
-$ExcludeTopLevel = @('_test', 'docs-and-tools', 'metadata-from', '.git')
-
-# File names that never ship, wherever they appear.
-$ExcludeNames = @('index_dev.html', 'README.md', '.gitignore', '.gitattributes', '.DS_Store')
-
-# Extensions that never ship.
-$ExcludeExt = @('.ps1', '.log')
-
-# Any path segment starting with an underscore is a SOURCE, not a deliverable —
-# _test/ and assets/video/_source-originals/ both use this convention.
-$ExcludeUnderscoreSegment = $true
-
-# What each shipped area contributes.
-$RootFiles    = @('index.html')          # the redirect into component 01
-$UnitDirs     = @{
-    'metadata'    = '*.json'             # unit + per-component catalogue records
-    'unit-js'     = '*.js'               # the shared layer  (README.md excluded above)
-    'unit-css'    = '*.css'              # the one stylesheet for the unit
-    'unit-assets' = '*'                  # fonts, images, video shared by >1 component
-}
-# Inside a component folder: these files, plus everything under assets/.
-$ComponentFiles = @('index.html', 'script.js', 'styles.css')
-$ComponentGlob  = 'methodica-math-*-[0-9][0-9]'
-
-# Hygiene: if any of these turn up INSIDE the package, the build is unsafe to upload.
-$SecretPatterns = @('*key*', '*.ps1', '*.log', 'index_dev.html', 'README.md', '.git*', '_*')
-
-# ============================================================================
+. (Join-Path $PSScriptRoot 'package-allowlist.ps1')
 
 function Resolve-Dir([string] $p, [string] $what) {
     if (-not (Test-Path -LiteralPath $p)) { throw "$what not found: $p" }
@@ -116,29 +90,6 @@ function Get-RelPaths([string] $root) {
         ForEach-Object { [IO.Path]::GetRelativePath($root, $_.FullName).Replace('\', '/') }
 }
 
-function Test-Ships([string] $rel) {
-    $segs = $rel.Split('/')
-    if ($segs[0] -in $ExcludeTopLevel)                     { return $false }
-    if ($segs[-1] -in $ExcludeNames)                       { return $false }
-    if ([IO.Path]::GetExtension($rel) -in $ExcludeExt)     { return $false }
-    if ($ExcludeUnderscoreSegment -and ($segs | Where-Object { $_.StartsWith('_') })) { return $false }
-
-    if ($segs.Count -eq 1) { return $segs[0] -in $RootFiles }
-
-    if ($UnitDirs.ContainsKey($segs[0])) {
-        $glob = $UnitDirs[$segs[0]]
-        if ($glob -eq '*') { return $true }
-        # a pattern applies to the immediate children only; unit-assets/ is the '*' case
-        return ($segs.Count -eq 2 -and $segs[1] -like $glob)
-    }
-
-    if ($segs[0] -like $ComponentGlob) {
-        if ($segs.Count -eq 2) { return $segs[1] -in $ComponentFiles }
-        return ($segs[1] -eq 'assets')
-    }
-    return $false
-}
-
 function Get-Md5Map([string] $root, [string[]] $rels) {
     $m = @{}
     foreach ($r in $rels) {
@@ -161,7 +112,7 @@ $problems = [System.Collections.Generic.List[string]]::new()
 $treeAll  = Get-RelPaths $RepoRoot
 $treeShip = @($treeAll | Where-Object { Test-Ships $_ } | Sort-Object)
 $pkgAll   = @(Get-RelPaths $PackageDir | Sort-Object)
-$pkgFiles = @($pkgAll | Where-Object { $_ -ne 'DEPLOY.md' })
+$pkgFiles = @($pkgAll | Where-Object { $_ -notin $PackageOnlyFiles })
 
 # ---- 1 + 2. forward and reverse ----
 $extra   = @($pkgFiles | Where-Object { $_ -notin $treeShip })
@@ -183,11 +134,9 @@ Write-Host ("  [{0}] REVERSE  {1} shippable file(s) in tree, {2} missing from pa
     $(if ($rev) { 'PASS' } else { 'FAIL' }), $treeShip.Count, $missing.Count)
 
 # ---- 3. hygiene ----
-$hits = @()
-foreach ($pat in $SecretPatterns) {
-    $hits += @($pkgAll | Where-Object { $_.Split('/')[-1] -like $pat -or ($_.Split('/') | Where-Object { $_ -like $pat }) })
-}
-$hits = @($hits | Sort-Object -Unique | Where-Object { $_ -ne 'DEPLOY.md' })
+# @() matters: a function whose pipeline yields nothing unrolls to $null, and
+# $null.Count throws under StrictMode. Wrap the CALL, not the variable.
+$hits = @(Get-HygieneHits $pkgAll)
 foreach ($h in $hits) { $problems.Add("SECRET/DEV file in package      : $h") }
 Write-Host ("  [{0}] HYGIENE  {1} secret/dev file(s) in package" -f
     $(if ($hits.Count -eq 0) { 'PASS' } else { 'FAIL' }), $hits.Count)
