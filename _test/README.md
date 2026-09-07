@@ -9,7 +9,7 @@ stub was once pushed under the library's name.
 
 | File | What it does |
 |---|---|
-| `verify-report.js` | **Structure.** ~670 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
+| `verify-report.js` | **Structure.** ~885 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
 | `statement-flow.js` | **Behaviour.** ~42 assertions. Which statements actually leave when a learner does something, in what order, carrying what result — and, more importantly, which ones do **not** leave when the same screen is reached again by a reload or the back button. |
 | `xapi-720-k.js` | A local stand-in for the CDN library, backed by `sessionStorage`. Loaded in the browser through `?xapiLib=`, and executed directly by both harnesses. |
 

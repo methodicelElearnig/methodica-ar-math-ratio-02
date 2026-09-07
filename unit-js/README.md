@@ -21,15 +21,17 @@ MOE standard: **metadata v2.5**, **xAPI v2.4**.
 
 ## Load order
 
-Every part's `index.html` ends with exactly this:
+Every part's `index.html` opens with the unit stylesheet and ends with exactly this:
 
 ```html
+<link rel="stylesheet" href="../unit-css/styles.css?v=2">   <!-- in <head>, one for the unit -->
+…
 <script src="../unit-js/10-identity.js?v=1"></script>
 <script src="../unit-js/20-xapi.js?v=1"></script>
 <script src="../unit-js/40-resume.js?v=1"></script>
 <script src="../unit-js/50-loader.js?v=1"></script>
 <script src="script.js?v=2"></script>              <!-- per-part: CONFIG ONLY -->
-<script src="../unit-js/main.js?v=2"></script>     <!-- engine + screen logic + hooks -->
+<script src="../unit-js/main.js?v=3"></script>     <!-- engine + screen logic + hooks -->
 <script src="../unit-js/90-boot.js?v=1"></script>  <!-- the ONLY side effects -->
 ```
 
@@ -37,11 +39,16 @@ Three positions carry weight: **`script.js` before `main.js`** (main.js reads `w
 at load, on its `currentScreen` line), **`main.js` before `90-boot.js`**, and **`90-boot.js` last**.
 The order among `10-`–`50-` is nearly arbitrary, because those four are definition-only.
 
-> **`?v=` invariant.** All five `index.html` reference the same shared URLs, so a given shared
-> file's `?v=` **must be identical in all five**. A mismatch means one part fetches a second copy
-> under a different URL, and two parts can execute different versions of the same logic inside one
-> learner session. ⚠️ A change to `RESUME_STATE_VERSION` must bump `40-resume.js`, `main.js` **and**
-> every `script.js` in the same commit.
+> **`?v=` invariant.** All five `index.html` reference the same shared URLs — the stylesheet
+> included — so a given shared file's `?v=` **must be identical in all five**. A mismatch means one
+> part fetches a second copy under a different URL, and two parts can execute different versions of
+> the same logic inside one learner session. ⚠️ A change to `RESUME_STATE_VERSION` must bump
+> `40-resume.js`, `main.js` **and** every `script.js` in the same commit.
+>
+> ⚠️ **Bump `main.js` whenever its contents change**, even when its URL does not. It is the one
+> shared file whose path never moves, so it is the one a warm cache can silently keep. That is why
+> the `../unit-assets/` hoist bumped it to `?v=3`: a cached `?v=2` would look for character images at
+> paths that no longer exist and render blank `<img>` with no error.
 
 The 720 xAPI library is **not** in this repo. `50-loader.js` fetches it at runtime from
 `https://lomdot.education.gov.il/metodica/720active/common/`, choosing `xapi-720-k.js` because
@@ -79,7 +86,7 @@ suppress each other's reports.
 | Not taken | Because |
 |---|---|
 | `30-nav.js` | `main.js` owns `goTo`/`currentScreen`. Adopting it would collide (a loud `SyntaxError` — both use `let`) and would mean re-implementing this unit's `PART_CONFIG` bounds, popup clearing and dev bridge. Its xAPI/resume seams are grafted into `main.js`'s `goTo` instead; `applyExecutionState` is reimplemented there. |
-| `25-report.js` | It needs DOM this unit does not have: `#report-type-wrapper`, `#report-type-error`, `#report-text-error`, `#report-thanks-modal`, `.report-custom-select`, `.report-select-btn`, `.report-select-list`, `.report-select-option`, `.report-select-value`, `.required-star`. This unit has a native `<select id="report-type">`, one `#report-error` and an inline `#report-thanks`. Adopting it means rewriting the dialog markup in five `index.html` **and** the CSS in five `styles.css` for no learner-visible gain. |
+| `25-report.js` | It needs DOM this unit does not have: `#report-type-wrapper`, `#report-type-error`, `#report-text-error`, `#report-thanks-modal`, `.report-custom-select`, `.report-select-btn`, `.report-select-list`, `.report-select-option`, `.report-select-value`, `.required-star`. This unit has a native `<select id="report-type">`, one `#report-error` and an inline `#report-thanks`. Adopting it means rewriting the dialog markup in five `index.html` **and** the CSS in `unit-css/styles.css` for no learner-visible gain. |
 | `15-ui.js` | `main.js` has this unit's own `scaleApp()` — a 1280×710 `Math.min` fit with `left:0`, which is what the client signed off; ratio-01's is a different fluid variant. Its image zoom is also already in `main.js`. Only `announce()` was taken, and it lives in `main.js`. |
 | `28-feedback-drag.js` | `main.js` has `mcqPopupPointerDown`/`clampPopupPosition`/`getAppScale`. Skipping it also removes ratio-01's most fragile boot constraint (it wraps `window.goTo` and must be the last thing to do so). |
 | `60-devbridge.js` | `main.js` has its own `DEV_GOTO`/`DEV_READY` bridge. ⚠️ Do not add a second one — in ratio-01 two copies were once live at the same time and `DEV_READY` was posted twice with conflicting totals. |
@@ -209,9 +216,32 @@ top of two serial CDN scripts, and an earlier 6 s ceiling lifted the cover mid-r
 | `90-boot.js` | The only file with top-level side effects. Fixed startup order. |
 | `main.js` | The approved engine and this unit's screen logic, plus the resume hooks and the report dialog. |
 
+## Sibling unit-level folders
+
+`unit-css/styles.css` is **one** stylesheet for the whole unit; every component links it as
+`../unit-css/styles.css?v=N`. `unit-assets/` holds everything this shared layer names —
+`fonts/` (the 7 Assistant faces), `img/` (the 8 character poses), `img/hint/`, `video/` (the two
+finale clips).
+
+⚠️ The `@font-face` `url()` resolve from **the stylesheet's own directory**, `unit-css/`, not from
+the component page that links it. That is why they are `../unit-assets/fonts/…` with **one** `../`.
+Two is the classic bug: ratio-01 shipped six stylesheets pointing a level too high and rendered the
+whole unit in a fallback typeface with no error anywhere.
+
+**The asset invariant:** shared code (`unit-js/*.js`, `unit-css/styles.css`) references only
+`../unit-assets/`; a component's own `index.html` references only `assets/`, inside itself.
+`main.js` is one file executed from five folders, so a bare `assets/…` literal in it resolves to a
+different file per component. `_test/verify-report.js` §10 enforces this in both directions.
+
 **Never ship**: `index_dev.html`, `README.md`, `_test/` (**including its stub library** — it shares a
 basename with the real one by design), `docs-and-tools/`, or `.git/`.
 
-**Deploy all five parts atomically**, and roll back the same way: a part left on an older
-state-document version beside v5 parts writes a document the others discard and rewrite — a reset
-loop that wipes the `done` ledger each cycle and re-sends `completed` every time.
+⚠️ **Do ship `unit-css/` and `unit-assets/`**, as siblings of the five component folders — the same
+level as `unit-js/`. A package built from a stale allowlist that omits them is a unit with no
+stylesheet and no fonts, and the CDN answers 200 with 0 bytes for paths that do not exist, so a
+status check will not tell you.
+
+**Deploy all five parts atomically** — together with `unit-js/`, `unit-css/` and `unit-assets/` —
+and roll back the same way: a part left on an older state-document version beside v5 parts writes a
+document the others discard and rewrite — a reset loop that wipes the `done` ledger each cycle and
+re-sends `completed` every time.

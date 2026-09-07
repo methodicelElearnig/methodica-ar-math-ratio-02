@@ -24,9 +24,36 @@ good independent check that the split is right.
 - `index.html` — redirects to component 01, **carrying the query string** (the platform's `?slxapi`
   and `?registration` launch parameters; without them reporting and resume are dead).
 - `methodica-math-ratio-02-01 … -05/` — five component apps
-  (`index.html` + `script.js` + `styles.css` + `assets/`).
+  (`index.html` + `script.js` + `assets/`). No stylesheet and no fonts of their own; `assets/` holds
+  only what that component's **own** markup names.
 - `unit-js/` — the shared layer, one copy for the unit. `main.js` is the approved engine plus this
   unit's screen logic; the numbered files are the 720 platform layer. See `unit-js/README.md`.
+- `unit-css/styles.css` — **one** stylesheet for the whole unit, linked by every component as
+  `../unit-css/styles.css?v=N`. It used to be five byte-identical copies with nothing asserting they
+  matched.
+- `unit-assets/` — everything the shared layer names: `fonts/` (7 Assistant faces), `img/` (the 8
+  character poses), `img/hint/` (the click-hint SVGs), `video/` (the two finale clips).
+
+### The asset invariant
+
+> **Shared code references only shared assets; a component's own markup references only its own.**
+>
+> `unit-js/*.js` and `unit-css/styles.css` reach assets as `../unit-assets/…` and never as
+> `assets/…`. A component's `index.html` reaches assets as `assets/…` and never reaches up.
+
+`main.js` is **one file executed from five different folders**, so a bare `assets/…` literal in it
+resolves to a different file per component — and to nothing at all in the components that do not
+hold it. Before the hoist the `CHARACTER_ASSETS` table named `baker`/`headphones` assets that
+existed only in `-01` and `peak` assets that existed only in `-05`, and it worked purely because
+`CHAR_SCREENS` happened to map pose → screen → owning component correctly. Nothing enforced it.
+
+Component 01 keeps `assets/video/character-{1,2}-selection.mp4`: screen 0's cards are named by its
+own `index.html`, not by shared code. That is the invariant working, not an exception to it.
+
+`_test/verify-report.js` §10 (*asset contract*) enforces both halves, in both directions, and is
+mutation-tested against seven ways of breaking them. ⚠️ **`unit-css/` and `unit-assets/` are
+shipped**, as siblings of the component folders — unlike `_test/` and `docs-and-tools/`. A package
+that omits them is a unit with no stylesheet and no fonts. See `unit-js/README.md`.
 - `metadata/` — unit + per-component JSONs: 1 unit, 5 components, 16 items, 43 questions. Extracted
   from the deck and normalised to the shape live Kata accepts. ⚠️ **Not yet pushed** — see *Known
   content issues*.
