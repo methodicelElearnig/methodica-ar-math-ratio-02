@@ -10,9 +10,9 @@ It is two things that must not be confused:
 | **the numbered files** | The 720 **platform** layer — xAPI reporting and resume — vendored from `methodica-math-ratio-01`, which is the reference implementation. |
 
 Companions:
-[`ADDING-REPORTING-AND-RESUME.md`](../../../Documentation/reporting-and-resume/ADDING-REPORTING-AND-RESUME.md)
+[`ADDING-REPORTING-AND-RESUME.md`](../../../../Documentation/reporting-and-resume/ADDING-REPORTING-AND-RESUME.md)
 — the authoritative guide ·
-[`KNOWN-ISSUE-dismissal-state-write.md`](../../../Documentation/reporting-and-resume/KNOWN-ISSUE-dismissal-state-write.md)
+[`KNOWN-ISSUE-dismissal-state-write.md`](../../../../Documentation/reporting-and-resume/KNOWN-ISSUE-dismissal-state-write.md)
 — open, accepted, **do not "fix"**
 
 MOE standard: **metadata v2.5**, **xAPI v2.4**.
