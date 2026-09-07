@@ -239,7 +239,30 @@ basename with the real one by design), `docs-and-tools/`, or `.git/`.
 ⚠️ **Do ship `unit-css/` and `unit-assets/`**, as siblings of the five component folders — the same
 level as `unit-js/`. A package built from a stale allowlist that omits them is a unit with no
 stylesheet and no fonts, and the CDN answers 200 with 0 bytes for paths that do not exist, so a
-status check will not tell you.
+status check will not tell you. Verify an upload by **byte size**.
+
+### None of that is yours to remember any more
+
+What ships is defined in **`docs-and-tools/package-allowlist.ps1`** and enforced by two scripts that
+both read it, so a package cannot be built to one definition and checked against another:
+
+```bash
+pwsh -File docs-and-tools/build-package.ps1 -DryRun    # what ships, and what does not
+pwsh -File docs-and-tools/build-package.ps1            # cut today's package
+pwsh -File docs-and-tools/verify-package.ps1           # re-check any package, any time
+```
+
+Do not hand-copy a package, and do not keep a second copy of the rules anywhere — including in this
+file. The lists above are a description; the allowlist is the definition. If they ever disagree, the
+allowlist is right and this paragraph is stale.
+
+⚠️ One thing that specifically concerns **this** layer: **`unit-js/*.js` ships, its `README.md` does
+not.** The allowlist takes `unit-js/*.js` and nothing else from this folder, which is why the file
+you are reading never reaches the CDN — and why `main.js`, at 129,363 B, is by a wide margin the
+largest single thing in the shared layer that does (`40-resume.js` is next, at 32,548 B).
+
+The full rundown — the four checks, the refusals, why `-Force` preserves `DEPLOY.md` — is in the
+root `README.md` under *Deployments*.
 
 **Deploy all five parts atomically** — together with `unit-js/`, `unit-css/` and `unit-assets/` —
 and roll back the same way: a part left on an older state-document version beside v5 parts writes a
