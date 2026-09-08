@@ -6,7 +6,7 @@
    CONFIGURATION ONLY. Every behaviour is shared in ../unit-js/.
    The split follows the deck's own "רכיב N" separator slides.
    ═══════════════════════════════════════════════════════════════════ */
-window.PART_CONFIG = { start: 38, end: 51, next: null };
+window.PART_CONFIG = { start: 38, end: 50, next: null };
 
 const XAPI_COMP_SLUG = 'methodica-math-ratio-01-02-05';
 const XAPI_COMP_ID = 5;
