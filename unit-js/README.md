@@ -116,7 +116,7 @@ load *after* them.
 
 ### Unit-wide, in `main.js`
 
-The engine: `TOTAL_SCREENS` (52) · `currentScreen` · `goTo(n)` · `scaleApp()` ·
+The engine: `TOTAL_SCREENS` (51) · `currentScreen` · `goTo(n)` · `scaleApp()` ·
 `resetScreenState(n)` · `announce(msg)` · `initReportModal()` · `goToNextPart()`
 
 Resume: `capturePartPayload()` · `applyResumeVars(st)` · `applyResumeDom(st)` ·
@@ -221,7 +221,7 @@ top of two serial CDN scripts, and an earlier 6 s ceiling lifted the cover mid-r
 `unit-css/styles.css` is **one** stylesheet for the whole unit; every component links it as
 `../unit-css/styles.css?v=N`. `unit-assets/` holds everything this shared layer names —
 `fonts/` (the 7 Assistant faces), `img/` (the 8 character poses), `img/hint/`, `video/` (the two
-finale clips).
+finale clips, unreferenced since the finale screen was cut).
 
 ⚠️ The `@font-face` `url()` resolve from **the stylesheet's own directory**, `unit-css/`, not from
 the component page that links it. That is why they are `../unit-assets/fonts/…` with **one** `../`.

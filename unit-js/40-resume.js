@@ -480,7 +480,7 @@ function goBackToPreviousPart(fallbackSlug, fallbackHash) {
    ── destFirstScreen: this unit numbers screens UNIT-WIDE ──
    In the reference units each part numbers its screens 0..N-1, so seeding a never-visited
    destination with { currentScreen: 0 } lands it on its own first screen. This unit keeps one
-   0..51 numbering across all five parts (README.md), so part 02's first screen is 14, not 0 —
+   0..50 numbering across all five parts (README.md), so part 02's first screen is 14, not 0 —
    a 0 seed would make the destination's applyExecutionState call goTo(0), which its null-screen
    guard turns into a silent no-op. It happens to survive (partBoot's goTo(PART_FIRST) already
    ran, and the next save rewrites the pointer), but it is a restore that quietly does nothing.

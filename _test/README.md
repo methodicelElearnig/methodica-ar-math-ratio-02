@@ -15,7 +15,7 @@ replaces the rule; they just stop it depending on memory.
 
 | File | What it does |
 |---|---|
-| `verify-report.js` | **Structure.** 889 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
+| `verify-report.js` | **Structure.** 883 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
 | `statement-flow.js` | **Behaviour.** 44 assertions. Which statements actually leave when a learner does something, in what order, carrying what result — and, more importantly, which ones do **not** leave when the same screen is reached again by a reload or the back button. |
 | `xapi-720-k.js` | A local stand-in for the CDN library, backed by `sessionStorage`. Loaded in the browser through `?xapiLib=`, and executed directly by both harnesses. It also models the real library's **deferral guard** — an item's `completed` is dropped, with no queue and no retry, unless an `answered` for that item passed through in the same page load. Keep it: without the guard the suite is blind to a whole class of permanently lost statements, which is how one survived every assertion here until it was found live against Kata. |
 
@@ -49,12 +49,16 @@ were copied from.
 NODE_PATH=... node _test/verify-report.js ../../deployments/2026-09-07
 ```
 
-Against the 2026-09-07 package this is **clean — 884/884, zero failures**, because nothing
-in this unit's suite needs a file the package excludes.
+A working-tree run is **883/883, zero failures**. Nothing in this unit's suite needs a file
+a package excludes, so a package run should also be clean — the totals differ only because a
+package holds `DEPLOY.md` in place of the repo's linked docs, which changes what the
+`docs resolve` section has to check. A different total is expected; a *failure* is not.
 
-884 rather than the 889 of a working-tree run, because a package holds only `DEPLOY.md`,
-which carries no links, so the `docs resolve` section has nothing to check and contributes
-5 fewer assertions. A lower total here is expected; a *failure* is not.
+⚠️ **Both packages currently on disk fail 7 assertions** — `2026-09-07` and `2026-09-08` alike
+run 877/7. Every failure is the same one: `TOTAL_SCREENS` 52 (×5 components) and component 05's
+range `[38, 51]`. Both packages predate the producer cutting the finale screen on 08.09.26, so
+**the packages are the stale side, not the suite**. Re-cut one from `main` and the section returns
+to clean. Until then, the live CDN build still serves the removed finale screen.
 
 ⚠️ **Do not assume that stays true.** The sibling unit `methodica-math-ratio-01` runs
 1675/9 against its own package, and all nine failures are assertions that want

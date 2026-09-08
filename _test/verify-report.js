@@ -18,7 +18,7 @@
    2. The platform layer is GRAFTED onto main.js's goTo rather than replacing it, so
       30-nav.js and 25-report.js were not vendored. Their absence is asserted (§2) —
       re-adding one would collide silently.
-   3. Screens are numbered UNIT-WIDE 0..51, so SCREEN_TO_SUBCONTENT covers each part's
+   3. Screens are numbered UNIT-WIDE 0..50, so SCREEN_TO_SUBCONTENT covers each part's
       own [start..end] rather than 0..TOTAL_SCREENS-1 (§4).
 
    Run (jsdom is not in the repo and there is no package.json — do NOT install it inside
@@ -44,12 +44,12 @@ const BASE = process.argv[2] || path.join(__dirname, '..');
 const UNIT = 'methodica-math-ratio-02';
 const COMPONENTS = ['01', '02', '03', '04', '05'];
 const PART_DIR = c => UNIT + '-' + c;
-const TOTAL_SCREENS = 52;
+const TOTAL_SCREENS = 51;
 
 /* Each component's slice of the unit-wide screen space — the deck's five רכיבים.
    Mirrored from each script.js's window.PART_CONFIG, and asserted against it in §4. */
 const RANGE = {
-  '01': [0, 13], '02': [14, 20], '03': [21, 29], '04': [30, 37], '05': [38, 51],
+  '01': [0, 13], '02': [14, 20], '03': [21, 29], '04': [30, 37], '05': [38, 50],
 };
 
 /* The platform layer's API. */

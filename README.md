@@ -1,6 +1,6 @@
 # methodica-math-ratio-02 — ביטוי יחס בדרכים שונות (יעד 1.2)
 
-The 52-screen unit, in the client's multi-component structure.
+The 51-screen unit, in the client's multi-component structure.
 
 ## Where the split comes from
 
@@ -14,10 +14,14 @@ those five slides — 2, 27, 35, 45 and 54 — are the boundaries:
 | 02 | 14–20 | 28–34 | תרגול סטנדרטי |
 | 03 | 21–29 | 36–44 | תרגול בסיסי וסטנדרטי ב |
 | 04 | 30–37 | 46–53 | תרגול מתקדם |
-| 05 | 38–51 | 55–67 | שאלת שיא |
+| 05 | 38–50 | 55–67 | שאלת שיא |
 
 Every component opens on its own transition screen, which is what the deck's separators describe — a
 good independent check that the split is right.
+
+⚠️ Component 05 ends one screen short of what its deck range suggests: the producer cut the finale
+screen (was 51) on 08.09.26, so s50 ends the unit. `finishUnit()` keys off `PART_CONFIG.end`, not a
+screen number — any screen added here must extend `end`, or the unit's `completed` moves with it.
 
 ## Layout
 
@@ -32,7 +36,8 @@ good independent check that the split is right.
   `../unit-css/styles.css?v=N`. It used to be five byte-identical copies with nothing asserting they
   matched.
 - `unit-assets/` — everything the shared layer names: `fonts/` (7 Assistant faces), `img/` (the 8
-  character poses), `img/hint/` (the click-hint SVGs), `video/` (the two finale clips).
+  character poses), `img/hint/` (the click-hint SVGs), `video/` (the two finale clips, unreferenced since the
+  finale screen was cut).
 
 ### The asset invariant
 
@@ -57,7 +62,7 @@ that omits them is a unit with no stylesheet and no fonts. See `unit-js/README.m
 - `metadata/` — unit + per-component JSONs: 1 unit, 5 components, 16 items, 43 questions. Extracted
   from the deck and normalised to the shape live Kata accepts. ⚠️ **Not yet pushed** — see *Known
   content issues*.
-- `_test/` — headless regression harness, 889 + 44 assertions across two suites. **Never shipped**,
+- `_test/` — headless regression harness, 883 + 44 assertions across two suites. **Never shipped**,
   including its stub library — the allowlist excludes it twice over, by name and by the
   leading-underscore rule. See its README for what each suite covers, and
   [`Documentation/GITHUB-GH.md`](../../../Documentation/GITHUB-GH.md) for how to run them:
@@ -82,12 +87,12 @@ metadata would have `PATCH`ed a live ratio-01 component, because `send-metadata.
 ## Deviations, deliberate
 
 1. **The approved engine moves in whole**, shared from `unit-js/main.js`, rather than being rewritten
-   onto ratio-01's per-part hook contract. Rewriting a 52-screen build onto a second navigation layer
+   onto ratio-01's per-part hook contract. Rewriting a 51-screen build onto a second navigation layer
    would risk behaviour the client has signed off. The platform layer is therefore **grafted onto**
    `main.js`'s `goTo` rather than replacing it — `unit-js/30-nav.js` and `25-report.js` are
    deliberately **not** vendored. `unit-js/README.md` says exactly which files were taken and why.
-2. **Screens keep the unit's global numbering** (0–51), as in the ratio-01 reference. `TOTAL_SCREENS`
-   is 52 unit-wide and each component's DOM holds only its own slice.
+2. **Screens keep the unit's global numbering** (0–50), as in the ratio-01 reference. `TOTAL_SCREENS`
+   is 51 unit-wide and each component's DOM holds only its own slice.
 3. Each `script.js` holds **only** that component's `PART_CONFIG` and xAPI identity; all behaviour is
    shared.
 

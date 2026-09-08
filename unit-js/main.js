@@ -23,6 +23,18 @@ function setNavLabel(btn, label) {
 
 /* new pair for this unit: character-1 = green, character-2 = orange.
    headphones pose: both supplied 14.08. */
+/* ── No video reporting in this unit, deliberately ──
+   50-loader.js calls xapiWireVideos(), which wires only video[data-xapi-report]. Nothing in this
+   unit carries that attribute, so it is a no-op: screen 0's two clips are looping decoration
+   inside the character-choice cards, and the learner never plays or pauses them. Wiring them
+   would report 'played'/'paused' against a QUESTION object via xapiQ(item, qKey), attributing
+   interaction to a question the learner is not answering. Left unreported pending the content
+   owner; add the attributes if 720 asks for video events on decorative clips.
+
+   The allowlist itself and how it came about are in 20-xapi.js — not restated here, to keep one
+   source of truth. _test/verify-report.js §9 asserts both halves: that no markup opts in, and
+   that this decision stays written down. The finale's confetti clip was the third such video
+   until the producer cut that screen on 08.09.26. */
 const CHARACTER_ASSETS = {
   'character-1': {
     selection: '../unit-assets/img/character-1-selection.png',
