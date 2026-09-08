@@ -7,7 +7,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 window.PART_CONFIG = {
-  start: 38, end: 51,
+  start: 38, end: 50,
   next: null,                                  // last component -> goTo() calls finishUnit()
   prev: 'methodica-math-ratio-02-04'
 };
@@ -24,13 +24,13 @@ var XAPI_METADATA_FILE = '../metadata/methodica-math-ratio-02-05.json';
 
    ONE catalogue item carrying all eight questions — the peak question is a single long task in
    six סעיפים, not a numbered practice set, which is also why these screens are absent from QPROG
-   in ../unit-js/main.js. Screens 38-51 are its pages 1-14; the eight graded screens inside it are
+   in ../unit-js/main.js. Screens 38-50 are its pages 1-13; the eight graded screens inside it are
    41-46, 48 and 49. */
 var SCREEN_TO_SUBCONTENT = {
   38: ['001', 1],  39: ['001', 2],  40: ['001', 3],  41: ['001', 4],
   42: ['001', 5],  43: ['001', 6],  44: ['001', 7],  45: ['001', 8],
   46: ['001', 9],  47: ['001', 10], 48: ['001', 11], 49: ['001', 12],
-  50: ['001', 13], 51: ['001', 14]
+  50: ['001', 13]
 };
 
 var XAPI_EVAL_ITEMS = { '001': 1 };

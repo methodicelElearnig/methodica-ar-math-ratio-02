@@ -3,7 +3,8 @@
 
 window.lomdaState = { selectedCharacter: null };
 const CHARACTER_STORAGE_KEY = 'methodica_math_ratio_02_selectedCharacter';
-const TOTAL_SCREENS = 52; // slides 2-63: learning, guided, practice A/B/C, advanced, peak question, finale
+/* 08.09 producer: the finale screen (was 51) is removed; s50 now ends the unit. */
+const TOTAL_SCREENS = 51; // slides 2-63: learning, guided, practice A/B/C, advanced, peak question
 let currentScreen = window.PART_CONFIG ? window.PART_CONFIG.start : 0;   /* a component opens on ITS first screen; the markup marks that one active */
 
 function setNavLabel(btn, label) {
@@ -154,34 +155,6 @@ function resetScreenState(n) {
     const img = document.getElementById(CHAR_SCREENS[n]);
     const POSE = { 5: 'baker', 38: 'peak' };
     if (img) img.src = characterAsset(POSE[n] || 'selection');
-  }
-  if (n === 51) {
-    /* ── No video reporting in this unit, deliberately ──
-       ../unit-js/50-loader.js calls xapiWireVideos(), which wires any video[data-xapi-report].
-       None of this unit's three <video> elements carries that attribute, so it is a no-op:
-       screen 0's two clips are looping decoration inside the character-choice cards (the learner
-       never plays or pauses them), and this one is a confetti reward. xapiWireVideos reports
-       'paused'/'played' against a QUESTION object via xapiQ(item, qKey), so wiring these would
-       attribute interaction to a question the learner is not answering — item 001/q1 in part 01,
-       and in part 05 an arbitrary one of the peak question's eight. Left unreported pending the
-       content owner; add the attributes if 720 asks for video events on decorative clips. */
-    // finale: the companion's confetti clip, one per character
-    const v = document.getElementById('s51-video');
-    if (v) {
-      const id = CHARACTER_ASSETS[window.lomdaState.selectedCharacter]
-        ? window.lomdaState.selectedCharacter : 'character-1';
-      const src = '../unit-assets/video/' + id + '-finale.mp4';
-      /* Compare the ATTRIBUTE, not v.src. The .src getter reflects the RESOLVED
-         absolute URL, with any ../ already normalised away — so an endsWith()
-         against this relative string can never match, the guard silently dies,
-         and the clip is re-assigned on every entry to 51. Re-assigning restarts
-         media resource selection: the confetti visibly re-flashes on every back
-         navigation and on every resume onto this screen. getAttribute() returns
-         what we last wrote, so it survives any future path change too. */
-      if (v.getAttribute('src') !== src) v.src = src;
-      v.currentTime = 0;
-      v.play().catch(() => {});
-    }
   }
   const HINT_DONE = { s15: () => s15Done, s16: () => SCQ.s16.done, s17: () => SCQ.s17.done,
                       s18: () => MCQ.s18.done, s19: () => s19Done, s20: () => s20Done,
@@ -538,9 +511,13 @@ function s3q2Check() {
   xapiReport('s3q2', ok, left.value.trim() + ':' + right.value.trim());
   s3State.q2 = true;
   left.disabled = true; right.disabled = true;
-  left.classList.add(ok ? 'correct' : 'error');
-  right.classList.add(ok ? 'correct' : 'error');
-  if (!ok) { left.value = 1; right.value = 4; left.classList.add('correct'); right.classList.add('correct'); }
+  if (!ok) { left.value = 1; right.value = 4; }
+  /* 08.09, producer: once the correct answer is REVEALED in the boxes they read
+     green, not red — a red box holding the right answer contradicts itself.
+     `error` has to come OFF; adding `correct` beside it left both classes on the
+     element and `.viq-input-box.error` wins on source order. Same contract as
+     the generic engine's reveal in qCheck(). */
+  [left, right].forEach(el => { el.classList.remove('error'); el.classList.add('correct'); });
   s3Feedback('s3q2-feedback', ok,
     '<strong>' + (ok ? 'כל הכבוד!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:') + '</strong><br>' + S3Q2_EXPLAIN +
     (ok ? '' : '<br>התשובה הנכונה היא <span dir="ltr"><strong>1 : 4</strong></span>'));
@@ -1017,7 +994,7 @@ function s15Check() {
     try { flushResumeSave(); } catch (e) {}
   };
   if (ok) { mark(false); showPopup('s15', '#edf8ed', 'כל הכבוד!', S15_BODY); finish(true); }
-  else if (s15Attempts >= 2) { mark(true); showPopup('s15', '#ffdbdc', 'זה לא מדויק, בואו נבין למה.', S15_BODY); finish(false); }
+  else if (s15Attempts >= 2) { mark(true); showPopup('s15', '#ffdbdc', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', S15_BODY); finish(false); }
   else {
     mark(false);
     s15LastWrong = JSON.stringify(s15Picks);
