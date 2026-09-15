@@ -518,30 +518,38 @@ if (-not $unitOk) {
     }
     $comps = $comps | Sort-Object { [int] $_.order }
 
+    # Component and item keys are full IRIs, so every route below is the query-string form
+    # (/api/v1/component?componentKey=…). The plural /components/{key} routes carry the key
+    # as a path segment and 404 on anything containing '/'. The unit key is still a slug
+    # (v2.5 §2.7 exempts the content unit), so its routes are unchanged.
     foreach ($comp in $comps) {
-        $compKey   = Get-Slug $comp.id
+        $compKey   = $comp.id
+        $compSlug  = Get-Slug $comp.id      # for readable log labels only
+        $compEnc   = Enc $compKey
         $compBody  = New-ComponentBody $comp
         $compPatch = Remove-Key $compBody 'uniqueKey'
-        $compOk = Send-Entity -Label "component $compKey" `
-            -GetPath "/api/v1/components/$compKey" `
+        $compOk = Send-Entity -Label "component $compSlug" `
+            -GetPath "/api/v1/component?componentKey=$compEnc" `
             -CreateMethod 'POST' -CreatePath "/api/v1/content-units/$unitKey/components" -CreateBody $compBody `
-            -PatchPath "/api/v1/components/$compKey" -PatchBody $compPatch
+            -PatchPath "/api/v1/component?componentKey=$compEnc" -PatchBody $compPatch
 
         if (-not $compOk) {
-            Write-Log "Component $compKey failed — skipping its items." 'ERROR'
+            Write-Log "Component $compSlug failed — skipping its items." 'ERROR'
             continue
         }
 
         $order = 0
         foreach ($item in @($comp.subContent)) {
             $order++
-            $itemKey   = Get-Slug $item.id
+            $itemKey   = $item.id
+            $itemSlug  = Get-Slug $item.id
+            $itemEnc   = Enc $itemKey
             $itemBody  = New-ItemBody $item $order
             $itemPatch = Remove-Key $itemBody 'uniqueKey'
-            [void] (Send-Entity -Label "item $itemKey" `
-                -GetPath "/api/v1/components/$compKey/items/$itemKey" `
-                -CreateMethod 'POST' -CreatePath "/api/v1/components/$compKey/items" -CreateBody $itemBody `
-                -PatchPath "/api/v1/components/$compKey/items/$itemKey" -PatchBody $itemPatch)
+            [void] (Send-Entity -Label "item $itemSlug" `
+                -GetPath "/api/v1/component/item?componentKey=$compEnc&itemKey=$itemEnc" `
+                -CreateMethod 'POST' -CreatePath "/api/v1/component/items?componentKey=$compEnc" -CreateBody $itemBody `
+                -PatchPath "/api/v1/component/item?componentKey=$compEnc&itemKey=$itemEnc" -PatchBody $itemPatch)
         }
     }
 
