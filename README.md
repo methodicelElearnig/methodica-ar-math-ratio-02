@@ -62,7 +62,7 @@ that omits them is a unit with no stylesheet and no fonts. See `unit-js/README.m
 - `metadata/` — unit + per-component JSONs: 1 unit, 5 components, 16 items, 43 questions. Extracted
   from the deck and normalised to the shape live Kata accepts. ⚠️ **Not yet pushed** — see *Known
   content issues*.
-- `_test/` — headless regression harness, 883 + 44 assertions across two suites. **Never shipped**,
+- `_test/` — headless regression harness, 939 + 58 assertions across two suites. **Never shipped**,
   including its stub library — the allowlist excludes it twice over, by name and by the
   leading-underscore rule. See its README for what each suite covers, and
   [`Documentation/GITHUB-GH.md`](../../../Documentation/GITHUB-GH.md) for how to run them:
@@ -95,6 +95,49 @@ metadata would have `PATCH`ed a live ratio-01 component, because `send-metadata.
    is 51 unit-wide and each component's DOM holds only its own slice.
 3. Each `script.js` holds **only** that component's `PART_CONFIG` and xAPI identity; all behaviour is
    shared.
+
+## The platform owns routing (2026-09-16)
+
+**Kata decides what the learner does next.** It launches each component on its own URL —
+`POST /api/v1/launcher/context` takes a *component* key and returns a per-component `launchUrl`
+and `registrationId` — reads our `completed` statements, and routes on the catalogue
+(`recommendedAfterFail`, `isRequired`, order). The spec pairs two sentences (v2.7 p.23): *"כאשר
+נשלח completed עבור רכיב תוכן, הפלטפורמה מסירה את הרכיב מהמסך"*, so `completed` only *"לאחר סיום
+מלא של הרכיב, לרבות הצגת משוב"*.
+
+Until this date the unit routed itself: `goTo(n)` past `PART_CONFIG.end` called `leaveToPart`
+(report → `writeForwardState` → `location.replace`), `goTo(n)` below `PART_CONFIG.start` called
+`goBackToPreviousPart`, and the loader hopped to the saved part on load. **That was a live
+reporting defect, not only an ownership question**: Kata's `registration` is per *component*, and
+every hop appended `window.location.search`, so a learner walking the unit from 01 reported every
+part under part 01's registration and saved every part's resume slot into part 01's state blob.
+
+| | before | after |
+|---|---|---|
+| `leaveToPart` (last screen, parts 01–04) | `xapiCompleteComponent` → `writeForwardState` → `location.replace` | `xapiEndComponent(res, lastScreenButton())` — report, then the button **disables itself**. No new text. |
+| `finishUnit` ("סיימתי", part 05) | component `completed` **+ unit `completed`** (a mean of the component scores) | component `completed` only, button disabled. `unitResult()` deleted; `UNIT_SCORE_KEYS` / `recordPartResult` stay as the per-component record |
+| the first screen's "חזרה" (`.scq-back`, parts 02–05) | `goBackToPreviousPart` → previous component | **hidden** by `hideCrossPartBack()` (`90-boot.js`); the function returns at once |
+| loader phase A | `location.replace` to `_saved.part` | **removed** — the part Kata launched is the part shown, its own slot restored |
+| unit-level statements | `initialized` (01 `onXapiReady`) and `completed` (05) with `{ scope: 'unit' }` | **none**; `xapiCompleteUnit` deleted. `XAPI_UNIT_ID` stays — the State document is keyed on it |
+| `goToNextPart()` | a second handover entry point, uncalled | deleted |
+
+The navigation code is not deleted. It runs only under **`DEV_NAV`** (`unit-js/10-identity.js`):
+`?dev=1` in the URL **and no `?registration`**. Every Kata launch URL carries a registration, so a
+launch URL with `&dev=1` appended still behaves as production; navigation is possible only on a
+page nobody's learning is recorded on — the local walkthrough and `index_dev.html`, whose harness
+flag in the loader now reads `DEV_NAV` too. Inside `leaveToPart` the pointer write and the hop sit
+in one `if (DEV_NAV) { … }`; the `completed` never depends on the flag.
+
+`completed` was already the learner's **last click** in every component here — the last screen's
+check/continue button (`lastScreenButton()`) — so nothing had to be re-ordered, unlike
+`mass-measure-02` and `scale-01`.
+
+Asserted by `_test/verify-report.js` (`routing`, `devnav`) and `_test/statement-flow.js` (`seam`:
+production `leaveToPart` reports once with a result, moves no pointer, seeds nothing, records no
+edge, disables the button; under `?dev=1` the old handover still works; part 05's finale sends
+one component `completed` and nothing unit-scoped). **Not observed:** Kata removing a component
+on `completed` — our content never let it happen. If Kata does not act, the learner sees a
+disabled button and nothing else; visible on the first integration run.
 
 ## Known content issues
 

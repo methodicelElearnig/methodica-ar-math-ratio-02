@@ -106,25 +106,26 @@ load *after* them.
 
 | Name | Read by |
 |---|---|
-| `window.PART_CONFIG` `{start, end, next, prev}` | `main.js`'s `goTo`, `goToNextPart` |
+| `window.PART_CONFIG` `{start, end, next, prev}` | `main.js`'s `goTo`, `leaveToPart`, `lastScreenButton`; `40-resume.js`'s `hideCrossPartBack` |
 | `XAPI_COMP_SLUG`, `XAPI_COMP_ID` | `xapiItemId`, `xapiQ` |
 | `XAPI_METADATA_FILE` | `bootXAPI` — **required**; without it reporting disables itself and says so |
 | `SCREEN_TO_SUBCONTENT` | `xapiOnScreen`, `submitReport`. ⚠️ Covers **this part's `[start..end]` only** |
 | `XAPI_EVAL_ITEMS` | `xapiOnScreen`, `xapiFinishItems` |
 | `XAPI_ITEM_RESULT` | `xapiItemResult` — optional, derived from `XAPI_EVAL_ITEMS` |
-| `onXapiReady()` | `50-loader.js` — **part 01 only**; emits the unit `initialized` |
+| `onXapiReady()` | `50-loader.js` — **part 01 only**; loads the unit metadata (the unit `initialized` it used to emit is gone since 2026-09-16 — root `README.md`, *The platform owns routing*) |
 
 ### Unit-wide, in `main.js`
 
 The engine: `TOTAL_SCREENS` (51) · `currentScreen` · `goTo(n)` · `scaleApp()` ·
-`resetScreenState(n)` · `announce(msg)` · `initReportModal()` · `goToNextPart()`
+`resetScreenState(n)` · `announce(msg)` · `initReportModal()`
 
 Resume: `capturePartPayload()` · `applyResumeVars(st)` · `applyResumeDom(st)` ·
 `restoreScreenUI(n)` · `applyExecutionState(st, screenOverride)` · `partBoot()` · `leaveToPart()` ·
-`finishUnit()`
+`finishUnit()` · `lastScreenButton()` — the last two end the component via `xapiEndComponent`; the hop
+inside `leaveToPart` runs only under `DEV_NAV`
 
-Scoring: `screenWasCorrect(sid)` · `itemResultFor(item)` · `partResult()` · `unitResult()` ·
-`recordPartResult(res)` · `UNIT_SCORE_KEYS`
+Scoring: `screenWasCorrect(sid)` · `itemResultFor(item)` · `partResult()` · `recordPartResult(res)` ·
+`UNIT_SCORE_KEYS` (`unitResult()` went with the unit `completed`, 2026-09-16)
 
 Reporting: `XAPI_QMAP` · `xapiKeyFor(key)` · `xapiScreenKey(sid)` · `xapiReport(key, correct,
 answer)` · `xapiHint(sid)` · `xapiReportQScreen(...)` · `xapiReportAiTable(...)`
@@ -187,8 +188,9 @@ second key for the same part: split progress, a `done` ledger that misses, and t
 `90-boot.js` is the only file here with top-level side effects. Its order is load-bearing and is
 documented in the file. The short version: `initResumeResetHatch()` first (it rewrites the URL),
 `scaleApp()` before anything measures `#app`, the character seed before `partBoot()`, `partBoot()`
-before `bootXAPI()`, and **`bootXAPI()` last** — it may `window.location.replace()` to another
-component, and nothing after it would run.
+before `hideCrossPartBack()` (the first screen's "חזרה" is hidden unless `DEV_NAV` — the platform
+owns routing since 2026-09-16), and **`bootXAPI()` last**. (Until 2026-09-16 it could
+`window.location.replace()` to another component — the resume hop, now removed.)
 
 ⚠️ `90-boot.js` must stay a **separate script tag**. A top-level throw in `main.js` kills the rest of
 that file with no console error, which in this family once left the report modal uninitialised.
@@ -209,10 +211,10 @@ top of two serial CDN scripts, and an earlier 6 s ceiling lifted the cover mid-r
 
 | File | Purpose |
 |---|---|
-| `10-identity.js` | The unit's canonical id prefix, unit id, `shortId()`, `RESUME_ENABLED`. The main per-unit seam. |
-| `20-xapi.js` | Item scope, question-id resolution from metadata, every statement-building call-site helper. |
-| `40-resume.js` | The v5 state document, the four ledgers, unit-level state, cross-part edges, boot cover, reset hatch. |
-| `50-loader.js` | `bootXAPI()` — CDN load, three gates, capped metadata poll, two-phase resume, component `initialized`. |
+| `10-identity.js` | The unit's canonical id prefix, unit id, `shortId()`, `RESUME_ENABLED`, `DEV_NAV` (`?dev=1` and no `?registration` — the only state in which the unit navigates between parts). The main per-unit seam. |
+| `20-xapi.js` | Item scope, question-id resolution from metadata, every statement-building call-site helper — including `xapiEndComponent` (report, then disable the button), which replaced `xapiCompleteUnit` on 2026-09-16. |
+| `40-resume.js` | The v5 state document, the four ledgers, unit-level state, cross-part edges (`?dev=1` only) and `hideCrossPartBack`, boot cover, reset hatch. |
+| `50-loader.js` | `bootXAPI()` — CDN load, three gates, capped metadata poll, two-phase resume read (the cross-part hop was removed 2026-09-16), component `initialized`. |
 | `90-boot.js` | The only file with top-level side effects. Fixed startup order. |
 | `main.js` | The approved engine and this unit's screen logic, plus the resume hooks and the report dialog. |
 

@@ -57,19 +57,12 @@ Object.keys(XAPI_EVAL_ITEMS).forEach(function (it) {
 });
 
 /* ── The unit scope — ENTRY COMPONENT ONLY ──
-   Called by ../unit-js/50-loader.js after the component 'initialized', and after the phase-A
-   cross-part hop has had its chance to return: a session that merely passes THROUGH part 01 on
-   its way to the learner's saved component must not leave a unit statement behind.
+   Only the entry component loads the unit-level metadata (UNIT_METADATA feeds the bug-report
+   form). Called by ../unit-js/50-loader.js after the component 'initialized'.
 
-   { scope: 'unit' } rather than { objectId: window.XAPI_UNIT_ID }: both reach the same object, but
-   they resolve through different paths in the 720 library and `scope` is the shape this lineage's
-   live statements were reviewed against.
-
-   Not ledger-guarded, deliberately: MOE v2.4 §1 requires another 'initialized' on every re-entry
-   (2.3 forbade it — the rule inverted). Only 'completed' is suppressed. */
+   The unit-scope 'initialized' that used to follow it is gone since 2026-09-16, with the unit
+   'completed' in component 05: MOE v2.5/v2.7 define object as item or component only, and the
+   platform derives unit state itself (README.md "The platform owns routing"). */
 function onXapiReady() {
-  loadUnitMetadata('../metadata/methodica-math-ratio-02_unit.json', function () {
-    try { sendStatement720('initialized', 'onlinelesson', null, { scope: 'unit' }); }
-    catch (e) { console.error('[xAPI] unit initialized', e); }
-  });
+  loadUnitMetadata('../metadata/methodica-math-ratio-02_unit.json', function () {});
 }

@@ -122,10 +122,10 @@ function emptyUnitState() {
    same cache; if they drift, a learner's companion character is written under one key and read
    back under another, which reads as "the character keeps resetting".
 
-   RESULT_KEYS holds the per-component scores the terminal component averages into the unit
-   'completed' (see UNIT_SCORE_KEYS in script.js). They are listed here so ?resetState clears
-   their localStorage mirrors too — otherwise a reset document sits beside a stale cache and the
-   unit score comes back from a previous attempt. */
+   RESULT_KEYS holds the per-component scores (see UNIT_SCORE_KEYS in main.js) — a durable
+   per-component record; until 2026-09-16 the terminal component also averaged them into a unit
+   'completed', which no longer exists. They are listed here so ?resetState clears their
+   localStorage mirrors too — otherwise a reset document sits beside a stale cache. */
 var UI_CHARACTER_KEY = 'methodica_math_ratio_02_selectedCharacter';
 var RESULT_KEYS      = ['ratio02_c01_scaled', 'ratio02_c02_scaled', 'ratio02_c03_scaled',
                         'ratio02_c04_scaled', 'ratio02_c05_scaled'];
@@ -447,8 +447,12 @@ function previousPartHref(fallbackSlug, fallbackHash) {
 
 /* Back navigation. Points the document at the destination BEFORE navigating — that is what stops
    the destination's loader seeing a mismatch and hopping straight back here (a ping-pong that
-   re-sent 'completed' every cycle). If the write does not land, staying put is the safe failure. */
+   re-sent 'completed' every cycle). If the write does not land, staying put is the safe failure.
+   Since 2026-09-16 the platform owns routing: outside a local walkthrough (DEV_NAV,
+   10-identity.js) this is a no-op. goTo()'s n < PART_CONFIG.start edge still lands here, so the
+   first screen's "חזרה" does nothing in production — and hideCrossPartBack() hides it too. */
 function goBackToPreviousPart(fallbackSlug, fallbackHash) {
+  if (!DEV_NAV) return;
   var href = previousPartHref(fallbackSlug, fallbackHash);
   var edge = _incomingEdge();
   var destSlug = (edge && edge.from) || fallbackSlug;
@@ -470,8 +474,24 @@ function goBackToPreviousPart(fallbackSlug, fallbackHash) {
   window.location.replace(href);
 }
 
+/* Production hides the first screen's "חזרה" (its .scq-back leads to the previous component
+   through goTo's range guard): the platform routes, and the learner never moves between parts from
+   inside one. Called from 90-boot.js after partBoot(). Component 01 has no prev, so nothing
+   happens there. Inline display:none as well as `hidden` — the button's own display rule would
+   otherwise win over the attribute. */
+function hideCrossPartBack() {
+  if (DEV_NAV) return;
+  var cfg = window.PART_CONFIG;
+  if (!cfg || !cfg.prev) return;
+  var b = document.querySelector('#s' + cfg.start + ' .scq-back');
+  if (b) { b.hidden = true; b.style.display = 'none'; b.setAttribute('aria-hidden', 'true'); }
+}
+
 /* Points the document at the component the learner is about to enter, so the next launch resumes
    forward instead of back into the part they just finished — and records the back edge.
+   Since 2026-09-16 the only caller (leaveToPart in main.js) reaches this inside `if (DEV_NAV)` — in
+   production the landing pointer is never moved by the unit, because the unit never leaves the
+   component Kata launched.
    The departing part's payload is KEPT (captureUnitState runs first). That is the whole point:
    the back button restores the part the learner came from, and it cannot restore what was thrown
    away. An already-visited destination keeps its payload too, so going forward again resumes

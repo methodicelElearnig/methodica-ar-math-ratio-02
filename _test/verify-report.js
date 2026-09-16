@@ -56,23 +56,23 @@ const RANGE = {
 const SHARED_FNS = [
   'shortId', 'bootXAPI',
   'xapiItemId', 'xapiQ', 'xapiOnScreen', 'xapiFinishItems', 'xapiAnswered',
-  'xapiRequestedHint', 'xapiCompleteComponent', 'xapiCompleteUnit', 'xapiAnswerText',
+  'xapiRequestedHint', 'xapiCompleteComponent', 'xapiEndComponent', 'xapiAnswerText',
   'xapiItemResult', 'xapiWireVideos',
   'sendStatementOnce', 'sendCompletedOnce', 'itemLedgerKey', 'currentPartSlug',
   'readUnitState', 'captureUnitState', 'persistUnitState', 'emptyUnitState',
   'scheduleResumeSave', 'flushResumeSave', 'initResumeLeaveHandlers',
   'initResumeResetHatch', 'dropBootCover', 'getUnitCharacter', 'setUnitCharacter',
   'getUnitResult', 'setUnitResult', 'applyUnitProfile', 'drainPendingUnitState',
-  'recordForwardEdge', 'goBackToPreviousPart', 'writeForwardState',
+  'recordForwardEdge', 'goBackToPreviousPart', 'writeForwardState', 'hideCrossPartBack',
   'resumeIsPainting', 'beginRepaint', 'endRepaint',
 ];
 
 /* What main.js owns — the engine, and the hooks the platform layer calls back into. */
 const MAIN_FNS = [
-  'goTo', 'scaleApp', 'resetScreenState', 'announce', 'initReportModal', 'goToNextPart',
+  'goTo', 'scaleApp', 'resetScreenState', 'announce', 'initReportModal',
   'capturePartPayload', 'applyResumeVars', 'applyResumeDom', 'restoreScreenUI',
-  'applyExecutionState', 'partBoot', 'leaveToPart', 'finishUnit',
-  'screenWasCorrect', 'itemResultFor', 'partResult', 'unitResult', 'recordPartResult',
+  'applyExecutionState', 'partBoot', 'leaveToPart', 'finishUnit', 'lastScreenButton',
+  'screenWasCorrect', 'itemResultFor', 'partResult', 'recordPartResult',
   'xapiKeyFor', 'xapiScreenKey', 'xapiReport', 'xapiHint', 'xapiReportQScreen',
 ];
 
@@ -767,6 +767,109 @@ function checkDocLinks() {
   }
 }
 
+/* ══════════════ 4b. The platform owns routing (2026-09-16) ══════════════
+   Kata launches each component on its own URL with its own ?registration and
+   routes on our 'completed'. So: no unit-level statement anywhere; every
+   location.href= / location.replace( sits inside an `if (DEV_NAV)` block (or
+   behind goBackToPreviousPart's `if (!DEV_NAV) return;`); the loader's resume
+   hop is gone; DEV_NAV needs ?dev=1 AND no ?registration; and in a production
+   boot the first screen's "חזרה" is hidden (attribute AND display) and
+   goBackToPreviousPart moves nothing. README.md "The platform owns routing". */
+
+function stripComments(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"\\])\/\/[^\n]*/g, '$1');
+}
+
+function checkPlatformRouting() {
+  const shared = fs.readdirSync(path.join(BASE, 'unit-js')).filter(f => f.endsWith('.js')).sort();
+  const files = [...shared.map(f => 'unit-js/' + f), ...COMPONENTS.map(c => PART_DIR(c) + '/script.js')];
+  for (const rel of files) {
+    const code = stripComments(fs.readFileSync(path.join(BASE, rel), 'utf8'));
+    ok('routing', rel + ': no unit-level statement (xapiCompleteUnit / scope unit)',
+      !/xapiCompleteUnit\s*\(/.test(code) && !/scope\s*:\s*['"]unit['"]/.test(code));
+    for (const m of code.matchAll(/location\.(href\s*=(?!=)|replace\s*\()/g)) {
+      const before = code.slice(Math.max(0, m.index - 1200), m.index);
+      const at = before.lastIndexOf('if (DEV_NAV) {');
+      let openBlock = false;
+      if (at !== -1) {
+        const tail = before.slice(at + 'if (DEV_NAV) {'.length);
+        openBlock = (tail.split('{').length - 1) - (tail.split('}').length - 1) >= 0;
+      }
+      const guarded = /if \(!DEV_NAV\) return;(?![\s\S]*\nfunction )/.test(before);
+      ok('routing', rel + ': the hop at offset ' + m.index + ' is gated on DEV_NAV',
+        openBlock || guarded, m[0]);
+    }
+  }
+  const ident = fs.readFileSync(path.join(BASE, 'unit-js', '10-identity.js'), 'utf8');
+  ok('routing', "10-identity.js: DEV_NAV needs ?dev=1 AND no ?registration",
+    /get\('dev'\)\s*===\s*'1'\s*&&\s*!\w+\.has\('registration'\)/.test(ident));
+  const loader = stripComments(fs.readFileSync(path.join(BASE, 'unit-js', '50-loader.js'), 'utf8'));
+  ok('routing', '50-loader.js: the resume hop to _saved.part is gone',
+    !/_saved\.part\s*!==\s*currentPartSlug\(\)/.test(loader) && !/location\.replace/.test(loader));
+  ok('routing', '50-loader.js: the harness flag reads DEV_NAV, not its own ?dev=1',
+    /var _devHarness = DEV_NAV;/.test(loader) && !/get\('dev'\)/.test(loader));
+  const resume = stripComments(fs.readFileSync(path.join(BASE, 'unit-js', '40-resume.js'), 'utf8'));
+  ok('routing', '40-resume.js: goBackToPreviousPart returns unless DEV_NAV',
+    /function goBackToPreviousPart\([^)]*\)\s*\{\s*if \(!DEV_NAV\) return;/.test(resume));
+  ok('routing', '40-resume.js: hideCrossPartBack hides #s<start> .scq-back unless DEV_NAV, attribute and display',
+    /function hideCrossPartBack\(\)\s*\{\s*if \(DEV_NAV\) return;[\s\S]{0,400}\.scq-back[\s\S]{0,200}style\.display = 'none'/.test(resume));
+  const boot = stripComments(fs.readFileSync(path.join(BASE, 'unit-js', '90-boot.js'), 'utf8'));
+  ok('routing', '90-boot.js calls hideCrossPartBack() after partBoot() and before bootXAPI()',
+    boot.indexOf('partBoot()') > -1 && boot.indexOf('partBoot()') < boot.indexOf('hideCrossPartBack()') &&
+    boot.indexOf('hideCrossPartBack()') < boot.indexOf('bootXAPI()'));
+  const main = stripComments(fs.readFileSync(path.join(BASE, 'unit-js', 'main.js'), 'utf8'));
+  ok('routing', 'main.js: leaveToPart ends the component via xapiEndComponent(res, lastScreenButton()) and hops only under DEV_NAV',
+    /function leaveToPart[\s\S]{0,300}xapiEndComponent\(res, lastScreenButton\(\)\)[\s\S]{0,300}if \(DEV_NAV\) \{[\s\S]{0,600}location\.replace\(/.test(main));
+  ok('routing', 'main.js: finishUnit reports the component only, via xapiEndComponent',
+    /function finishUnit[\s\S]{0,300}xapiEndComponent\(res, lastScreenButton\(\)\)/.test(main) &&
+    !/function finishUnit[\s\S]{0,400}xapiCompleteUnit/.test(main));
+  ok('routing', 'main.js: goToNextPart and unitResult are gone (dead under the platform model)',
+    !/function goToNextPart/.test(main) && !/function unitResult/.test(main));
+
+  /* Production boots: flag off, first-screen back hidden, back function inert, no unit helper. */
+  for (const c of COMPONENTS) {
+    const { dom, val, exec, consoleErrors } = loadComponent(c);
+    ok('routing', c + ': DEV_NAV is false in a production boot', val('DEV_NAV') === false, String(val('DEV_NAV')));
+    ok('routing', c + ': xapiCompleteUnit no longer exists', val('typeof xapiCompleteUnit') === 'undefined');
+    ok('routing', c + ': the last screen has a button for xapiEndComponent to disable',
+      val('!!lastScreenButton()') === true, String(val('PART_CONFIG.end')));
+    if (c !== '01') {
+      const sel = "document.querySelector('#s' + PART_CONFIG.start + ' .scq-back')";
+      ok('routing', c + ': the first screen has the generic "חזרה"', val('!!' + sel) === true);
+      ok('routing', c + ': …and it is hidden by hideCrossPartBack — attribute AND display',
+        val(sel + '.hidden') === true && val('getComputedStyle(' + sel + ').display') === 'none',
+        'hidden=' + val(sel + '.hidden') + ' display=' + val('getComputedStyle(' + sel + ').display'));
+      exec("_resumeReady = true; _unitState = emptyUnitState(); _unitState.part = 'sentinel';");
+      const errsBefore = consoleErrors.length;
+      exec("goBackToPreviousPart(PART_CONFIG.prev, '#screen=' + (PART_CONFIG.start - 1));");
+      ok('routing', c + ': goBackToPreviousPart() moves nothing in production',
+        val('_unitState.part') === 'sentinel' && consoleErrors.length === errsBefore,
+        val('_unitState.part') + ' / ' + consoleErrors.slice(errsBefore).join(' | '));
+      exec('goTo(PART_CONFIG.start - 1);');
+      ok('routing', c + ': goTo below the first screen stays on it',
+        val('currentScreen') === val('PART_CONFIG.start') && val('_unitState.part') === 'sentinel');
+    }
+    dom.window.close();
+  }
+
+  /* The flag's two conditions, live, on component 03. */
+  const flag = (search) => {
+    const { dom, val } = loadComponent('03', { search });
+    const sel = "document.querySelector('#s' + PART_CONFIG.start + ' .scq-back')";
+    const r = { DEV_NAV: val('DEV_NAV'),
+                backHidden: val(sel + '.hidden') === true && val('getComputedStyle(' + sel + ').display') === 'none' };
+    dom.window.close();
+    return r;
+  };
+  let r = flag('');
+  ok('devnav', 'no query: DEV_NAV false, back hidden', r.DEV_NAV === false && r.backHidden === true, JSON.stringify(r));
+  r = flag('?dev=1');
+  ok('devnav', '?dev=1 alone: DEV_NAV true, back shown', r.DEV_NAV === true && r.backHidden === false, JSON.stringify(r));
+  r = flag('?dev=1&registration=r1');
+  ok('devnav', '?dev=1&registration: DEV_NAV false, back hidden — a launch URL never opens navigation',
+    r.DEV_NAV === false && r.backHidden === true, JSON.stringify(r));
+}
+
 /* ══════════════ run ══════════════ */
 
 const SUITES = [
@@ -774,6 +877,7 @@ const SUITES = [
   ['deploy contract', checkDeployContract],
   ['no cross-layer collisions', checkNoCollisions],
   ['config vs metadata', checkConfigAgainstMetadata],
+  ['the platform routes', checkPlatformRouting],
   ['resume round-trip', checkResumeRoundTrip],
   ['painters', checkPainters],
   ['boot cover', checkBootCover],

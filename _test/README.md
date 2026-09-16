@@ -15,8 +15,8 @@ replaces the rule; they just stop it depending on memory.
 
 | File | What it does |
 |---|---|
-| `verify-report.js` | **Structure.** 883 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
-| `statement-flow.js` | **Behaviour.** 44 assertions. Which statements actually leave when a learner does something, in what order, carrying what result — and, more importantly, which ones do **not** leave when the same screen is reached again by a reload or the back button. |
+| `verify-report.js` | **Structure.** 939 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
+| `statement-flow.js` | **Behaviour.** 58 assertions. Which statements actually leave when a learner does something, in what order, carrying what result — and, more importantly, which ones do **not** leave when the same screen is reached again by a reload or the back button. |
 | `xapi-720-k.js` | A local stand-in for the CDN library, backed by `sessionStorage`. Loaded in the browser through `?xapiLib=`, and executed directly by both harnesses. It also models the real library's **deferral guard** — an item's `completed` is dropped, with no queue and no retry, unless an `answered` for that item passed through in the same page load. Keep it: without the guard the suite is blind to a whole class of permanently lost statements, which is how one survived every assertion here until it was found live against Kata. |
 
 ## Running
@@ -49,7 +49,7 @@ were copied from.
 NODE_PATH=... node _test/verify-report.js ../../deployments/2026-09-07
 ```
 
-A working-tree run is **883/883, zero failures**. Nothing in this unit's suite needs a file
+A working-tree run is **939/939, zero failures**. Nothing in this unit's suite needs a file
 a package excludes, so a package run should also be clean — the totals differ only because a
 package holds `DEPLOY.md` in place of the repo's linked docs, which changes what the
 `docs resolve` section has to check. A different total is expected; a *failure* is not.
@@ -98,6 +98,13 @@ answers does. Concretely, the suite exists to catch:
 - a boot cover that is a child of `#app` (which is scaled, so a child stops covering), or whose
   failsafe depends on a JS file, or whose ceiling is below the loader's 10s metadata poll
 - a duplicate `completed` — the failure the whole ledger exists to prevent
+- a cross-part hop, a landing-pointer move or a unit-level statement reaching production: since
+  2026-09-16 the platform routes, so `leaveToPart` must report and stop, the first screen's "חזרה"
+  must be hidden (attribute **and** `display:none` — the attribute alone lost to `.scq-back`'s own
+  display rule in a sibling unit), `goBackToPreviousPart` must move nothing, and every
+  `location.replace` in shipped code must sit inside `if (DEV_NAV)`; the flag itself must need
+  `?dev=1` **and** no `?registration` (`routing`, `devnav`, and the rewritten `seam` scenario,
+  which also drives the `?dev=1` twin and part 05's finale)
 - any statement at all when the platform did not launch the unit
 
 ## What is deliberately NOT asserted

@@ -19,8 +19,10 @@
      3. The character seed before partBoot() — the first screen has to paint in the right colour.
      4. partBoot() before bootXAPI() — this component's own wiring must be in place before a
         resume can replay onto it.
-     5. bootXAPI() LAST. It may window.location.replace() to another component, and nothing after
-        it would run. It also has to reach window.__resumeInFlight inside the markup failsafe's
+     4b. hideCrossPartBack() after partBoot() — the first screen's "חזרה" is hidden unless DEV_NAV
+        (10-identity.js); the platform owns routing since 2026-09-16.
+     5. bootXAPI() LAST. (Until 2026-09-16 it could window.location.replace() to another component
+        — the resume hop, now removed.) It also has to reach window.__resumeInFlight inside the markup failsafe's
         800ms window, so nothing slow may sit in front of it.
 
    No DOMContentLoaded wrapper is needed: this file sits immediately before </body>.
@@ -58,6 +60,8 @@
   if (typeof partBoot === 'function') {
     try { partBoot(); } catch (e) { console.error('[boot] partBoot', e); }
   }
+
+  try { hideCrossPartBack(); } catch (e) { console.error('[boot] hideCrossPartBack', e); }
 
   bootXAPI();
 })();

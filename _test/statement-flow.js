@@ -402,26 +402,78 @@ function reportingOff() {
 
 /* ══════════════ 9. The cross-part seam ══════════════ */
 
+/* Since 2026-09-16 the platform owns routing (README.md): walking past the part's last
+   screen reports the component and STOPS — no pointer move, no hop — unless the page runs
+   under DEV_NAV (?dev=1 without ?registration), where the old handover still works for a
+   local walkthrough. finishUnit reports the component only; nothing is unit-scoped. */
 function crossPartSeam() {
+  /* PRODUCTION: the boot URL carries ?registration. */
   const b = boot('02');
   b.finishBoot();
   b.clear();
-  /* walk to the part's last screen and past it: leaveToPart must report the component
-     completed BEFORE anything can branch or fail, and move the landing pointer */
   b.exec('goTo(20); try { goTo(21); } catch (e) {}');
   const s = b.stmts();
   const comp = s.filter(x => x.verb === 'completed' && x.objectType === 'onlinelesson');
-  eq('seam', 'the handover reports the component completed exactly once', comp.length, 1);
+  eq('seam', 'leaving the last screen reports the component completed exactly once', comp.length, 1);
+  /* partResult() is null when nothing was answered — this walk answers nothing. The point is
+     that the statement went out; componentScore-style result checks live in the other suites. */
+  ok('seam', 'the component completed carries partResult() (null here: nothing answered)',
+    comp[0] && (comp[0].result === null || typeof comp[0].result.success === 'boolean'),
+    JSON.stringify(comp[0] && comp[0].result));
+  ok('seam', 'nothing sent is unit-scoped', !s.some(x => x.opts && x.opts.scope === 'unit'));
   const doc = JSON.parse(b.val('JSON.stringify(readUnitState())'));
-  eq('seam', 'the landing pointer moved to the destination', doc.part, PART_DIR('03'));
-  ok('seam', 'the destination is seeded with ITS OWN first screen, not 0',
-    doc.parts[PART_DIR('03')] && doc.parts[PART_DIR('03')].currentScreen === 21,
-    JSON.stringify(doc.parts[PART_DIR('03')]) +
-    '  — screens are unit-wide here, so a 0 seed would make applyExecutionState call goTo(0), a silent no-op');
-  ok('seam', 'the back edge is recorded for "חזרה"',
-    doc.prev[PART_DIR('03')] && doc.prev[PART_DIR('03')].from === PART_DIR('02'),
-    JSON.stringify(doc.prev));
+  ok('seam', 'production: the landing pointer did NOT move to the destination',
+    doc.part !== PART_DIR('03'), JSON.stringify(doc.part));
+  ok('seam', 'production: the destination was not seeded',
+    !doc.parts || !doc.parts[PART_DIR('03')], JSON.stringify(doc.parts && Object.keys(doc.parts)));
+  ok('seam', 'production: no back edge was recorded',
+    !doc.prev || !doc.prev[PART_DIR('03')], JSON.stringify(doc.prev));
+  ok('seam', 'production: the last screen\'s button is disabled after the report',
+    b.val("document.getElementById('s20-check').disabled") === true &&
+    b.val("document.getElementById('s20-check').getAttribute('aria-disabled')") === 'true');
+  b.clear();
+  b.exec('try { goTo(21); } catch (e) {}');
+  eq('seam', 'leaving again reports nothing more',
+    b.stmts().filter(x => x.verb === 'completed').length, 0);
   b.dom.window.close();
+
+  /* DEV_NAV: the old handover, for the local walkthrough. */
+  const d = boot('02', { search: '?slxapi=1&dev=1' });
+  d.finishBoot();
+  d.clear();
+  ok('seam', 'dev: DEV_NAV is true with ?dev=1 and no ?registration', d.val('DEV_NAV') === true);
+  d.exec('goTo(20); try { goTo(21); } catch (e) {}');
+  eq('seam', 'dev: the handover still reports the component completed exactly once',
+    d.stmts().filter(x => x.verb === 'completed' && x.objectType === 'onlinelesson').length, 1);
+  const dd = JSON.parse(d.val('JSON.stringify(readUnitState())'));
+  eq('seam', 'dev: the landing pointer moved to the destination', dd.part, PART_DIR('03'));
+  ok('seam', 'dev: the destination is seeded with ITS OWN first screen, not 0',
+    dd.parts[PART_DIR('03')] && dd.parts[PART_DIR('03')].currentScreen === 21,
+    JSON.stringify(dd.parts[PART_DIR('03')]) +
+    '  — screens are unit-wide here, so a 0 seed would make applyExecutionState call goTo(0), a silent no-op');
+  ok('seam', 'dev: the back edge is recorded for "חזרה"',
+    dd.prev[PART_DIR('03')] && dd.prev[PART_DIR('03')].from === PART_DIR('02'),
+    JSON.stringify(dd.prev));
+  d.dom.window.close();
+
+  /* The finale: component 05's "סיימתי" reports the component — only. */
+  const f = boot('05');
+  f.finishBoot();
+  f.clear();
+  ok('seam', 'xapiCompleteUnit no longer exists', f.val('typeof xapiCompleteUnit') === 'undefined');
+  f.exec('goTo(50); try { goTo(51); } catch (e) {}');
+  const fin = f.stmts().filter(x => x.verb === 'completed');
+  eq('seam', 'the finale sends exactly one component completed',
+    fin.filter(x => x.objectType === 'onlinelesson').length, 1);
+  ok('seam', 'the finale sends nothing unit-scoped',
+    !fin.some(x => x.opts && x.opts.scope === 'unit'), JSON.stringify(fin.map(x => x.opts)));
+  ok('seam', '"סיימתי" is disabled after the report',
+    f.val("document.getElementById('s50-continue').disabled") === true);
+  f.clear();
+  f.exec('try { goTo(51); } catch (e) {}');
+  eq('seam', 're-reaching the finale reports nothing again',
+    f.stmts().filter(x => x.verb === 'completed').length, 0);
+  f.dom.window.close();
 }
 
 /* ══════════════ run ══════════════ */

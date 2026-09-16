@@ -87,7 +87,9 @@ function announce(msg) {
 function goTo(n) {
   /* Component mode: screens keep the unit's global numbering (0-51) across the
      five components, and this part's range is what bounds navigation. Walking
-     past either edge hands over to the neighbouring app.
+     past the forward edge ENDS the component — the platform routes since 2026-09-16
+     (README.md); the hop itself lives on only under DEV_NAV — and the back edge is a
+     no-op in production (goBackToPreviousPart returns unless DEV_NAV).
 
      Both edges are derived from PART_CONFIG, so no screen number is written here:
      forward seeds the destination with end + 1 (its own first screen, because the
@@ -1662,15 +1664,6 @@ if (window.parent !== window) {
 }
 
 
-/* The seam between components. Kept as a named entry point because the markup calls it, but it
-   now delegates to leaveToPart() so there is exactly ONE handover path — the one that reports the
-   component 'completed' and moves the resume landing pointer first. A second path that only did
-   location.replace() would skip both. */
-function goToNextPart() {
-  if (!window.PART_CONFIG || !window.PART_CONFIG.next) { finishUnit(); return; }
-  leaveToPart(window.PART_CONFIG.next, window.PART_CONFIG.end + 1);
-}
-
 
 /* ═══════════════════════════════════════════════════════════════════
    RESUME — the hooks ../unit-js/40-resume.js and ../unit-js/50-loader.js call
@@ -2278,10 +2271,12 @@ function partResult() {
   return { success: scaled >= XAPI_PASS, score: { scaled: scaled } };
 }
 
-/* Where each component parks its score for the terminal component to average.
+/* Where each component parks its score in the state document — a durable per-component record.
+   (Until 2026-09-16 the terminal component averaged these into a unit 'completed'; there is no
+   unit-level statement any more, see README.md "The platform owns routing".)
    ⚠️ These must be exactly RESULT_KEYS in ../unit-js/40-resume.js — the same keys, listed there
    so ?resetState clears their localStorage mirrors too. If they drift, a reset document sits
-   beside a stale cache and the unit score comes back from a previous attempt. */
+   beside a stale cache. */
 var UNIT_SCORE_KEYS = {
   'methodica-math-ratio-02-01': 'ratio02_c01_scaled',
   'methodica-math-ratio-02-02': 'ratio02_c02_scaled',
@@ -2296,49 +2291,49 @@ function recordPartResult(res) {
   if (key) setUnitResult(key, String(res.score.scaled));
 }
 
-/* The mean of whatever component scores the document holds. A component the learner never
-   finished simply does not contribute. */
-function unitResult() {
-  var vals = [];
-  Object.keys(UNIT_SCORE_KEYS).forEach(function (slug) {
-    var v = getUnitResult(UNIT_SCORE_KEYS[slug]);
-    if (v === null || v === undefined || v === '') return;
-    var num = Number(v);
-    if (!isNaN(num)) vals.push(num);
-  });
-  if (!vals.length) return null;
-  var scaled = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
-  return { success: scaled >= XAPI_PASS, score: { scaled: scaled } };
-}
-
 /* ── part boundaries ─────────────────────────────────────────────────── */
 
-/* Hand over to the next component. The component 'completed' goes out BEFORE anything can branch
-   or fail, so a learner who did not clear this component is still reported. */
-function leaveToPart(destSlug, destFirstScreen) {
-  var res = partResult();
-  try { xapiCompleteComponent(res); } catch (e) {}
-  try { recordPartResult(res); } catch (e) {}
-  /* Moves the landing pointer to the destination and records the back edge. Without it the
-     destination's loader sees a pointer still aimed here and hops the learner straight back — a
-     ping-pong that re-sent 'completed' on every cycle.
-     ⚠️ The THIRD argument is required in this unit: screens are numbered unit-wide, so seeding a
-     never-visited destination with 0 would make its applyExecutionState call goTo(0), which the
-     null-screen guard turns into a silent no-op. */
-  try { writeForwardState(destSlug, '#screen=' + currentScreen, destFirstScreen); } catch (e) {}
-  /* explicit index.html — file:// has no default document */
-  window.location.replace('../' + destSlug + '/index.html' + window.location.search);
+/* The button that fired the last click of this component: the last screen's check button
+   (relabelled to continue once answered) or, on the two screens that have no question, its
+   continue button. xapiEndComponent disables it after the report. */
+function lastScreenButton() {
+  var end = window.PART_CONFIG ? window.PART_CONFIG.end : currentScreen;
+  return document.getElementById('s' + end + '-check') ||
+         document.getElementById('s' + end + '-continue');
 }
 
-/* The learner finished the unit's last screen. There is no forward hop to carry this component's
-   'completed', so it goes here together with the unit's. Both are ledger-guarded, so re-reaching
-   the finale after a reload re-sends neither. */
+/* The learner left the component's last screen forward. Since 2026-09-16 the PLATFORM decides
+   what comes next (README.md "The platform owns routing"): Kata launches each component on its
+   own URL and registration, and routes on the 'completed' below — so the component reports and
+   STOPS, and the button disables itself. The hop to destSlug lives on only for a local
+   walkthrough (DEV_NAV, ../unit-js/10-identity.js). The 'completed' goes out BEFORE anything can
+   branch or fail, so a learner who did not clear this component is still reported. */
+function leaveToPart(destSlug, destFirstScreen) {
+  var res = partResult();
+  try { xapiEndComponent(res, lastScreenButton()); } catch (e) {}
+  try { recordPartResult(res); } catch (e) {}
+  if (DEV_NAV) {
+    /* Moves the landing pointer to the destination and records the back edge. Without it the
+       destination's loader would see a pointer still aimed here.
+       ⚠️ The THIRD argument is required in this unit: screens are numbered unit-wide, so seeding a
+       never-visited destination with 0 would make its applyExecutionState call goTo(0), which the
+       null-screen guard turns into a silent no-op. */
+    try { writeForwardState(destSlug, '#screen=' + currentScreen, destFirstScreen); } catch (e) {}
+    /* explicit index.html — file:// has no default document */
+    window.location.replace('../' + destSlug + '/index.html' + window.location.search);
+  }
+}
+
+/* The learner pressed "סיימתי" on the unit's last screen. The component 'completed' goes here,
+   ledger-guarded, so re-reaching the finale after a reload re-sends nothing; the button disables
+   itself. The unit 'completed' that used to follow it (a mean over the component scores) is gone
+   since 2026-09-16: MOE v2.5/v2.7 define 'completed' at the item and component levels only, and
+   the platform derives the unit outcome itself. recordPartResult still runs — the state document
+   keeps the per-component record either way. */
 function finishUnit() {
   var res = partResult();
-  /* recordPartResult FIRST: unitResult() reads the document this component just wrote. */
   try { recordPartResult(res); } catch (e) {}
-  try { xapiCompleteComponent(res); } catch (e) {}
-  try { xapiCompleteUnit(unitResult()); } catch (e) {}
+  try { xapiEndComponent(res, lastScreenButton()); } catch (e) {}
   try { flushResumeSave(); } catch (e) {}
 }
 
