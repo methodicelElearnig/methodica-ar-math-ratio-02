@@ -27,9 +27,12 @@ function setNavLabel(btn, label) {
    50-loader.js calls xapiWireVideos(), which wires only video[data-xapi-report]. Nothing in this
    unit carries that attribute, so it is a no-op: screen 0's two clips are looping decoration
    inside the character-choice cards, and the learner never plays or pauses them. Wiring them
-   would report 'played'/'paused' against a QUESTION object via xapiQ(item, qKey), attributing
-   interaction to a question the learner is not answering. Left unreported pending the content
-   owner; add the attributes if 720 asks for video events on decorative clips.
+   would report 'played'/'paused' against the ITEM the clip sits in, attributing interaction to a
+   catalogue item the learner is not working through. Left unreported pending the content owner;
+   add the attribute if 720 asks for video events on decorative clips.
+   (Until 15.09.26 this said ‘against a QUESTION object via xapiQ(item, qKey)’. That was never
+   what happened: the library allowlists the questionId branch to answered/selected/requested, so
+   played/paused fell through to the COMPONENT id. The helper now passes objectId explicitly.)
 
    The allowlist itself and how it came about are in 20-xapi.js — not restated here, to keep one
    source of truth. _test/verify-report.js §9 asserts both halves: that no markup opts in, and

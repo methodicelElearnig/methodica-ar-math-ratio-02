@@ -556,7 +556,7 @@ function checkReportLayer() {
     const html = fs.readFileSync(path.join(BASE, PART_DIR(c), 'index.html'), 'utf8');
     ok('video', c + ' wires no video reporting',
       html.indexOf('data-xapi-report') === -1,
-      'xapiWireVideos reports against a QUESTION object; these clips are decoration');
+      'xapiWireVideos reports against the clip\u2019s ITEM; these clips are decoration');
   }
   ok('video', 'the no-video decision is documented in main.js',
     /No video reporting in this unit, deliberately/.test(src));
