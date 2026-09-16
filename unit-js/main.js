@@ -269,8 +269,14 @@ function selectOption(cardEl) {
   });
   cardEl.classList.add('selected');
   cardEl.setAttribute('aria-checked', 'true');
-  window.lomdaState.selectedCharacter = cardEl.dataset.value;
-  try { localStorage.setItem(CHARACTER_STORAGE_KEY, cardEl.dataset.value); } catch (e) {}
+  /* Both stores (v6): this part's document and the localStorage mirror the later parts adopt
+     from. setUnitCharacter queues the write when the document has not arrived yet. */
+  if (typeof setUnitCharacter === 'function') {
+    setUnitCharacter(cardEl.dataset.value);
+  } else {
+    window.lomdaState.selectedCharacter = cardEl.dataset.value;
+    try { localStorage.setItem(CHARACTER_STORAGE_KEY, cardEl.dataset.value); } catch (e) {}
+  }
   const continueBtn = document.getElementById('s0-continue');
   if (continueBtn) continueBtn.disabled = false;
 }

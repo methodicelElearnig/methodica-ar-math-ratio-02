@@ -422,12 +422,10 @@ function crossPartSeam() {
     JSON.stringify(comp[0] && comp[0].result));
   ok('seam', 'nothing sent is unit-scoped', !s.some(x => x.opts && x.opts.scope === 'unit'));
   const doc = JSON.parse(b.val('JSON.stringify(readUnitState())'));
-  ok('seam', 'production: the landing pointer did NOT move to the destination',
-    doc.part !== PART_DIR('03'), JSON.stringify(doc.part));
-  ok('seam', 'production: the destination was not seeded',
-    !doc.parts || !doc.parts[PART_DIR('03')], JSON.stringify(doc.parts && Object.keys(doc.parts)));
+  ok('seam', 'production: the document is this part\'s, with no landing pointer / parts / prev (v6)',
+    doc.component === PART_DIR('02') && !('part' in doc) && !('parts' in doc) && !('prev' in doc), JSON.stringify(doc));
   ok('seam', 'production: no back edge was recorded',
-    !doc.prev || !doc.prev[PART_DIR('03')], JSON.stringify(doc.prev));
+    b.val("sessionStorage.getItem('lomda_nav_edges::methodica-math-ratio-02')") === null, String(b.val("sessionStorage.getItem('lomda_nav_edges::methodica-math-ratio-02')")));
   ok('seam', 'production: the last screen\'s button is disabled after the report',
     b.val("document.getElementById('s20-check').disabled") === true &&
     b.val("document.getElementById('s20-check').getAttribute('aria-disabled')") === 'true');
@@ -446,14 +444,11 @@ function crossPartSeam() {
   eq('seam', 'dev: the handover still reports the component completed exactly once',
     d.stmts().filter(x => x.verb === 'completed' && x.objectType === 'onlinelesson').length, 1);
   const dd = JSON.parse(d.val('JSON.stringify(readUnitState())'));
-  eq('seam', 'dev: the landing pointer moved to the destination', dd.part, PART_DIR('03'));
-  ok('seam', 'dev: the destination is seeded with ITS OWN first screen, not 0',
-    dd.parts[PART_DIR('03')] && dd.parts[PART_DIR('03')].currentScreen === 21,
-    JSON.stringify(dd.parts[PART_DIR('03')]) +
-    '  — screens are unit-wide here, so a 0 seed would make applyExecutionState call goTo(0), a silent no-op');
-  ok('seam', 'dev: the back edge is recorded for "חזרה"',
-    dd.prev[PART_DIR('03')] && dd.prev[PART_DIR('03')].from === PART_DIR('02'),
-    JSON.stringify(dd.prev));
+  ok('seam', 'dev: this part\'s document was saved before the hop — its own payload, no pointer fields (v6)',
+    dd.component === PART_DIR('02') && dd.payload && !('part' in dd) && !('parts' in dd) && !('prev' in dd), JSON.stringify(dd));
+  ok('seam', 'dev: the back edge into 03 records this part (sessionStorage edge map)',
+    (function () { try { return JSON.parse(d.val("sessionStorage.getItem('lomda_nav_edges::methodica-math-ratio-02')"))[PART_DIR('03')].from === PART_DIR('02'); } catch (e) { return false; } })(),
+    String(d.val("sessionStorage.getItem('lomda_nav_edges::methodica-math-ratio-02')")));
   d.dom.window.close();
 
   /* The finale: component 05's "סיימתי" reports the component — only. */

@@ -121,9 +121,11 @@
       (opts && opts.objectId ? ' ' + opts.objectId : ''));
   };
 
-  window.loadState720 = function () {
+  function stateKey(id) { return STATE_KEY + '::' + (id || 'execution-state'); }   /* v6: one document per part */
+
+  window.loadState720 = function (id) {
     try {
-      var raw = sessionStorage.getItem(STATE_KEY);
+      var raw = sessionStorage.getItem(stateKey(id));
       /* absent אינו כשל — זו הקריאה הראשונה של registration חדש, וזה בדיוק
          המקרה ש--j לא ידע להבדיל מ-401 או מ-500. */
       record('load', raw ? 200 : 404, true, raw ? 'ok' : 'absent');
@@ -142,7 +144,7 @@
         console.warn('[stub] save FORCED FAIL status', forced, 'reason', r.reason);
         return false;
       }
-      sessionStorage.setItem(STATE_KEY, JSON.stringify(doc));
+      sessionStorage.setItem(stateKey(id), JSON.stringify(doc));
       record('save', 204, true);
       return true;
     } catch (e) { record('save', 0, false, 'threw'); return false; }
@@ -214,10 +216,13 @@
 
   /* ── עוזרי קונסול ── */
   window.__stmts = readLog;
-  window.__state = function () { return window.loadState720(); };
+  window.__state = function () {
+    return window.loadState720(typeof RESUME_STATE_ID !== 'undefined' ? RESUME_STATE_ID : undefined);
+  };
   window.__reset = function () {
     try {
-      sessionStorage.removeItem(STATE_KEY);
+      Object.keys(sessionStorage).filter(function (k) { return k.indexOf(STATE_KEY) === 0; })
+        .forEach(function (k) { sessionStorage.removeItem(k); });
       sessionStorage.removeItem(LOG_KEY);
       sessionStorage.removeItem(FAIL_KEY);
       sessionStorage.removeItem('lomda_nav_edges::methodica-math-ratio-02');
@@ -239,7 +244,7 @@
      __state() dumps one; this puts one back. Used by _test/statement-flow.js to
      simulate a reload, and by hand in the browser to land on any saved position. */
   window.__setState = function (doc) {
-    try { sessionStorage.setItem(STATE_KEY, JSON.stringify(doc)); } catch (e) {}
+    try { sessionStorage.setItem(stateKey(typeof RESUME_STATE_ID !== 'undefined' ? RESUME_STATE_ID : undefined), JSON.stringify(doc)); } catch (e) {}
     return 'seeded';
   };
   /* on עשוי להיות boolean (תאימות לאחור) או status מספרי, כדי להגיע לכל ענף

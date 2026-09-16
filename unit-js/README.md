@@ -213,7 +213,7 @@ top of two serial CDN scripts, and an earlier 6 s ceiling lifted the cover mid-r
 |---|---|
 | `10-identity.js` | The unit's canonical id prefix, unit id, `shortId()`, `RESUME_ENABLED`, `DEV_NAV` (`?dev=1` and no `?registration` — the only state in which the unit navigates between parts). The main per-unit seam. |
 | `20-xapi.js` | Item scope, question-id resolution from metadata, every statement-building call-site helper — including `xapiEndComponent` (report, then disable the button), which replaced `xapiCompleteUnit` on 2026-09-16. |
-| `40-resume.js` | The v5 state document, the four ledgers, unit-level state, cross-part edges (`?dev=1` only) and `hideCrossPartBack`, boot cover, reset hatch. |
+| `40-resume.js` | The v6 state document — one per part (`component` + `payload`, v5 migrated in place), the four ledgers, the part's own `ui`/`results` with `adoptUnitCharacter`, cross-part edges (`?dev=1` only) and `hideCrossPartBack`, boot cover, reset hatch. |
 | `50-loader.js` | `bootXAPI()` — CDN load, three gates, capped metadata poll, two-phase resume read (the cross-part hop was removed 2026-09-16), component `initialized`. |
 | `90-boot.js` | The only file with top-level side effects. Fixed startup order. |
 | `main.js` | The approved engine and this unit's screen logic, plus the resume hooks and the report dialog. |
@@ -267,6 +267,6 @@ The full rundown — the four checks, the refusals, why `-Force` preserves `DEPL
 root `README.md` under *Deployments*.
 
 **Deploy all five parts atomically** — together with `unit-js/`, `unit-css/` and `unit-assets/` —
-and roll back the same way: a part left on an older state-document version beside v5 parts writes a
+and roll back the same way: a part left on an older state-document version beside v6 parts writes a
 document the others discard and rewrite — a reset loop that wipes the `done` ledger each cycle and
 re-sends `completed` every time.

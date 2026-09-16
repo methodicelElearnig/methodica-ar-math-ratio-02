@@ -62,7 +62,7 @@ that omits them is a unit with no stylesheet and no fonts. See `unit-js/README.m
 - `metadata/` — unit + per-component JSONs: 1 unit, 5 components, 16 items, 43 questions. Extracted
   from the deck and normalised to the shape live Kata accepts. ⚠️ **Not yet pushed** — see *Known
   content issues*.
-- `_test/` — headless regression harness, 939 + 58 assertions across two suites. **Never shipped**,
+- `_test/` — headless regression harness, 1001 + 56 assertions across two suites. **Never shipped**,
   including its stub library — the allowlist excludes it twice over, by name and by the
   leading-underscore rule. See its README for what each suite covers, and
   [`Documentation/GITHUB-GH.md`](../../../Documentation/GITHUB-GH.md) for how to run them:
@@ -118,7 +118,7 @@ part under part 01's registration and saved every part's resume slot into part 0
 | `finishUnit` ("סיימתי", part 05) | component `completed` **+ unit `completed`** (a mean of the component scores) | component `completed` only, button disabled. `unitResult()` deleted; `UNIT_SCORE_KEYS` / `recordPartResult` stay as the per-component record |
 | the first screen's "חזרה" (`.scq-back`, parts 02–05) | `goBackToPreviousPart` → previous component | **hidden** by `hideCrossPartBack()` (`90-boot.js`); the function returns at once |
 | loader phase A | `location.replace` to `_saved.part` | **removed** — the part Kata launched is the part shown, its own slot restored |
-| unit-level statements | `initialized` (01 `onXapiReady`) and `completed` (05) with `{ scope: 'unit' }` | **none**; `xapiCompleteUnit` deleted. `XAPI_UNIT_ID` stays — the State document is keyed on it |
+| unit-level statements | `initialized` (01 `onXapiReady`) and `completed` (05) with `{ scope: 'unit' }` | **none**; `xapiCompleteUnit` deleted. `XAPI_UNIT_ID` stays — it keys the localStorage fallback and matches the catalogue; Kata's State API never sees it |
 | `goToNextPart()` | a second handover entry point, uncalled | deleted |
 
 The navigation code is not deleted. It runs only under **`DEV_NAV`** (`unit-js/10-identity.js`):
@@ -138,6 +138,38 @@ edge, disables the button; under `?dev=1` the old handover still works; part 05'
 one component `completed` and nothing unit-scoped). **Not observed:** Kata removing a component
 on `completed` — our content never let it happen. If Kata does not act, the learner sees a
 disabled button and nothing else; visible on the first integration run.
+
+### One document per component (2026-09-16, state v6)
+
+Two platform statements fixed the model. **MOE:** the platform remembers per learner which
+components are done, not started or in progress, and brings the learner back to *the last component
+in progress*. **Kata:** the `registration` our content saves State under is a **{user, component}**
+pair — a different one per component for the same learner — and the platform may **clear one
+component's State** on a repeat entry (a re-take of an assessment component).
+
+The wire was already per component (`xapi-720-k.js` addresses Kata's State API by `?registration`
+alone, and since *The platform owns routing* no part copies its query into another). The document's
+**content** was still unit-shaped — a landing pointer `part`, a back-edge map `prev`, `parts{}` with
+every part's payload — and that shape hid a live defect: `applyUnitProfile` read a null
+`ui.character` as "no character", nulled the in-memory value and **deleted the localStorage
+mirror**, so under Kata every part ≥ 02 opened with the default companion and destroyed the choice
+for the parts after it.
+
+| | before | after |
+|---|---|---|
+| the document | `{ v:5, part, parts{}, prev{}, done, doneItems, hints, picks, ui, results }` — one per unit | `{ v:6, component, payload, done, doneItems, hints, picks, ui, results }` — **one per part**; `component` checked on every read, another part's document discarded with `console.warn`; **v5 migrated in place** (`payload = parts[<this slug>]`, ledgers/character/results kept) |
+| `RESUME_STATE_ID` | `'execution-state'` | `'execution-state::<slug>'` — the localStorage fallback (`?dev=1`, no registration) is one slot per part too |
+| the companion character | `applyUnitProfile`: document → memory + mirror, **deleting** the mirror on null | `adoptUnitCharacter`: own document → same-browser mirror → default; a mirror hit is copied into this part's document (persisted in phase B); the mirror is **never deleted**; `?resetState` adopts nothing |
+| `writeForwardState` / `goBackToPreviousPart` (`?dev=1` only) | moved the landing pointer, wrote `prev`, seeded the destination, refused to navigate on a failed write | record the `sessionStorage` edge, save **this** part, navigate. `destFirstScreen` stays in the signature and is ignored |
+| re-take (Kata clears the document) | untested | fresh attempt: nothing restored, ledgers empty (`completed` again — intended), the empty `results` section beats the localStorage mirrors. Tested (`retake`) |
+
+**Known cost, accepted:** a learner who switches devices mid-unit sees the default companion in parts
+not yet opened on the new device. Reading part 01's document by `studentId+componentKey` was
+neither asked of Kata nor built.
+
+Every `?v=` in the unit moved with the version (the rule above). Tests: `shape` / `isolation` /
+`retake` / `character` in `_test/verify-report.js`; the seam assertions now read the edge map and
+this part's own document.
 
 ## Known content issues
 

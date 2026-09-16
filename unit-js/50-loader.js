@@ -113,37 +113,36 @@ function bootXAPI() {
 
            ⚠️ What was deliberately NOT moved early: _resumeReady. It stays in phase B. Setting it
            here would open a window in which any goTo() arms a save that overwrites
-           doc.parts[slug] with a fresh payload — a write before the restore, which is exactly
+           doc.payload with a fresh payload — a write before the restore, which is exactly
            what every write path is built to prevent. Phase A is therefore READ-ONLY:
-           applyUnitProfile aligns memory and cache, and does not touch the document. */
+           adoptUnitCharacter aligns memory and cache; what it copies into the document (the
+           character from the mirror) waits in the queue and is persisted in phase B. */
         var _saved   = null;
         var _payload = null;
         if (RESUME_ENABLED) {
           try {
             _saved = readUnitState();
-            /* No hop to _saved.part any more (2026-09-16): the platform launches each component
-               on its own URL and its own registration, so the part Kata opened is the part shown,
-               and only its own slot is restored below. Under per-component registration
-               _saved.part could differ only because of a legacy in-unit hop; it is still written
-               by writeForwardState under DEV_NAV and read by nothing in production.
+            /* The document is this part's alone (v6, 2026-09-16): Kata's registration is per
+               component, the platform launches each part on its own, and there is no landing
+               pointer or hop to a saved part any more. See 40-resume.js (header) and README.md.
                _devHarness keeps its one remaining job — the DEV harness (index_dev.html) asks for
                a screen and the saved payload must not pull the frame off it — and reads the shared
                flag (10-identity.js) rather than its own ?dev=1. */
             var _devHarness = DEV_NAV;
-            /* The character — the reason this whole phase exists. Until v4 it lived only in
-               localStorage, so continuing from another machine painted the wrong avatar.
-               Called unconditionally rather than only when there is a payload: a learner whose
-               document has no slot for this part never enters applyExecutionState at all, and
+            /* The character — adoptUnitCharacter's four steps: this part's document, else the
+               mirror left by part 01 (copied into the document, persisted in phase B), else the
+               default. Called unconditionally rather than only when there is a payload: a learner
+               entering this part for the first time never enters applyExecutionState at all, and
                would miss the alignment. */
-            if (applyUnitProfile(_saved)) {
+            if (adoptUnitCharacter(_saved)) {
               /* Screen 0 was already painted by the init block in script.js using the previous
                  character. Repaint here, behind the cover, before it is removed. */
               try { resetScreenState(currentScreen); } catch (e) {}
             }
-            _payload = _saved.parts[currentPartSlug()];
+            _payload = _saved.payload;
 
             /* ── No payload → no screen to restore → no reason to hold the cover ──
-               A first-time learner gets an empty document, therefore an empty parts[], therefore
+               A first-time learner gets an empty document, therefore no payload, therefore
                the cover drops here — at the earliest possible moment, without waiting for
                pollMetadataReady. The character fix, if there was one, was already painted
                synchronously one line above.
@@ -195,7 +194,7 @@ function bootXAPI() {
                anything is sent.
 
                _resumeReady is set only here, never in phase A: it is the gate on every write
-               path, and a write opened before the restore overwrites doc.parts[slug] with a fresh
+               path, and a write opened before the restore overwrites doc.payload with a fresh
                payload. It is also set in the catch — a failed read should not disable saving for
                the rest of the session, and certainly should not silence reporting. */
             var _resumed = false;

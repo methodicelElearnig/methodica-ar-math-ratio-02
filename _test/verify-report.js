@@ -62,7 +62,7 @@ const SHARED_FNS = [
   'readUnitState', 'captureUnitState', 'persistUnitState', 'emptyUnitState',
   'scheduleResumeSave', 'flushResumeSave', 'initResumeLeaveHandlers',
   'initResumeResetHatch', 'dropBootCover', 'getUnitCharacter', 'setUnitCharacter',
-  'getUnitResult', 'setUnitResult', 'applyUnitProfile', 'drainPendingUnitState',
+  'getUnitResult', 'setUnitResult', 'adoptUnitCharacter', 'migrateState', 'drainPendingUnitState',
   'recordForwardEdge', 'goBackToPreviousPart', 'writeForwardState', 'hideCrossPartBack',
   'resumeIsPainting', 'beginRepaint', 'endRepaint',
 ];
@@ -780,6 +780,189 @@ function stripComments(src) {
   return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"\\])\/\/[^\n]*/g, '$1');
 }
 
+
+/* ══════════════ One document per component (v6, 2026-09-16) ══════════════
+   Kata's registration is per {learner, component} and the platform may clear one component's
+   document on a re-take. The document is flat — `component` + `payload` — migrated from v5 in
+   place, never applied when it names another part, and the character travels 01 → 02.. through
+   the same-browser mirror only. Groups: shape / isolation / retake / character. The store below is
+   keyed by registration + state id, exactly as two Kata launches would be. */
+function checkPerComponentState() {
+  const stores = {};
+  const warns = [];
+  const bootS = (c, search) => {
+    const dir = path.join(BASE, PART_DIR(c));
+    const dom = new JSDOM(fs.readFileSync(path.join(dir, 'index.html'), 'utf8'), {
+      url: 'http://localhost:8777/' + PART_DIR(c) + '/index.html' + search,
+      runScripts: 'dangerously', pretendToBeVisual: true,
+    });
+    const w = dom.window;
+    const exec = (code) => { const s = w.document.createElement('script'); s.textContent = code; w.document.head.appendChild(s); s.remove(); };
+    const val = (expr) => { exec('window.__v2 = (function(){ try { return (' + expr + '); } catch (e) { return "__throw:" + e.message; } })();'); return w.__v2; };
+    w.console.error = w.console.log = () => {};
+    w.console.warn = (m) => warns.push(String(m));
+    w.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    w.HTMLMediaElement.prototype.load = function () {};
+    w.HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
+    w.HTMLMediaElement.prototype.pause = function () {};
+    for (const src of [...w.document.querySelectorAll('script[src]')].map(s => s.getAttribute('src'))) {
+      if (/^[a-z]+:\/\//i.test(src) || src.startsWith('//')) continue;
+      const p = path.resolve(dir, src.split('?')[0]);
+      if (fs.existsSync(p)) { try { exec(fs.readFileSync(p, 'utf8')); } catch (e) {} }
+    }
+    const reg = new URL(w.location.href).searchParams.get('registration') || '';
+    const key = (id) => reg + '::' + id;
+    w.loadState720 = function (id) { const k = key(id); return stores[k] ? JSON.parse(stores[k]) : null; };
+    w.saveState720 = function (id, doc) { stores[key(id)] = JSON.stringify(doc); return true; };
+    w.saveState720Debounced = w.saveState720;
+    w.__stmts2 = [];
+    w.sendStatement720 = function (v, t, res, o) { w.__stmts2.push({ v, t, res, o }); };
+    w.XAPI_USING_G = true;
+    exec('window.METADATA = ' + fs.readFileSync(path.join(BASE, 'metadata', PART_DIR(c) + '.json'), 'utf8').replace(/^\uFEFF/, '') + ';');
+    const seed = (doc) => { stores[key(val('RESUME_STATE_ID'))] = JSON.stringify(doc); };
+    const stored = () => { const s = stores[key(val('RESUME_STATE_ID'))]; return s ? JSON.parse(s) : null; };
+    return { w, exec, val, seed, stored, slug: PART_DIR(c), close: () => dom.window.close() };
+  };
+  const q = (r, extra) => '?slxapi=1&registration=' + r + (extra || '');
+  const CK = 'methodica_math_ratio_02_selectedCharacter';
+
+  // ── shape ──
+  let b = bootS('01', q('r1'));
+  ok('shape', 'emptyUnitState() has exactly the v6 fields',
+    b.val('Object.keys(emptyUnitState()).sort().join()') === 'component,done,doneItems,hints,payload,picks,results,ui,v',
+    String(b.val('Object.keys(emptyUnitState()).sort().join()')));
+  ok('shape', 'a fresh document names this part', b.val('emptyUnitState().component') === b.slug);
+  ok('shape', 'RESUME_STATE_ID carries the part slug',
+    b.val('RESUME_STATE_ID') === 'execution-state::' + b.slug, String(b.val('RESUME_STATE_ID')));
+  b.seed({ v: 5, part: 'x', parts: { [b.slug]: { currentScreen: 3 }, other: { currentScreen: 9 } }, prev: { a: 1 },
+           done: { a: true }, doneItems: { b: true }, hints: { h: true }, picks: { p: true }, ui: { character: 'X' }, results: { k: '0.5' } });
+  b.exec('readUnitState();');
+  ok('shape', 'v5 → v6 migration keeps this part\'s slot as payload',
+    b.val('_unitState.v') === 6 && b.val('_unitState.component') === b.slug && b.val('_unitState.payload.currentScreen') === 3,
+    String(b.val('JSON.stringify(_unitState)')));
+  ok('shape', 'v5 → v6 migration keeps the four ledgers, the character and the results',
+    b.val('_unitState.done.a') === true && b.val('_unitState.doneItems.b') === true && b.val('_unitState.hints.h') === true &&
+    b.val('_unitState.picks.p') === true && b.val('_unitState.ui.character') === 'X' && b.val('_unitState.results.k') === '0.5');
+  ok('shape', 'v5 → v6 migration drops part, prev and parts',
+    b.val("'part' in _unitState") === false && b.val("'prev' in _unitState") === false && b.val("'parts' in _unitState") === false);
+  b.seed({ v: 5, part: 'x', parts: { other: { currentScreen: 9 } } });
+  b.exec('readUnitState();');
+  ok('shape', 'a v5 document with no slot for this part migrates to payload:null',
+    b.val('_unitState.payload') === null && b.val('_unitState.v') === 6);
+  b.seed({ v: 4, parts: { [b.slug]: { currentScreen: 3 } } });
+  b.exec('readUnitState();');
+  ok('shape', 'any other version is discarded', b.val('_unitState.payload') === null && b.val('_unitState.v') === 6);
+  warns.length = 0;
+  b.seed({ v: 6, component: 'other-slug', payload: { currentScreen: 7 }, done: { z: true } });
+  b.exec('readUnitState();');
+  ok('shape', 'a document that names another part is discarded…',
+    b.val('_unitState.payload') === null && b.val('_unitState.component') === b.slug && b.val('Object.keys(_unitState.done).length') === 0);
+  ok('shape', '…with a console.warn naming both parts',
+    warns.some(m => /\[resume\] document belongs to "other-slug", not "/.test(m)), JSON.stringify(warns));
+  b.exec('_resumeReady = true; readUnitState(); goTo(2);');
+  ok('shape', 'captureUnitState().payload is capturePartPayload()',
+    b.val('JSON.stringify(captureUnitState().payload) === JSON.stringify(capturePartPayload())') === true);
+  b.close();
+
+  // ── isolation ──
+  const A = bootS('01', q('r1')), B = bootS('03', q('r2'));
+  A.exec('_resumeReady = true; readUnitState(); goTo(3); flushResumeSave(); markSent("done", currentPartSlug());');
+  B.exec('readUnitState();');
+  ok('isolation', 'part B under its own registration sees an empty document',
+    B.val('_unitState.payload') === null && B.val('Object.keys(_unitState.done).length') === 0);
+  ok('isolation', 'part A\'s stored document never mentions part B',
+    JSON.stringify(A.stored()).indexOf(B.slug) === -1 && A.stored().component === A.slug && A.stored().done[A.slug] === true,
+    JSON.stringify(A.stored()));
+  ok('isolation', 'only registrations that wrote have a document',
+    Object.keys(stores).filter(k => k.indexOf('r2::') === 0).length === 0, Object.keys(stores).join());
+  warns.length = 0;
+  B.seed(A.stored());
+  B.exec('readUnitState();');
+  ok('isolation', 'another part\'s document under my registration is discarded, not applied',
+    B.val('_unitState.payload') === null && warns.some(m => /document belongs to "/.test(m)));
+  A.close(); B.close();
+
+  // ── retake: Kata cleared the document; the same-browser mirrors still hold the last attempt ──
+  b = bootS('02', q('r5'));
+  b.exec("RESULT_KEYS.forEach(function (k) { localStorage.setItem(k, '1'); }); localStorage.setItem(CK_PLACEHOLDER, 'X'); window.lomdaState.selectedCharacter = null;".replace('CK_PLACEHOLDER', JSON.stringify(CK)));
+  b.exec('readUnitState(); window.__payloadAtBoot = _unitState.payload; window.__changed = adoptUnitCharacter(_unitState);');
+  ok('retake', 'an absent document leaves every recorded score null — the mirrors are not consulted',
+    b.val("RESULT_KEYS.every(function (k) { return getUnitResult(k) === null; })") === true);
+  ok('retake', 'the ledger is empty again, so the re-take will report completed',
+    b.val("alreadySent('done', currentPartSlug())") === false);
+  b.exec("_resumeReady = true; sendCompletedOnce('done', currentPartSlug(), 'onlinelesson', null);");
+  ok('retake', 'the re-take\'s completed goes out', b.w.__stmts2.filter(s => s.v === 'completed').length === 1);
+  ok('retake', 'nothing is restored', b.val('window.__payloadAtBoot === null') === true);
+  ok('retake', 'the character IS adopted from the mirror (decision 2026-09-16)',
+    b.val('window.lomdaState.selectedCharacter') === 'X' && b.val('_unitState.ui.character') === 'X' && b.w.__changed === true);
+  b.close();
+
+  // ── character: four steps, both stores ──
+  b = bootS('01', q('r1'));
+  b.exec("_resumeReady = true; readUnitState(); setUnitCharacter('X');");
+  ok('character', '01: the choice lands in the mirror AND in this part\'s document',
+    b.val('localStorage.getItem(' + JSON.stringify(CK) + ')') === 'X' && b.val('_unitState.ui.character') === 'X' &&
+    b.stored() && b.stored().ui.character === 'X', JSON.stringify(b.stored()));
+  b.close();
+  b = bootS('03', q('r3'));
+  b.seed({ v: 6, component: b.slug, ui: { character: 'Y' } });
+  b.exec('localStorage.setItem(' + JSON.stringify(CK) + ", 'X'); readUnitState(); adoptUnitCharacter(_unitState);");
+  ok('character', '03 step 1: the document wins over the mirror, and the mirror follows',
+    b.val('window.lomdaState.selectedCharacter') === 'Y' && b.val('localStorage.getItem(' + JSON.stringify(CK) + ')') === 'Y');
+  b.close();
+  b = bootS('03', q('r3b'));
+  b.exec('localStorage.setItem(' + JSON.stringify(CK) + ", 'X'); window.lomdaState.selectedCharacter = null; readUnitState(); window.__changed = adoptUnitCharacter(_unitState);");
+  ok('character', '03 steps 2+3: an empty document adopts the mirror into memory and into the document',
+    b.val('window.lomdaState.selectedCharacter') === 'X' && b.val('_unitState.ui.character') === 'X' &&
+    b.val('getUnitCharacter()') === 'X' && b.w.__changed === true);
+  ok('character', '03 step 3: the mirror is NOT deleted (the old applyUnitProfile did)',
+    b.val('localStorage.getItem(' + JSON.stringify(CK) + ')') === 'X');
+  ok('character', '03 step 3: nothing is written before phase B…', b.stored() === null);
+  b.exec('_resumeReady = true; drainPendingUnitState();');
+  ok('character', '…and phase B persists the adopted character into this part\'s document',
+    b.stored() && b.stored().ui.character === 'X' && b.stored().component === b.slug, JSON.stringify(b.stored()));
+  b.close();
+  b = bootS('03', q('r3c'));
+  b.exec("readUnitState(); adoptUnitCharacter(_unitState);");
+  ok('character', '03 step 4: no document, no mirror → null, default stays',
+    b.val('getUnitCharacter()') === null && b.val('localStorage.getItem(' + JSON.stringify(CK) + ')') === null);
+  b.close();
+  b = bootS('03', q('r3d', '&resetState'));
+  ok('character', '?resetState: the hatch ran at boot and cleared the mirror',
+    b.val('_resetRequested') === true && b.val('localStorage.getItem(' + JSON.stringify(CK) + ')') === null);
+  b.exec('localStorage.setItem(' + JSON.stringify(CK) + ", 'X'); readUnitState(); adoptUnitCharacter(_unitState);");
+  ok('character', '?resetState: a mirror that reappears is NOT adopted — a reset adopts nothing',
+    b.val('getUnitCharacter()') === null && b.val('window.lomdaState.selectedCharacter') === null);
+  b.close();
+}
+
+/* ── Source scan for the v6 shape ── */
+function checkStateShapeSource() {
+  const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"])\/\/[^\n]*/g, '$1');
+  const files = fs.readdirSync(path.join(BASE, 'unit-js')).filter(n => /\.js$/.test(n)).map(n => 'unit-js/' + n)
+    .concat(COMPONENTS.map(c => PART_DIR(c) + '/script.js'));
+  for (const rel of files) {
+    const src = strip(fs.readFileSync(path.join(BASE, rel), 'utf8'));
+    ok('shape', rel + ': no landing pointer, no prev map, no parts map',
+      !/\b(doc|_unitState|_saved|st|old)\.prev\b/.test(src) && !/(?<!old)\.parts\[/.test(src) && !/\b(doc|_unitState|_saved|st)\.part\b/.test(src));
+    ok('shape', rel + ': applyUnitProfile is gone', !/applyUnitProfile/.test(src));
+  }
+  const rs = strip(fs.readFileSync(path.join(BASE, 'unit-js/40-resume.js'), 'utf8'));
+  ok('shape', '40-resume.js: RESUME_STATE_VERSION is 6', /var RESUME_STATE_VERSION = 6;/.test(rs));
+  ok('shape', '40-resume.js: RESUME_STATE_ID is per part',
+    /var RESUME_STATE_ID\s*=\s*'execution-state::' \+ currentPartSlug\(\);/.test(rs));
+  ok('shape', '40-resume.js: readUnitState migrates, then refuses another part\'s document with a warning',
+    /doc = migrateState\(doc\);[\s\S]{0,200}doc\.component !== currentPartSlug\(\)[\s\S]{0,200}console\.warn\(/.test(rs));
+  const adopt = /function adoptUnitCharacter\(doc\)\s*\{[\s\S]*?\n\}/.exec(rs);
+  ok('shape', '40-resume.js: adoptUnitCharacter never deletes the mirror',
+    !!adopt && !/_lsDel/.test(adopt[0]) && /_lsGet\(UI_CHARACTER_KEY\)/.test(adopt[0]) && /_pendingProfile = \{ character: c \}/.test(adopt[0]));
+  const ld = strip(fs.readFileSync(path.join(BASE, 'unit-js/50-loader.js'), 'utf8'));
+  ok('shape', '50-loader.js: phase A restores payload and adopts the character',
+    /_payload = _saved\.payload;/.test(ld) && /adoptUnitCharacter\(_saved\)/.test(ld));
+  ok('shape', 'writeForwardState keeps its three-argument signature for the callers',
+    /function writeForwardState\(destSlug, returnHash, destFirstScreen\)/.test(rs));
+}
+
 function checkPlatformRouting() {
   const shared = fs.readdirSync(path.join(BASE, 'unit-js')).filter(f => f.endsWith('.js')).sort();
   const files = [...shared.map(f => 'unit-js/' + f), ...COMPONENTS.map(c => PART_DIR(c) + '/script.js')];
@@ -839,15 +1022,15 @@ function checkPlatformRouting() {
       ok('routing', c + ': …and it is hidden by hideCrossPartBack — attribute AND display',
         val(sel + '.hidden') === true && val('getComputedStyle(' + sel + ').display') === 'none',
         'hidden=' + val(sel + '.hidden') + ' display=' + val('getComputedStyle(' + sel + ').display'));
-      exec("_resumeReady = true; _unitState = emptyUnitState(); _unitState.part = 'sentinel';");
+      exec("_resumeReady = true; _unitState = emptyUnitState(); window.__saves = 0; window.saveState720 = function () { window.__saves++; return true; };");
       const errsBefore = consoleErrors.length;
       exec("goBackToPreviousPart(PART_CONFIG.prev, '#screen=' + (PART_CONFIG.start - 1));");
-      ok('routing', c + ': goBackToPreviousPart() moves nothing in production',
-        val('_unitState.part') === 'sentinel' && consoleErrors.length === errsBefore,
-        val('_unitState.part') + ' / ' + consoleErrors.slice(errsBefore).join(' | '));
+      ok('routing', c + ': goBackToPreviousPart() writes nothing in production',
+        val('window.__saves') === 0 && consoleErrors.length === errsBefore,
+        'saves=' + val('window.__saves') + ' / ' + consoleErrors.slice(errsBefore).join(' | '));
       exec('goTo(PART_CONFIG.start - 1);');
       ok('routing', c + ': goTo below the first screen stays on it',
-        val('currentScreen') === val('PART_CONFIG.start') && val('_unitState.part') === 'sentinel');
+        val('currentScreen') === val('PART_CONFIG.start'));
     }
     dom.window.close();
   }
@@ -877,6 +1060,8 @@ const SUITES = [
   ['deploy contract', checkDeployContract],
   ['no cross-layer collisions', checkNoCollisions],
   ['config vs metadata', checkConfigAgainstMetadata],
+  ['one document per component', checkPerComponentState],
+  ['the v6 shape (source)', checkStateShapeSource],
   ['the platform routes', checkPlatformRouting],
   ['resume round-trip', checkResumeRoundTrip],
   ['painters', checkPainters],
