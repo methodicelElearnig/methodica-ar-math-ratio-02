@@ -75,7 +75,7 @@ this is controlled from the **CONFIG** block at the top of the file.
 | unit `prerequisiteLearningObjective` | **not sent** — removed by v2.5 and absent from `ContentUnitCreate`. Objective dependencies now live on the objective, not on the content |
 | component `relativeDifficulty` / `depthLevel` / `cognitiveLevels` | read **from the metadata**. Precedence is `$ComponentOverrides` > metadata value > fallback (component `order` for `relativeDifficulty`, `$DefaultDepthLevel` for `depthLevel`). **v2.5:** the metadata field is `cognitiveLevels` (a list); the script reads its first entry, validates it, and sends it back as a one-element list — which is what `ComponentCreate` requires |
 | component `masteryLevel` | forwarded when present and non-null; absent stays absent rather than being defaulted. (All six components in this unit are `null`, so no key is emitted.) |
-| component `id` | also becomes `hostedContentRef` = component id + `/index.html` |
+| component `id` | `uniqueKey` only. `hostedContentRef` is built from `$ContentBaseUrl` in the CONFIG block and is **not** derived from the id — an id lives under `720active/` and the content is served from `720/`, so deriving one from the other wrote a launch URL that serves 0 bytes (fixed 2026-09-16). |
 | component `manufacture` | dropped (owning group is derived from the API key) |
 | component `recommendedAfterFail` | URLs reduced to component keys and applied in a **second pass** — see below |
 | item — (no order) | `order` = 1-based position in `subContent[]` |
