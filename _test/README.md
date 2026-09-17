@@ -54,11 +54,26 @@ a package excludes, so a package run should also be clean — the totals differ 
 package holds `DEPLOY.md` in place of the repo's linked docs, which changes what the
 `docs resolve` section has to check. A different total is expected; a *failure* is not.
 
-⚠️ **Both packages currently on disk fail 7 assertions** — `2026-09-07` and `2026-09-08` alike
-run 877/7. Every failure is the same one: `TOTAL_SCREENS` 52 (×5 components) and component 05's
-range `[38, 51]`. Both packages predate the producer cutting the finale screen on 08.09.26, so
-**the packages are the stale side, not the suite**. Re-cut one from `main` and the section returns
-to clean. Until then, the live CDN build still serves the removed finale screen.
+⚠️ **Only the newest package on disk is clean**, and that is the expected shape: a package fails
+exactly the assertions added after it was cut. `verify-report.js`, 17.09.26:
+
+| package | | |
+|---|---|---|
+| `2026-09-07` | 911/125 | predates the finale cut, platform routing, state v6 and the set gate |
+| `2026-09-08` | 911/125 | ditto — **this is what the CDN is still serving** |
+| `2026-09-08b` | 912/118 | finale cut; predates the rest |
+| `2026-09-16` | 967/62 | platform routing; predates state v6 and the gate |
+| `2026-09-16b` | 1004/25 | state v6; predates the gate (20 × `MAIN_FNS`, 5 × `gate`) |
+| `2026-09-17` | **1046/0** | current |
+
+**The packages are the stale side, not the suite.** Re-cut one and it returns to clean. A package
+total is never the tree total — `docs resolve` walks the package's own `DEPLOY.md` links instead of
+the repo's, so a longer deployment record raises the count. **Compare failures, not totals.**
+
+⚠️ **`statement-flow.js` cannot run against a package at all** — 6 passed, 10 failed, every failure
+`ENOENT … _test/xapi-720-k.js`. It boots each scenario against that stub, which a package correctly
+omits, so only `reporting off is off` (the one scenario with `noLibrary`) survives. Same result
+against every package on disk. Run it against the tree.
 
 ⚠️ **Do not assume that stays true.** The sibling unit `methodica-math-ratio-01` runs
 1675/9 against its own package, and all nine failures are assertions that want
