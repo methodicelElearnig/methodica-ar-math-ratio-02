@@ -65,6 +65,9 @@ const SHARED_FNS = [
   'getUnitResult', 'setUnitResult', 'adoptUnitCharacter', 'migrateState', 'drainPendingUnitState',
   'recordForwardEdge', 'goBackToPreviousPart', 'writeForwardState', 'hideCrossPartBack',
   'resumeIsPainting', 'beginRepaint', 'endRepaint',
+  /* main.js's restoreEndedButton reads the ledger across the layer boundary — pinned here so a
+     rename in 40-resume.js cannot silently turn a fired gate back into a live button. */
+  'alreadySent',
 ];
 
 /* What main.js owns — the engine, and the hooks the platform layer calls back into. */
@@ -74,6 +77,7 @@ const MAIN_FNS = [
   'applyExecutionState', 'partBoot', 'leaveToPart', 'finishUnit', 'lastScreenButton',
   'screenWasCorrect', 'itemResultFor', 'partResult', 'recordPartResult',
   'xapiKeyFor', 'xapiScreenKey', 'xapiReport', 'xapiHint', 'xapiReportQScreen',
+  'setScore', 'gateBlocks', 'endComponentHere', 'restoreEndedButton',
 ];
 
 /* Files that must NOT be vendored: main.js already owns the equivalent, and a second
@@ -1053,6 +1057,97 @@ function checkPlatformRouting() {
     r.DEV_NAV === false && r.backHidden === true, JSON.stringify(r));
 }
 
+/* ══════════════ the set gate ══════════════
+   s21 promises "ענו נכון על 2 שאלות ומעלה כדי להתקדם" and nothing enforced it until 17.09:
+   advanceScreen() asked only whether a screen was DONE, and done is set on the second WRONG attempt
+   too. The gate stops the component instead and lets the PLATFORM route on the 'completed'.
+
+   statement-flow.js walks the learner through it. This pins the wiring — above all the two places
+   it must NOT be (inside leaveToPart/finishUnit, whose own assertions run on tight proximity
+   windows) — and the fail-open behaviour, which no walk can reach because every walk answers. */
+function checkSetGate() {
+  const raw = fs.readFileSync(path.join(BASE, 'unit-js', 'main.js'), 'utf8');
+  const main = stripComments(raw);
+
+  ok('gate', 'main.js: advanceScreen consults the gate LAST, immediately before goTo',
+    /function advanceScreen[\s\S]{0,1500}if \(gateBlocks\(currentScreen\)\) \{ endComponentHere\(SET_GATES\[currentScreen\]\.btn\); return; \}\s*goTo\(currentScreen \+ 1\);/.test(main));
+  ok('gate', 'main.js: the gate is NOT wired into leaveToPart or finishUnit',
+    !/function leaveToPart[\s\S]{0,400}gateBlocks/.test(main) &&
+    !/function finishUnit[\s\S]{0,400}gateBlocks/.test(main));
+  ok('gate', 'main.js: endComponentHere reports through xapiEndComponent + recordPartResult, then flushes',
+    /function endComponentHere[\s\S]{0,400}xapiEndComponent\(res, document\.getElementById\(btnId\)\)[\s\S]{0,300}recordPartResult\(res\)[\s\S]{0,200}flushResumeSave\(\)/.test(main));
+  ok('gate', 'main.js: endComponentHere navigates nowhere — the platform moves the learner',
+    !/function endComponentHere[\s\S]{0,500}(location\.|leaveToPart\(|finishUnit\(|goTo\()/.test(main));
+  ok('gate', 'main.js: applyExecutionState re-applies the gate LAST, after xapiOnScreen',
+    /xapiOnScreen\(currentScreen\); \} catch \(e\) \{\}\s*try \{ restoreEndedButton\(currentScreen\); \} catch \(e\) \{\}/.test(main));
+  ok('gate', 'main.js: restoreEndedButton needs BOTH the gate and the ledger, and never reports',
+    /function restoreEndedButton[\s\S]{0,600}gateBlocks\(n\)[\s\S]{0,400}alreadySent\('done', currentPartSlug\(\)\)/.test(main) &&
+    !/function restoreEndedButton[\s\S]{0,600}(endComponentHere|xapiEndComponent|sendStatement|sendCompleted)/.test(main));
+
+  /* The gate adds no persisted state — that is what keeps it out of RESUME_STATE_VERSION and out of
+     the exactly-asserted payload/document shapes. It is derived from qResults + the ledger. */
+  ok('gate', 'main.js: the gate persists nothing of its own',
+    !/RESUME_PLAIN_VARS[\s\S]{0,400}gate/i.test(main) && !/capturePartPayload[\s\S]{0,600}gate/i.test(main));
+
+  const { dom, val } = loadComponent('03');
+
+  eq('gate', 'SET_GATES gates screen 24 only — set B, needing 2, through s24-check',
+    JSON.parse(val('JSON.stringify(SET_GATES)')), { 24: { set: 'B', need: 2, btn: 's24-check' } });
+  ok('gate', 'the gated screen sits inside component 03\'s own range',
+    Object.keys(JSON.parse(val('JSON.stringify(SET_GATES)'))).every(
+      n => Number(n) >= RANGE['03'][0] && Number(n) <= RANGE['03'][1]));
+  ok('gate', 'the gate\'s button exists in the markup', val("!!document.getElementById('s24-check')") === true);
+  ok('gate', 'need is reachable: 0 < need <= QSET_SIZE[set]',
+    val('SET_GATES[24].need > 0 && SET_GATES[24].need <= QSET_SIZE[SET_GATES[24].set]') === true);
+  ok('gate', 'need matches the promise printed on s21 ("2 שאלות ומעלה")',
+    /ענו נכון על 2 שאלות ומעלה/.test(fs.readFileSync(path.join(BASE, PART_DIR('03'), 'index.html'), 'utf8')) &&
+    val('SET_GATES[24].need') === 2);
+
+  /* Verdicts against explicit qResults fixtures — the fail-open cases are unreachable by walking. */
+  const verdict = (r) => {
+    val('(function(){ Object.keys(qResults).forEach(function(k){ delete qResults[k]; });' +
+      'Object.assign(qResults, ' + JSON.stringify(r) + '); return 1; })()');
+    return val('gateBlocks(24)');
+  };
+  ok('gate', 'FAILS OPEN on an empty qResults — a document the platform cleared',
+    verdict({}) === false);
+  /* ⚠️ This fixture must be one that a gate WITHOUT the resolved-count guard would block, or the
+     assertion passes either way: 1 right + 1 still unanswered reads as "1 correct, need 2". */
+  ok('gate', 'FAILS OPEN when set B is only partly resolved',
+    verdict({ s22: false, s23: true }) === false);
+  ok('gate', '3 of 3 passes', verdict({ s22: true, s23: true, s24: true }) === false);
+  ok('gate', '2 of 3 passes — the promise, exactly', verdict({ s22: true, s23: true, s24: false }) === false);
+  ok('gate', '2 of 3 passes wherever the two sit', verdict({ s22: false, s23: true, s24: true }) === false);
+  ok('gate', '1 of 3 blocks', verdict({ s22: true, s23: false, s24: false }) === true);
+  ok('gate', '0 of 3 blocks', verdict({ s22: false, s23: false, s24: false }) === true);
+  ok('gate', 'an unrelated screen is never gated', val('gateBlocks(23) || gateBlocks(29)') === false);
+
+  /* A gated learner can never clear XAPI_PASS, so the 'completed' always carries success:false —
+     which is the whole reason recommendedAfterFail fires. Set B reports four catalogue questions
+     (001/q1, 002/q1, 003/q1, 003/q2) and at most one station can be right. */
+  ok('gate', 'every blocking combination scores below XAPI_PASS, so the completed is success:false',
+    val(`(function(){
+      return [[0,0,0],[1,0,0],[0,1,0],[0,0,1]].every(function(c){
+        var keys = { '001/q1': !!c[0], '002/q1': !!c[1], '003/q1': !!c[2], '003/q2': !!c[2] };
+        var n = Object.keys(keys).filter(function(k){ return keys[k]; }).length;
+        return n / 4 < XAPI_PASS;
+      });
+    })()`) === true);
+
+  dom.window.close();
+
+  /* The other four components have no gated screen: their sets end at PART_CONFIG.end (A at s20,
+     D at s37) or one thank-you screen short of it (E at s49, recommendedAfterFail: []), so there is
+     nothing after them to block and leaveToPart/finishUnit already report the score. */
+  for (const c of COMPONENTS.filter(x => x !== '03')) {
+    const { dom: d, val: v } = loadComponent(c);
+    ok('gate', c + ': no gated screen inside its range',
+      Object.keys(JSON.parse(v('JSON.stringify(SET_GATES)')))
+        .every(n => Number(n) < RANGE[c][0] || Number(n) > RANGE[c][1]));
+    d.window.close();
+  }
+}
+
 /* ══════════════ run ══════════════ */
 
 const SUITES = [
@@ -1063,6 +1158,7 @@ const SUITES = [
   ['one document per component', checkPerComponentState],
   ['the v6 shape (source)', checkStateShapeSource],
   ['the platform routes', checkPlatformRouting],
+  ['the set gate', checkSetGate],
   ['resume round-trip', checkResumeRoundTrip],
   ['painters', checkPainters],
   ['boot cover', checkBootCover],

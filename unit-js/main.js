@@ -248,6 +248,11 @@ function advanceScreen() {
                   35:'s35',36:'s36',37:'s37',41:'s41',42:'s42',43:'s43',44:'s44',45:'s45',
                   46:'s46',48:'s48',49:'s49' }[currentScreen];
   if (gated && !(Q[gated] && Q[gated].done)) return;
+  /* The set gate — LAST, after every "is this screen answered" guard above, so it can only be
+     reached by a learner who actually finished the screen. Living in advanceScreen() rather than in
+     s24Check() also covers the keyboard: ArrowLeft is wired straight to advanceScreen() below, and
+     a gate on the click alone would have left that open. */
+  if (gateBlocks(currentScreen)) { endComponentHere(SET_GATES[currentScreen].btn); return; }
   goTo(currentScreen + 1);
 }
 function goBack() { goTo(currentScreen - 1); }
@@ -743,6 +748,63 @@ function stationState(setKey, idx) {
   if (!sids.every(k => qResults[k] !== undefined)) return null;
   return sids.every(k => qResults[k] === true);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Set gates — a practice set the learner must CLEAR to go on
+   ═══════════════════════════════════════════════════════════
+   s21 promises "ענו נכון על 2 שאלות ומעלה כדי להתקדם", and until 17.09 nothing enforced it:
+   advanceScreen() only ever asked whether a question was DONE, never whether it was RIGHT — and
+   mcqFinish()/s24's finish() set done on the second WRONG attempt too. One correct answer of three
+   therefore walked the learner into s25, "יופי של עבודה! הנה עוד 2 תרגילים ברמת קושי גבוהה יותר",
+   which is the worst possible screen for someone who just failed the set (MOE tester, 17.09).
+
+   The gate is a HARD stop: no message, no retry — the answers are already revealed on screen by the
+   time a set is resolved, so a retry would be nothing but a second look at them. The component
+   reports itself 'completed' and ENDS here, and the PLATFORM routes on that statement:
+   metadata/methodica-math-ratio-02-03.json carries recommendedAfterFail:
+   ["methodica-math-ratio-02-01"], the only non-empty one in the unit. That is exactly the contract
+   leaveToPart() honours at the component's forward edge; this is a SECOND, earlier forward edge for
+   a learner who did not clear the set.
+
+   Keyed by SCREEN, like every other rule in advanceScreen(): screens are numbered unit-wide and only
+   component 03's PART_CONFIG range contains 24, so the other four can never reach it.
+
+   ⚠️ `need` counts STATIONS — the qprog dots — not xAPI questions. s24 alone reports two of those
+   (003/q1 and 003/q2), and the learner was promised a count of questions as THEY see them.
+
+   Why only component 03 has an entry: a set whose last screen is also PART_CONFIG.end has nothing
+   to gate — the learner leaves the component either way and leaveToPart() already reports the real
+   score for the platform to route on. That covers set A (s20 = 02's end) and set D (s37 = 04's end),
+   and set E stops one thank-you screen short of 05's end with recommendedAfterFail: []. Set B is the
+   only set in the unit followed by more of its own component. */
+var SET_GATES = { 24: { set: 'B', need: 2, btn: 's24-check' } };
+
+/* How much of a set is RESOLVED, and how much of it was right. stationState() returns null for a
+   station that is not fully answered — a screen never finished, or a payload that came back without
+   qResults — so `resolved` is what tells the gate whether it is entitled to judge at all. */
+function setScore(setKey) {
+  var total = QSET_SIZE[setKey] || 0, resolved = 0, correct = 0;
+  for (var i = 0; i < total; i++) {
+    var st = stationState(setKey, i);
+    if (st === null) continue;
+    resolved++;
+    if (st === true) correct++;
+  }
+  return { total: total, resolved: resolved, correct: correct };
+}
+
+/* ⚠️ FAILS OPEN, deliberately. A gate may only close on evidence: every station of the set has to be
+   resolved before its verdict counts. A learner resuming on a document the platform cleared has
+   s24Done restored (it is in RESUME_PLAIN_VARS) while qResults came back empty; reading that as
+   "0 correct" would trap them on a set they may well have passed. Missing evidence means PASS. */
+function gateBlocks(n) {
+  var g = SET_GATES[n];
+  if (!g) return false;
+  var s = setScore(g.set);
+  if (s.resolved < s.total) return false;
+  return s.correct < g.need;
+}
+
 function renderQprog(sid) {
   const host = document.getElementById(sid + '-qprog');
   const cfg = QPROG[sid];
@@ -2244,6 +2306,11 @@ function applyExecutionState(st, screenOverride) {
   try { xapiSeedAnsweredFromResume(); } catch (e) {}
   xapiCurrentItem = null;
   try { xapiOnScreen(currentScreen); } catch (e) {}
+  /* LAST, and after xapiOnScreen on purpose. restoreScreenUI() ran inside the try above and
+     re-enabled this screen's button; a set gate that already fired has to outlive that repaint.
+     After xapiOnScreen because xapiCurrentItem is null in the line above it — anything reaching for
+     the item in that window would find nothing and leave the reopened item dangling. */
+  try { restoreEndedButton(currentScreen); } catch (e) {}
 }
 
 /* ── scoring ───────────────────────────────────────────────────────────
@@ -2295,6 +2362,59 @@ function recordPartResult(res) {
   if (!res || typeof XAPI_COMP_SLUG === 'undefined') return;
   var key = UNIT_SCORE_KEYS[XAPI_COMP_SLUG];
   if (key) setUnitResult(key, String(res.score.scaled));
+}
+
+/* ── the set gate's ending ────────────────────────────────────────────
+   End the component HERE, mid-range, instead of at its forward edge. Called only from the SET_GATES
+   check in advanceScreen(); see the gate note beside stationState() for why the stop is hard.
+
+   Why not reuse leaveToPart(): it resolves its button through lastScreenButton(), which reads
+   PART_CONFIG.end — for component 03 that is s29-check, a button on a screen the gated learner will
+   never see — and under DEV_NAV it hops to PART_CONFIG.next, the one destination a failed learner
+   must NOT be sent to. Everything else is identical, and in leaveToPart's order: the 'completed'
+   goes out BEFORE anything can branch or fail, so a learner who did not clear the set is still
+   reported. recordPartResult keeps the durable per-component score; the flush commits the payload so
+   the reload below lands back on this screen rather than wherever the debounce last wrote.
+
+   IDEMPOTENT by construction: sendCompletedOnce is ledger-guarded (../unit-js/40-resume.js), so a
+   re-click, an ArrowLeft or a return from s23 reports nothing more and only re-disables a button
+   that is already disabled.
+
+   ⚠️ It navigates NOWHERE. The platform moves the learner; this function's whole job is to make the
+   statement true before it does. */
+function endComponentHere(btnId) {
+  var res = partResult();
+  try { xapiEndComponent(res, document.getElementById(btnId)); } catch (e) {}
+  try { recordPartResult(res); } catch (e) {}
+  try { flushResumeSave(); } catch (e) {}
+}
+
+/* Putting a fired gate back after a reload. restoreScreenUI() rebuilds an answered screen from the
+   payload and _doneButton() re-enables its "שנמשיך?" — including on the screen a gated learner was
+   stopped on. Without this, a reload would hand that learner the button back and let them walk into
+   s25: the original bug, only now invisible until someone refreshes.
+
+   It deliberately does NOT re-run the gate and does NOT report. Two learners land on s24 with the
+   same restored state and only the ledger tells them apart:
+     • gated, clicked, reloaded            → the 'completed' is in doc.done → the button stays dead.
+     • answered, reloaded WITHOUT clicking → nothing was reported → the button must come back LIVE,
+       so their click still reaches the gate and still reports them.
+   Re-firing here would end a component the learner never asked to leave; refusing to re-disable in
+   the first case would hand a gated learner a second, unreported exit. Both conditions are required:
+   alreadySent alone would also kill the button for someone who finished normally at s29 and somehow
+   resumed onto s24, and gateBlocks alone would kill a button whose 'completed' never left.
+
+   ⚠️ FAILS OPEN on a missing document (alreadySent returns false): a live button can still be
+   clicked and re-gated, a dead one cannot be revived. */
+function restoreEndedButton(n) {
+  if (!gateBlocks(n)) return;
+  var btn = document.getElementById(SET_GATES[n].btn);
+  if (!btn) return;
+  var sent = false;
+  try { sent = alreadySent('done', currentPartSlug()); } catch (e) {}
+  if (!sent) return;
+  btn.disabled = true;
+  btn.setAttribute('aria-disabled', 'true');
 }
 
 /* ── part boundaries ─────────────────────────────────────────────────── */

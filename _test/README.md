@@ -15,8 +15,8 @@ replaces the rule; they just stop it depending on memory.
 
 | File | What it does |
 |---|---|
-| `verify-report.js` | **Structure.** 1001 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
-| `statement-flow.js` | **Behaviour.** 56 assertions. Which statements actually leave when a learner does something, in what order, carrying what result — and, more importantly, which ones do **not** leave when the same screen is reached again by a reload or the back button. |
+| `verify-report.js` | **Structure.** 1051 assertions. Loads the real `index.html`, `script.js`, `unit-js/*.js` and `main.js` of all five components into jsdom, runs the script tags in document order from disk, and asserts against what actually ran. It does not call the code in isolation — it runs it. |
+| `statement-flow.js` | **Behaviour.** 98 assertions. Which statements actually leave when a learner does something, in what order, carrying what result — and, more importantly, which ones do **not** leave when the same screen is reached again by a reload or the back button. |
 | `xapi-720-k.js` | A local stand-in for the CDN library, backed by `sessionStorage`. Loaded in the browser through `?xapiLib=`, and executed directly by both harnesses. It also models the real library's **deferral guard** — an item's `completed` is dropped, with no queue and no retry, unless an `answered` for that item passed through in the same page load. Keep it: without the guard the suite is blind to a whole class of permanently lost statements, which is how one survived every assertion here until it was found live against Kata. |
 
 ## Running
@@ -49,7 +49,7 @@ were copied from.
 NODE_PATH=... node _test/verify-report.js ../../deployments/2026-09-07
 ```
 
-A working-tree run is **939/939, zero failures**. Nothing in this unit's suite needs a file
+A working-tree run is **1051/1051, zero failures**. Nothing in this unit's suite needs a file
 a package excludes, so a package run should also be clean — the totals differ only because a
 package holds `DEPLOY.md` in place of the repo's linked docs, which changes what the
 `docs resolve` section has to check. A different total is expected; a *failure* is not.

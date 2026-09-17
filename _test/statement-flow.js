@@ -471,6 +471,167 @@ function crossPartSeam() {
   f.dom.window.close();
 }
 
+/* ══════════════ 11. The set-B gate ══════════════
+   s21 promises "ענו נכון על 2 שאלות ומעלה כדי להתקדם" and, until 17.09, nothing enforced it:
+   advanceScreen() only asked whether a screen was DONE, and mcqFinish()/s24's finish() set done on
+   the second WRONG attempt too, so one correct answer of three walked the learner into s25's
+   "יופי של עבודה!" (MOE tester, 17.09). The gate stops the component instead, and the PLATFORM
+   routes on the 'completed' — metadata recommendedAfterFail: ["methodica-math-ratio-02-01"].
+
+   What this suite is really guarding is the two reload cases at the bottom. A gate that only works
+   until the learner refreshes is the original bug with a longer reproduction. */
+
+/* Drive set B the way a learner can — through .click() on the real buttons, never by calling the
+   check handlers directly.
+
+   ⚠️ That distinction is the whole point. A wrong first attempt leaves the check button DISABLED
+   until the answer changes (mcqUpdateBar's lastWrong test, s24OnInput's), so a second attempt has to
+   pick a DIFFERENT wrong answer. Calling s23Check() twice on an unchanged selection does resolve the
+   screen — but through a door the UI keeps locked, and a test that walks it stops describing the
+   product. Found by walking this in a browser, where the second click landed on a dead button and
+   s23 never reached qResults at all.
+
+   A correct answer is checked once; checking it again would re-enter the "שנמשיך?" branch and
+   advance. So the click counts differ by design. */
+const SET_B_MCQ = { s22: ['a', 'b', 'c'], s23: ['a', 'b', 'd'] };
+/* A click that RECORDS a dead target instead of throwing: an exception inside exec() is an uncaught
+   error in the jsdom window, not a throw node can catch, so it would vanish silently. */
+const CLICK = 'function(s){ var e = document.querySelector(s);' +
+  ' if (!e || e.disabled) { (window.__dead = window.__dead || []).push(s); return; } e.click(); }';
+function walkSetB(b, pattern) {
+  ['s22', 's23'].forEach(function (sid, i) {
+    const opt = id => '#' + sid + ' .scq-opt[data-id="' + id + '"]';
+    const full = SET_B_MCQ[sid];
+    let steps;
+    if (pattern[i]) {
+      steps = full.map(id => opt(id)).concat('#' + sid + '-check');
+    } else {
+      /* two different wrong sets, each a strict subset of the correct one */
+      steps = [opt(full[0]), '#' + sid + '-check',
+               opt(full[0]), opt(full[1]), '#' + sid + '-check'];
+    }
+    b.exec('goTo(' + sid.slice(1) + '); var _c = ' + CLICK + ';' +
+      JSON.stringify(steps) + '.forEach(_c);');
+  });
+
+  const s24set = v => "['s24a-num','s24a-den','s24b-left','s24b-right'].forEach(function(id,i){" +
+    ' var e = document.getElementById(id); e.value = ' + JSON.stringify(v) + '[i];' +
+    " e.dispatchEvent(new Event('input', { bubbles: true })); });";
+  b.exec('goTo(24); var _c = ' + CLICK + ';' +
+    (pattern[2]
+      ? s24set([1, 3, 2, 1]) + " _c('#s24-check');"
+      /* two different wrong entries, for the same reason as the MCQs above */
+      : s24set([9, 9, 9, 9]) + " _c('#s24-check');" + s24set([8, 8, 8, 8]) + " _c('#s24-check');"));
+
+  /* ⚠️ Without all three verdicts recorded, gateBlocks() fails open and every assertion below would
+     pass for the wrong reason. Pin it before judging anything. */
+  eq('gate', 'walk ' + JSON.stringify(pattern) + ' clicks nothing the UI had disabled',
+    JSON.parse(b.val('JSON.stringify(window.__dead || [])')), []);
+  eq('gate', 'walk ' + JSON.stringify(pattern) + ' resolves all three of set B',
+    JSON.parse(b.val('JSON.stringify(Object.keys(qResults).sort())')), ['s22', 's23', 's24']);
+  eq('gate', 'walk ' + JSON.stringify(pattern) + ' records the verdicts it meant to',
+    JSON.parse(b.val('JSON.stringify([qResults.s22, qResults.s23, qResults.s24])')), pattern);
+}
+
+function setBGate() {
+  /* ── 3 of 3 and 2 of 3: the gate is invisible ── */
+  [[true, true, true], [true, true, false], [false, true, true]].forEach(function (pat) {
+    const n = pat.filter(Boolean).length;
+    const b = boot('03');
+    b.finishBoot();
+    b.clear();
+    walkSetB(b, pat);
+    b.exec("document.getElementById('s24-check').click();");
+    eq('gate', n + ' of 3 ' + JSON.stringify(pat) + ' walks on to s25', b.val('currentScreen'), 25);
+    eq('gate', n + ' of 3 sends no component completed',
+      b.stmts().filter(x => x.verb === 'completed' && x.objectType === 'onlinelesson').length, 0);
+    ok('gate', n + ' of 3 leaves "שנמשיך?" live',
+      b.val("document.getElementById('s24-check').disabled") === false);
+    b.dom.window.close();
+  });
+
+  /* ── 1 of 3: the gate fires ── */
+  const c = boot('03');
+  c.finishBoot();
+  c.clear();
+  walkSetB(c, [true, false, false]);
+  ok('gate', 'the gated learner is offered a live "שנמשיך?" to click — the gate is on the click',
+    c.val("document.getElementById('s24-check').disabled") === false);
+  c.exec("document.getElementById('s24-check').click();");
+
+  eq('gate', '1 of 3 does NOT reach s25', c.val('currentScreen'), 24);
+  const s = c.stmts();
+  const comp = s.filter(x => x.verb === 'completed' && x.objectType === 'onlinelesson');
+  eq('gate', '1 of 3 reports the component completed exactly once', comp.length, 1);
+  ok('gate', 'and it carries success:false — what recommendedAfterFail routes on',
+    !!comp[0] && !!comp[0].result && comp[0].result.success === false &&
+    comp[0].result.score.scaled < 0.6,
+    JSON.stringify(comp[0] && comp[0].result));
+  ok('gate', 'nothing sent is unit-scoped', !s.some(x => x.opts && x.opts.scope === 'unit'));
+
+  const itemId = x => String((x.opts || {}).objectId || '').replace(/\/+$/, '');
+  const closed003 = s.filter(x => x.verb === 'completed' && /-03-003$/.test(itemId(x)));
+  eq('gate', 'the open item 003 is closed exactly once', closed003.length, 1);
+  ok('gate', 'item 003 closes BEFORE the component',
+    !!closed003[0] && !!comp[0] && s.indexOf(closed003[0]) < s.indexOf(comp[0]));
+  ok('gate', 'items 004 and 005 are never opened or closed',
+    !s.some(x => /-03-(004|005)$/.test(itemId(x))), s.map(label).join(' | '));
+  ok('gate', 'the button is disabled and aria-disabled after the report',
+    c.val("document.getElementById('s24-check').disabled") === true &&
+    c.val("document.getElementById('s24-check').getAttribute('aria-disabled')") === 'true');
+
+  c.clear();
+  c.exec('advanceScreen(); advanceScreen();');
+  eq('gate', 'clicking again reports nothing more',
+    c.stmts().filter(x => x.verb === 'completed').length, 0);
+  eq('gate', 'and still does not move', c.val('currentScreen'), 24);
+
+  const doc = JSON.parse(c.val('JSON.stringify(__state())'));
+  ok('gate', 'the completed is in the ledger, so it survives the reload',
+    doc.done && doc.done[PART_DIR('03')] === true, JSON.stringify(doc.done));
+  ok('gate', 'the durable per-component score was recorded',
+    doc.results && doc.results.ratio02_c03_scaled !== undefined, JSON.stringify(doc.results));
+  const payload = doc.payload;
+  eq('gate', 'the flush committed the gated screen', payload.currentScreen, 24);
+  c.dom.window.close();
+
+  /* ── reload AFTER the gate fired: dead button, no second completed ──
+     This is the assertion the whole change hangs on. restoreScreenUI() → paintS24() →
+     _doneButton('s24') re-enables the button on every resume; without restoreEndedButton() the
+     learner refreshes and walks straight into s25 with a 'completed' already sent. */
+  const d = boot('03', { keepState: true });
+  d.exec('window.__setState(' + JSON.stringify(doc) + ');');
+  d.clear();
+  d.finishBoot(payload, undefined);
+  eq('gate', 'a reload onto a fired gate re-sends no component completed',
+    d.stmts().filter(x => x.verb === 'completed' && x.objectType === 'onlinelesson').length, 0);
+  eq('gate', 'and re-sends no answered',
+    d.stmts().filter(x => x.verb.indexOf('answered') === 0).length, 0);
+  ok('gate', 'restoreEndedButton beats paintS24: the button comes back DISABLED',
+    d.val("document.getElementById('s24-check').disabled") === true);
+  d.exec('advanceScreen();');
+  eq('gate', 'and it still cannot move', d.val('currentScreen'), 24);
+  d.dom.window.close();
+
+  /* ── reload BEFORE the click: live button, and the click still reports ──
+     Same restored state, empty ledger. Only the ledger tells these two learners apart, and getting
+     it wrong here is a dead end: a learner who never clicked would be handed a disabled button and
+     no 'completed', so the platform would never route them anywhere. */
+  const e = boot('03', { keepState: true });
+  const unclicked = JSON.parse(JSON.stringify(doc));
+  unclicked.done = {};
+  e.exec('window.__setState(' + JSON.stringify(unclicked) + ');');
+  e.clear();
+  e.finishBoot(payload, undefined);
+  ok('gate', 'a reload with nothing in the ledger leaves the button LIVE — never a dead end',
+    e.val("document.getElementById('s24-check').disabled") === false);
+  e.exec('advanceScreen();');
+  eq('gate', 'and that click reports the component exactly once',
+    e.stmts().filter(x => x.verb === 'completed' && x.objectType === 'onlinelesson').length, 1);
+  eq('gate', 'still on s24', e.val('currentScreen'), 24);
+  e.dom.window.close();
+}
+
 /* ══════════════ run ══════════════ */
 
 const SUITES = [
@@ -484,6 +645,7 @@ const SUITES = [
   ['an answered item closes after a reload', itemClosesAfterReload],
   ['reporting off is off', reportingOff],
   ['the cross-part seam', crossPartSeam],
+  ['the set-B gate', setBGate],
 ];
 
 for (const [name, fn] of SUITES) {

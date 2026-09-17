@@ -62,7 +62,7 @@ that omits them is a unit with no stylesheet and no fonts. See `unit-js/README.m
 - `metadata/` — unit + per-component JSONs: 1 unit, 5 components, 16 items, 43 questions. Extracted
   from the deck and normalised to the shape live Kata accepts. ⚠️ **Not yet pushed** — see *Known
   content issues*.
-- `_test/` — headless regression harness, 1001 + 56 assertions across two suites. **Never shipped**,
+- `_test/` — headless regression harness, 1051 + 98 assertions across two suites. **Never shipped**,
   including its stub library — the allowlist excludes it twice over, by name and by the
   leading-underscore rule. See its README for what each suite covers, and
   [`Documentation/GITHUB-GH.md`](../../../Documentation/GITHUB-GH.md) for how to run them:
@@ -130,7 +130,8 @@ in one `if (DEV_NAV) { … }`; the `completed` never depends on the flag.
 
 `completed` was already the learner's **last click** in every component here — the last screen's
 check/continue button (`lastScreenButton()`) — so nothing had to be re-ordered, unlike
-`mass-measure-02` and `scale-01`.
+`mass-measure-02` and `scale-01`. (Since the set gate below, component 03 has a *second*, earlier
+last click: s24's, for a learner who did not clear set B.)
 
 Asserted by `_test/verify-report.js` (`routing`, `devnav`) and `_test/statement-flow.js` (`seam`:
 production `leaveToPart` reports once with a result, moves no pointer, seeds nothing, records no
@@ -138,6 +139,58 @@ edge, disables the button; under `?dev=1` the old handover still works; part 05'
 one component `completed` and nothing unit-scoped). **Not observed:** Kata removing a component
 on `completed` — our content never let it happen. If Kata does not act, the learner sees a
 disabled button and nothing else; visible on the first integration run.
+
+### The set gate (2026-09-17)
+
+s21 promises `ענו נכון על 2 שאלות ומעלה כדי להתקדם` over set B (s22, s23, s24). Nothing enforced
+it: `advanceScreen()` asked only whether a screen was **done**, and `mcqFinish()` / s24's `finish()`
+set `done` on the second **wrong** attempt too, so one correct answer of three walked the learner
+into s25's `יופי של עבודה! הנה עוד 2 תרגילים ברמת קושי גבוהה יותר`. Reported by an MOE tester
+against component 03 on 17.09.26.
+
+`SET_GATES` (`unit-js/main.js`, beside `stationState`) now maps **screen → {set, need, btn}**, and
+`advanceScreen()` consults `gateBlocks()` **last**, immediately before `goTo`. Below the threshold
+the component **ends where it stands**: `endComponentHere()` does what `leaveToPart` does — report
+`partResult()` through `xapiEndComponent`, record the durable score, flush — and the **platform**
+routes on that `completed`. `metadata/methodica-math-ratio-02-03.json` carries
+`recommendedAfterFail: ["methodica-math-ratio-02-01"]`, the only non-empty one in the unit.
+
+Deliberately:
+
+- **No message and no retry.** By the time a set is resolved the correct answers are on screen, so a
+  retry would be a second look at them. The learner sees a greyed `שנמשיך?` — the same idiom as the
+  last screen of components 01, 02 and 04.
+- **The gate fires on the click**, not when s24 resolves. `completed` is the *exit* event; sending it
+  the instant the third answer lands would let Kata pull the frame while the worked-answer popup is
+  still opening.
+- **Only component 03 has an entry.** A set whose last screen is also `PART_CONFIG.end` has nothing
+  to gate — the learner leaves either way and `leaveToPart` already reports the real score. That is
+  set A (s20 = 02's end) and set D (s37 = 04's end); set E stops one thank-you screen short of 05's
+  end with `recommendedAfterFail: []`. Set B is the only set followed by more of its own component.
+- **It persists nothing of its own.** Derived from `qResults`, `s24Done` (already in
+  `RESUME_PLAIN_VARS`) and the `done` ledger — so no `RESUME_STATE_VERSION` bump, and nothing added
+  to the exactly-asserted payload/document shapes.
+- **It fails open.** `gateBlocks()` refuses to judge until every station of the set is resolved; a
+  learner resuming on a document the platform cleared is never trapped on a set they may have passed.
+
+⚠️ `restoreEndedButton()`, called last in `applyExecutionState`, is what makes the gate survive a
+reload: `restoreScreenUI` → `paintS24` → `_doneButton('s24')` re-enables the button on every resume,
+so without it a refresh hands the learner the button back — the original bug, now only reproducible
+by refreshing. It re-disables on **both** the gate and the ledger, never re-reports: a learner who
+answered but never clicked must get a **live** button, or they would be stuck with no `completed`
+and the platform would never route them anywhere.
+
+A gated learner can never reach `XAPI_PASS`: set B reports four catalogue questions and at most one
+station can be right, so `scaled ≤ 0.5 < 0.6` and the `completed` always carries `success: false` —
+which is what makes `recommendedAfterFail` fire.
+
+Asserted by `_test/verify-report.js` (`gate`: wiring, fixtures for the fail-open and threshold
+cases, and that the gate is *not* inside `leaveToPart`/`finishUnit`) and `_test/statement-flow.js`
+(`gate`: 3/3 and 2/3 walk on with no component `completed`; 1/3 stays on s24, reports once with
+`success: false`, closes item 003 before the component, never touches 004/005; and both reload
+cases). The walks click the **real** buttons — a wrong attempt leaves the check button disabled
+until the answer changes, so the second attempt must pick a different wrong answer, and the harness
+records any click on a disabled target rather than walking through a door the UI keeps locked.
 
 ### One document per component (2026-09-16, state v6)
 
