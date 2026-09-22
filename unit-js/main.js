@@ -226,7 +226,7 @@ function resetQuestionOnEntry(sid) {
   if (SCQ[sid]) { SCQ[sid].selected = null; SCQ[sid].attempts = 0; SCQ[sid].lastWrong = null; }
   if (sid === 's15') { s15Picks = {}; s15Attempts = 0; s15LastWrong = null; }
   const chk = document.getElementById(sid + '-check');
-  if (chk) { setNavLabel(chk, 'צדקתי?'); chk.disabled = true; }
+  if (chk) { setNavLabel(chk, 'هل إجابتي صحيحة؟'); chk.disabled = true; }
 }
 
 function advanceScreen() {
@@ -366,7 +366,7 @@ function hideHintButton(sid) {
 
 /* ─── S1 — battery-chat SCQ (slide 3). SINGLE attempt per the
    production note; correct: הגרלה. ─── */
-const S1_BODY = ['אין להם ברירה, הם צריכים לעשות הגרלה...'];
+const S1_BODY = ['ليس لديهم خيار، عليهم إجراء قرعة...'];
 let s1Selected = null, s1Done = false;
 
 function s1Select(id) {
@@ -395,13 +395,13 @@ function s1Check() {
   if (popup) {
     popup.style.background = ok ? '#edf8ed' : '#ffdbdc';
     resetPopupPosition(popup);
-    document.getElementById('s1-popup-title').innerHTML = ok ? 'כל הכבוד!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:';
+    document.getElementById('s1-popup-title').innerHTML = ok ? 'أحسنتم!' : 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:';
     document.getElementById('s1-popup-body').innerHTML = S1_BODY.map(x => '<p>' + x + '</p>').join('');
     popup.classList.remove('hidden');
   }
   s1Done = true;
   const chk = document.getElementById('s1-check');
-  if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+  if (chk) { setNavLabel(chk, 'هل نتابع؟'); chk.disabled = false; }
   try { flushResumeSave(); } catch (e) {}   /* answer committed — see the flush contract in qFinish */
 }
 
@@ -457,7 +457,7 @@ function s3Feedback(id, ok, html) {
 
 /* §2 (slide 6) — embedded MCQ, ALL FOUR correct, 2 attempts */
 const S3Q1_CORRECT = new Set(['a', 'b', 'c', 'd']);
-const S3Q1_EXPLAIN = 'כל התשובות מתארות נכון את הנתון, בצורות ביטוי שונות של יחס.';
+const S3Q1_EXPLAIN = 'جميع الإجابات تصف المعطى بشكل صحيح، بأشكال تعبير مختلفة عن النسبة.';
 let s3q1Selected = new Set(), s3q1Attempts = 0, s3q1LastWrong = null;
 
 function setsEqual(a, b) {
@@ -496,7 +496,7 @@ function s3q1Check() {
   };
   if (isCorrect) {
     opts.forEach(o => { if (S3Q1_CORRECT.has(o.dataset.id)) { o.classList.remove('selected'); o.classList.add('correct'); } });
-    s3Feedback('s3q1-feedback', true, '<strong>כל הכבוד!</strong><br>' + S3Q1_EXPLAIN);
+    s3Feedback('s3q1-feedback', true, '<strong>أحسنتم!</strong><br>' + S3Q1_EXPLAIN);
     finish(true);
   } else if (s3q1Attempts >= 2) {
     opts.forEach(o => {
@@ -504,7 +504,7 @@ function s3q1Check() {
       if (S3Q1_CORRECT.has(o.dataset.id)) o.classList.add('correct');
       else if (s3q1Selected.has(o.dataset.id)) o.classList.add('wrong');
     });
-    s3Feedback('s3q1-feedback', false, '<strong>זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:</strong><br>' + S3Q1_EXPLAIN);
+    s3Feedback('s3q1-feedback', false, '<strong>هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:</strong><br>' + S3Q1_EXPLAIN);
     finish(false);
   } else {
     s3q1Selected.forEach(id => {
@@ -514,15 +514,15 @@ function s3q1Check() {
       }
     });
     s3q1LastWrong = JSON.stringify([...s3q1Selected].sort());
-    s3Feedback('s3q1-feedback', false, 'זה לא מדוייק. שננסה שוב?');
+    s3Feedback('s3q1-feedback', false, 'هذا غير دقيق. هل نحاول مجدداً؟');
     document.getElementById('s3q1-check').disabled = true;
   }
 }
 
 /* §5 (slide 9) — ratio input, SINGLE attempt. Pop songs first → left:
    9 : 36 reduced = 1 : 4. */
-const S3Q2_EXPLAIN = 'בפלייליסט כולו יש 36 שירים, 9 מהם הם שירי פופ.<br>' +
-  'לכן, היחס בין מספר שירי הפופ למספר השירים בפלייליסט המלא הוא <span dir="ltr">9 : 36</span> ולאחר צמצום <span dir="ltr">1 : 4</span>.';
+const S3Q2_EXPLAIN = 'في القائمة كلها توجد 36 أغنية، 9 منها أغاني بوب.<br>' +
+  'لذلك، فإن النسبة بين عدد أغاني البوب وعدد الأغاني في قائمة الأغاني الكاملة هي <span dir="ltr">9: 36</span> وبعد  الاختزال <span dir="ltr">1: 4</span>.';
 function s3q2OnInput() {
   if (s3State.q2) return;
   const l = document.getElementById('s3q2-left').value.trim();
@@ -548,7 +548,7 @@ function s3q2Check() {
   [left, right].forEach(el => { el.classList.remove('error'); el.classList.add('correct'); });
   s3Feedback('s3q2-feedback', ok,
     '<strong>' + (ok ? 'כל הכבוד!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:') + '</strong><br>' + S3Q2_EXPLAIN +
-    (ok ? '' : '<br>התשובה הנכונה היא <span dir="ltr"><strong>1 : 4</strong></span>'));
+    (ok ? '' : '<br>الإجابة الصحيحة هي <span dir="ltr"><strong>1: 4</strong></span>'));
   document.getElementById('s3q2-check').disabled = true;
   s3UpdateGate();
   try { flushResumeSave(); } catch (e) {}
@@ -558,16 +558,16 @@ function s3q2Check() {
 const S3_YESNO = {
   s3q3: { correct: 'b', flag: 'q3',
           ok: 'כל הכבוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-          body: 'היחס של הגביע האמיתי לא נשמר, תיכף נבין למה.' },
+          body: 'لم يتم الحفاظ على نسبة الكأس الحقيقية، وسنفهم السبب بعد قليل.' },
   s3q4: { correct: 'a', flag: 'q4',
           ok: 'כל הכבוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-          body: 'היחס של הגביע האמיתי נשמר, תיכף נבין למה.' },
+          body: 'تم الحفاظ على نسبة الكأس الحقيقية، وسنفهم السبب بعد قليل.' },
   s3q5: { correct: 'b', flag: 'q5',
-          ok: 'נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-          body: 'כדי לבדוק מה יהיה היחס בעוד 5 שנים, נוסיף 5 שנים לכל אחד מהגילים ונקבל את היחס <span dir="ltr">10 : 15</span>.<br>' +
-                'לאחר צמצום נקבל את היחס <span dir="ltr">2 : 3</span>, שאינו שקול ליחס הגילים הנוכחי.<br>' +
-                '<strong>מסקנה:</strong> הוספת מספר זהה לשני גורמי היחס אינה שומרת על היחס.<br>' +
-                '<strong>זכרו:</strong> רק פעולות כפל או חילוק ישמרו על היחס.' },
+          ok: 'صحيح!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+          body: 'لكي نفحص كم ستكون النسبة بعد 5 سنوات، نضيف 5 سنوات إلى كل واحد من الأعمار ونحصل على النسبة <span dir="ltr">10:15</span>.<br>' +
+                'بعد الاختزال نحصل على النسبة <span dir="ltr">2: 3</span>، وهي غير مكافِئة لنسبة الأعمار الحالية.<br>' +
+                '<strong>استنتاج:</strong> إضافة عدد متساوٍ إلى طرفَيّ النسبة لا تُحافظ على النسبة.<br>' +
+                '<strong>تذكروا:</strong> فقط عمليات الضرب أو القسمة ستحافظ على النسبة.' },
 };
 const s3ynSelected = {};
 function s3ynSelect(qid, id) {
@@ -825,9 +825,9 @@ function renderQprog(sid) {
    percent-02 universal standard */
 function mcqPopupCfg() {
   return {
-    retry:   { bg: '#ffdbdc', title: 'זה לא מדוייק.', body: ['שננסה שוב?'] },
+    retry:   { bg: '#ffdbdc', title: 'الإجابة غير دقيقة.', body: ['هل نحاول مجدداً؟'] },
     correct: { bg: '#edf8ed', title: 'כל הכבוד!', body: [] },
-    wrong2:  { bg: '#ffdbdc', title: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', body: ['התשובות הנכונות מסומנות.'] },
+    wrong2:  { bg: '#ffdbdc', title: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', body: ['الإجابات الصحيحة معلَّمة.'] },
   };
 }
 
@@ -866,7 +866,7 @@ function mcqToggleView(sid) {
       mcqMark(q, id, q.correctIds.has(id) ? 'correct' : 'wrong'));
   }
   const tog = document.getElementById(sid + '-answers-toggle');
-  if (tog) tog.textContent = q.view === 'correct' ? 'הצגת התשובות שלי' : 'הצגת התשובות הנכונות';
+  if (tog) tog.textContent = q.view === 'correct' ? 'عرض إجاباتي' : 'عرض الإجابات الصحيحة';
 }
 
 function mcqShowPopup(q, type) {
@@ -1015,7 +1015,7 @@ function scqCheck(sid) {
   } else {
     mark(q.selected, 'wrong');
     q.lastWrong = q.selected;
-    showPopup(sid, '#ffdbdc', 'זה לא מדוייק, ננסה שוב?', []);
+    showPopup(sid, '#ffdbdc', 'الإجابة غير دقيقة، هل نحاول مجدداً؟', []);
     const chk = document.getElementById(sid + '-check');
     if (chk) chk.disabled = true;
   }
@@ -1024,9 +1024,9 @@ function scqCheck(sid) {
 /* ─── S15 (slide 27): statement assessment, 3 rows. נכון/נכון/לא נכון ─── */
 const S15_CORRECT = { a: 'yes', b: 'yes', c: 'no' };
 const S15_BODY = [
-  'היגדים 1 ו-2 נכונים:',
-  '1. יש 18 ריבועי עוגה עם סוכריות ו-24 ללא סוכריות, לכן היחס בין הריבועים ללא סוכריות לבין כלל הריבועים הוא <span class="frac" dir="ltr"><span class="frac-num">24</span><span class="frac-den">42</span></span>.',
-  '2. היחס בין הריבועים עם הסוכריות לבין כלל הריבועים הוא <span class="frac" dir="ltr"><span class="frac-num">18</span><span class="frac-den">42</span></span> ולאחר צמצום נקבל יחס של <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">7</span></span>.',
+  'العبارتان 1 وَ 2 صحيحتان:',
+  '1. يوجد 18 مربَّع كعكة مع سكاكر وَ 24 بدون سكاكر، لذلك النسبة بين المربَّعات بدون سكاكر وإجمالي المربَّعات هي <span class="frac" dir="ltr"><span class="frac-num">24</span><span class="frac-den">42</span></span>.',
+  '2. النسبة بين المربَّعات مع سكاكر وبين إجمالي المربَّعات هي <span class="frac" dir="ltr"><span class="frac-num">18</span><span class="frac-den">42</span></span> وبعد الاختزال نحصل على النسبة <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">7</span></span>.',
 ];
 let s15Picks = {}, s15Attempts = 0, s15Done = false, s15LastWrong = null;
 function s15Pick(rowId, val, btn) {
@@ -1090,15 +1090,15 @@ function s15Check() {
 
 /* ─── S16/S17: single-choice practice questions ─── */
 SCQ.s16 = { correctId: 'c', selected: null, attempts: 0, done: false, lastWrong: null,
-  okTitle: 'זה נכון מאוד!', badTitle: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['1. היחס לא נשמר, כי נוספו רק ריבועי עוגה עם סוכריות. היחס החדש הוא <span dir="ltr">20 : 42</span> (בצמצום <span dir="ltr">10 : 21</span>) והוא שונה מ-<span dir="ltr">3 : 7</span>.',
-         '2. היחס לא נשמר, כי רק מספר ריבועי העוגה עם הסוכריות הוכפל. היחס החדש הוא <span dir="ltr">36 : 42</span> (בצמצום <span dir="ltr">6 : 7</span>) והוא שונה מ-<span dir="ltr">3 : 7</span>.',
-         '3. היחס נשמר ונשאר לאחר צמצום <span dir="ltr">3 : 7</span>, כי גם מספר ריבועי העוגה עם הסוכריות וגם מספר ריבועי העוגה הכולל גדלו פי 2.'] };
+  okTitle: 'صحيح جدًا!', badTitle: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  body: ['1. لم تُحفَظ النسبة، لأنه أُضيفت فقط مربَّعات كعكة مع سكاكر. النسبة الجديدة هي <span dir="ltr">20: 42</span> (وبعد الاختزال <span dir="ltr">10: 21</span>) وهي لا تُساوي <span dir="ltr">3: 7</span>.',
+         '2. لم تُحفَظ النسبة، لأن عدد مربَّعات الكعكة مع سكاكر قد تضاعفَ. النسبة الجديدة هي <span dir="ltr">36: 42</span> (بعد الاختزال <span dir="ltr">6: 7</span>) وهي لا تُساوي <span dir="ltr">3: 7</span>.',
+         '3. تم الحفاظ على النسبة وبقيت بعد الاختزال <span dir="ltr">3: 7</span>، لأن كلاً من عدد مربعات الكعكة التي تحتوي على حلوى وإجمالي عدد مربعات الكعكة قد تضاعف بمقدار 2.'] };
 SCQ.s17 = { correctId: 'c', selected: null, attempts: 0, done: false, lastWrong: null,
-  okTitle: 'מצוין!', badTitle: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['א. היות וכמות הגשם בעזוז מופיעה ראשונה בכתיב המילולי, הכתיב המתמטי צריך להיות <span dir="ltr">4 : 1</span>, ולכן ההיגד אינו נכון.',
-         'ב. כמות הגשם שירדה באילת היא <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">5</span></span> מכלל כמות הגשם שירדה בשני המקומות יחד, ולכן ההיגד אינו נכון.',
-         'ג. היחס בין כמות הגשם שירדה בעזוז לכמות הגשם שירדה בשני המקומות הוא <span class="frac" dir="ltr"><span class="frac-num">4</span><span class="frac-den">5</span></span>, זהו ההיגד הנכון.'] };
+  okTitle: 'ممتاز!', badTitle: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  body: ['أ. بما أن كمية المطر في عزوز تظهر أولاً في الكتابة اللفظية، يجب أن تكون الكتابة الرياضية 4: 1، وبالتالي فإن العبارة غير صحيحة.',
+         'ب. كمية الأمطار التي هطلت في إيلات هي 1/5 من إجمالي كمية الأمطار التي هطلت في المكانين معاً، ولذلك فإن القول غير صحيح.',
+         'ج. النسبة بين كمية الأمطار التي هطلت في عزوز وكمية الأمطار التي هطلت في المكانين هي <span class="frac" dir="ltr"><span class="frac-num">4</span><span class="frac-den">5</span></span>، وهذه هي العبارة الصحيحة.'] };
 function s16Select(id) { scqSelect('s16', id); }
 function s16Check()    { scqCheck('s16'); }
 function s17Select(id) { scqSelect('s17', id); }
@@ -1114,26 +1114,26 @@ MCQ.s18 = { id: 's18', correctIds: new Set(['a', 'b']), maxAttempts: 2,
   selected: new Set(), attempts: 0, answered: false, done: false, lastWrong: null,
   popups: mcqCfg('נכון!', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', [
     'היגדים 1 ו-2 נכונים:',
-    '1. <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">7</span></span> מאורך הסרטון מורכבים מקטעי וידאו מצולמים, ולכן החלק שנותר לאנימציה הוא <span class="frac" dir="ltr"><span class="frac-num">4</span><span class="frac-den">7</span></span>.',
-    '2. היחס בין זמן האנימציה לזמן קטעי הוידאו הוא <span class="frac" dir="ltr"><span class="frac-num">4</span><span class="frac-den">7</span></span> : <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">7</span></span>, ולאחר צמצום מתקבל היחס <span dir="ltr">4 : 3</span>.']) };
+    '1. <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">7</span></span> من طول الفيديو مكوّنة من مقاطع فيديو مصوَّرة، ولذلك الجزء المتبقي للرسوم المتحركة هو <span class="frac" dir="ltr"><span class="frac-num">4</span><span class="frac-den">7</span></span>.',
+    '2. النسبة بين وقت الرسوم المتحركة ووقت مقاطع الفيديو هي <span class="frac" dir="ltr"><span class="frac-num">4</span><span class="frac-den">7</span></span>: <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">7</span></span>، وبعد الاختزال تُصبح النسبة <span dir="ltr">4: 3</span>.']) };
 MCQ.s22 = { id: 's22', correctIds: new Set(['a', 'b', 'c']), maxAttempts: 2,
   selected: new Set(), attempts: 0, answered: false, done: false, lastWrong: null,
-  popups: mcqCfg('יפה!', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', [
-    'היגדים 1, 2, 3 נכונים:',
-    '1. היחס הוא <span dir="ltr">6 : 18</span>, וכשנצמצם נקבל יחס <span dir="ltr">1 : 3</span>.',
-    '2. על כל תלמיד/ה שבחר בנגרות, יש 3 תלמידים שבחרו בצורפות, לכן מספר התלמידים שבחרו בנגרות הוא <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">4</span></span> מכל תלמידי המגמה.',
-    '3. המשמעות של היחס <span dir="ltr">1 : 3</span> היא שמספר התלמידים שבחרו בצורפות גדול פי 3 ממספר התלמידים שבחרו בנגרות.']) };
+  popups: mcqCfg('رائع!', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', [
+    'العبارات 1، 2، 3 صحيحة:',
+    '1. النسبة هي <span dir="ltr">6: 18</span>، وعند التبسيط نحصل على النسبة <span dir="ltr">1: 3</span>.',
+    '2. مقابل كل طالب/ة اختار النجارة، هناك 3 طلاب اختاروا الصياغة، لذلك فإن عدد الطلاب الذين اختاروا النجارة هو <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">4</span></span> من إجمالي طلاب التخصص.',
+    '3. معنى النسبة <span dir="ltr">1: 3</span> هو أن عدد الطلاب الذين اختاروا الصياغة أكبر بـ 3 مرات من عدد الطلاب الذين اختاروا النجارة.']) };
 /* key per the V badges on slide 35 (rows 1-3 ticked, row 4 not) and the
    producer's call 17.08.26: statement 4 (the ×6 claim) is the wrong one.
    NOTE the deck's own feedback body contradicts this — it explains the ×6
    claim as correct and never mentions the 3/5 claim; flagged to producer. */
 MCQ.s23 = { id: 's23', correctIds: new Set(['a', 'b', 'd']), maxAttempts: 2,
   selected: new Set(), attempts: 0, answered: false, done: false, lastWrong: null,
-  popups: mcqCfg('כל הכבוד, זה נכון!', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', [
-    'ההיגדים הנכונים הם:',
-    '1. נועה קיבלה 15 תגובות מחברי הכיתה ו-20 תגובות מחברי כיתות אחרות. לכן היחס הוא <span dir="ltr">15 : 20</span>.',
-    '2. נצמצם את היחס <span dir="ltr">15 : 20</span> ב-5 ונקבל <span dir="ltr">3 : 4</span>, או כשבר <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">4</span></span>.',
-    '3. אם נגדיל פי 6, היחס יהיה <span dir="ltr">90 : 120</span> ולאחר צמצום <span dir="ltr">3 : 4</span>, לכן הוא יישמר.']) };
+  popups: mcqCfg('أحسنت، هذا صحيح!', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', [
+    'العبارات الصحيحة هي:',
+    '1. نوعا تلقّت 15 تعليقاً من زملاء صفّها و-20 تعليقاً من زملاء صفوف أخرى. لذلك النسبة هي <span dir="ltr">15: 20</span>.',
+    '2. نُبسِّط النسبة <span dir="ltr">15: 20</span> بالقسمة على 5 فنحصل على <span dir="ltr">3: 4</span>، أو كسرًا <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">4</span></span>.',
+    '3. إذا ضربنا في 6، ستكون النسبة <span dir="ltr">90: 120</span> وبعد التبسيط <span dir="ltr">3: 4</span>، لذلك ستُحفظ.']) };
 function s18Toggle(id) { mcqToggle(MCQ.s18, id); }
 function s22Toggle(id) { mcqToggle(MCQ.s22, id); }
 function s23Toggle(id) { mcqToggle(MCQ.s23, id); }
@@ -1148,7 +1148,7 @@ function s22Check() { mcqPracticeCheck('s22'); }
 function s23Check() { mcqPracticeCheck('s23'); }
 
 /* ─── S19/S20: geometry value + ratio inputs ─── */
-const S19_BODY = ['שטח הריבוע הוא 64 סמ"ר, לכן אורך צלע הריבוע הוא 8 ס"מ (64 = 8 · 8). היחס בין אורך צלע הריבוע לגובה המשולש הוא <span dir="ltr">1 : 2</span>, ולכן הגובה הוא 16 ס"מ.'];
+const S19_BODY = ['مساحة المربع هي 64 سم²، لذلك طول ضلع المربع هو 8 سم (64 = 8 · 8). النسبة بين طول ضلع المربع وارتفاع المثلث هي <span dir="ltr">1: 2</span>، لذلك الارتفاع هو 16 سم.'];
 let s19Attempts = 0, s19Done = false, s19LastWrong = null;
 function s19OnInput() {
   if (s19Done) return;
@@ -1178,7 +1178,7 @@ function s19Check() {
   if (ok) { el.classList.add('correct'); showPopup('s19', '#edf8ed', 'כל הכבוד!', S19_BODY); finish(true); }
   else if (s19Attempts >= 2) {
     el.value = 16; el.classList.remove('error'); el.classList.add('correct');
-    showPopup('s19', '#ffdbdc', 'זו טעות, בואו נלמד ממנה:', S19_BODY.concat(['התשובה הנכונה היא 16 ס"מ.']));
+    showPopup('s19', '#ffdbdc', 'هذا خطأ، لنتعلم منه:', S19_BODY.concat(['الإجابة الصحيحة هي 16 سم.']));
     finish(false);
   } else {
     el.classList.add('error'); s19LastWrong = v;
@@ -1187,9 +1187,9 @@ function s19Check() {
   }
 }
 
-const S20_BODY = ['אורך צלע הריבוע הוא 8 ס"מ וגובה המשולש 16 ס"מ.',
-  'שטח המשולש APB הוא 64 סמ"ר (16 · 8 חלקי 2), ושטח המצולע APBCD הוא 128 סמ"ר (64 + 64).',
-  'לכן היחס המצומצם בין שטח המשולש לשטח המצולע הוא <span dir="ltr">1 : 2</span>.'];
+const S20_BODY = ['طول ضلع المربع هو 8 سم وارتفاع المثلث 16 سم.',
+  'مساحة المثلث APB هي 64 سم² (16 · 8 ÷ 2)، ومساحة المضلع APBCD هي 128 سم² (64 + 64).',
+  'لذلك النسبة المختزلة بين مساحة المثلث ومساحة المضلع هي <span dir="ltr">1: 2</span>.'];
 let s20Attempts = 0, s20Done = false, s20LastWrong = null;
 function s20Vals() {
   return [document.getElementById('s20-left').value.trim(), document.getElementById('s20-right').value.trim()];
@@ -1223,7 +1223,7 @@ function s20Check() {
   else if (s20Attempts >= 2) {
     L.value = 1; R.value = 2;
     [L, R].forEach(el => { el.classList.remove('error'); el.classList.add('correct'); });
-    showPopup('s20', '#ffdbdc', 'זו טעות, בואו נלמד ממנה:', S20_BODY.concat(['התשובה הנכונה היא <span dir="ltr">1 : 2</span>.']));
+    showPopup('s20', '#ffdbdc', 'זו טעות, בואו נלמד ממנה:', S20_BODY.concat(['الإجابة الصحيحة هي <span dir="ltr">1: 2</span>.']));
     finish(false);
   } else {
     L.classList.add('error'); R.classList.add('error'); s20LastWrong = JSON.stringify(v);
@@ -1233,8 +1233,8 @@ function s20Check() {
 }
 
 /* ─── S24 (slide 36): two-part — silent-mode fraction + ratio ─── */
-const S24_BODY = ['א. אם ב-<span class="frac" dir="ltr"><span class="frac-num">2</span><span class="frac-den">3</span></span> מהזמן הטלפון פועל במצב רגיל, אז ב-<span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">3</span></span> מהזמן הוא במצב שקט.',
-  'ב. היחס בין הזמן שבו הטלפון פועל במצב רגיל לבין הזמן בו הטלפון במצב שקט הוא <span class="frac" dir="ltr"><span class="frac-num">2</span><span class="frac-den">3</span></span> : <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">3</span></span>, נוכל להרחיב יחס זה פי 3 ונקבל <span dir="ltr">2 : 1</span>.'];
+const S24_BODY = ['أ. إذا كان الهاتف يعمل في الوضع العادي <span class="frac" dir="ltr"><span class="frac-num">2</span><span class="frac-den">3</span></span> من الوقت، فإنه يكون في الوضع الصامت <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">3</span></span> من الوقت.',
+  'ب. النسبة بين الوقت الذي يعمل فيه الهاتف في الوضع العادي والوقت الذي يكون فيه الهاتف في الوضع الصامت هي <span class="frac" dir="ltr"><span class="frac-num">2</span><span class="frac-den">3</span></span>: <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">3</span></span>، يمكننا توسيع هذه النسبة بمقدار 3 ونحصل على <span dir="ltr">2: 1</span>.'];
 let s24Attempts = 0, s24Done = false, s24LastWrong = null;
 function s24Vals() {
   return ['s24a-num', 's24a-den', 's24b-left', 's24b-right'].map(id => document.getElementById(id).value.trim());
@@ -1272,14 +1272,14 @@ function s24Check() {
   };
   if (ok) {
     ids.forEach(id => document.getElementById(id).classList.add('correct'));
-    showPopup('s24', '#edf8ed', 'מצויין!', S24_BODY);
+    showPopup('s24', '#edf8ed', 'ممتاز!', S24_BODY);
     finish(true);
   } else if (s24Attempts >= 2) {
     ids.forEach((id, i) => {
       const el = document.getElementById(id);
       el.value = want[i]; el.classList.remove('error'); el.classList.add('correct');
     });
-    showPopup('s24', '#ffdbdc', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', S24_BODY.concat(['התשובה הנכונה היא <span dir="ltr">2 : 1</span>.']));
+    showPopup('s24', '#ffdbdc', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', S24_BODY.concat(['الإجابة الصحيحة هي <span dir="ltr">2: 1</span>.']));
     finish(false);
   } else {
     okEach.forEach((good, i) => { if (!good) document.getElementById(ids[i]).classList.add('error'); });
@@ -1503,70 +1503,70 @@ function defQ(sid, cfg) { Q[sid] = Object.assign({ attempts: 0, done: false, las
 defQ('s26', { type: 'input', inputs: ['s26-0a','s26-0b','s26-1a','s26-1b','s26-2a','s26-2b'],
   answers: [1.3, 10, 1, 5, 1, 10],
   ok: 'מצויין!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['1. היחס בין משקל החלבון למשקל הפחמימות ביחידה אחת הוא <span class="ratio">1.3 : 10</span>.',
-         '2. היחס בין משקל השומן למשקל הפחמימות הוא <span class="ratio">2 : 10</span>, ולאחר צמצום הוא <span class="ratio">1 : 5</span>.',
-         '3. משקל כל המרכיבים ביחידה אחת הוא 20 גרם, ולכן היחס בין משקל השומן למשקל הכולל הוא <span class="ratio">2 : 20</span> ולאחר צמצום נקבל <span class="ratio">1 : 10</span>.'] });
+  body: ['1. النسبة بين وزن البروتين ووزن الكربوهيدرات في وحدة واحدة هي <span class="ratio">1.3: 10</span>.',
+         '2. النسبة بين وزن الدهون ووزن الكربوهيدرات هي <span class="ratio">2: 10</span>، وبعد التبسيط هي <span class="ratio">1: 5</span>.',
+         '3. وزن جميع المكونات في وحدة واحدة هو 20 غرام، لذلك نسبة وزن الدهون إلى الوزن الكلي هي <span class="ratio">2: 20</span> وبعد التبسيط نحصل على <span class="ratio">1: 10</span>.'] });
 defQ('s27', { type: 'saq', maxAttempts: 1, answers: { a: 'no', b: 'yes', c: 'yes' },
-  ok: 'זו תשובה נכונה מאוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['היגדים 2 ו-3 נכונים:',
-         'משקל הפחמימות הוא 10 גרם ומשקל השומן הוא 2 גרם, לכן משקל הפחמימות גדול פי 5 ממשקל השומן.',
-         'היחס בין משקל הסוכרים ב-100 גרם לבין משקל הסוכרים ב-20 גרם הוא <span class="ratio">6.7 : 1.3</span>, ולאחר צמצום מתקבל בערך היחס <span class="ratio">5 : 1</span>.',
-         'ב-100 גרם יש 23 מ"ג נתרן, לכן ב-150 גרם יש 34.5 מ"ג (פי 1.5).'] });
+  ok: 'هذه إجابة صحيحة جداً!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  body: ['العبارتان 2 و-3 صحيحتان:',
+         'وزن الكربوهيدرات هو 10 غرام ووزن الدهون هو 2 غرام، لذلك وزن الكربوهيدرات أكبر بـ 5 أضعاف من وزن الدهون.',
+         'النسبة بين وزن السكريات في 100 غرام ووزن السكريات في 20 غرام هي <span class="ratio">6.7: 1.3</span>، وبعد التبسيط تكون النسبة تقريباً <span class="ratio">5: 1</span>.',
+         'في 100 غرام يوجد 23 ملغ من الصوديوم، لذلك في 150 غرام يوجد 34.5 ملغ (× 1.5).'] });
 defQ('s28', { type: 'input', inputs: ['s28-0a','s28-0b','s28-1a','s28-1b'], answers: [5, 3, 5, 8],
   /* each row on its own terms: 10:6 or 5:3 above, 10:16 or 5:8 below */
   accept: [[10, 6, 10, 16], [10, 6, 5, 8], [5, 3, 10, 16], [5, 3, 5, 8]],
-  ok: 'תשובה נכונה!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['1. כל המשולשים זהים ולכן הם שווי שטח. יש 10 משולשים אפורים ו-6 משולשים בצבע תכלת, לכן היחס בין השטח האפור לשטח התכלת הוא <span class="ratio">10 : 6</span> ואם נצמצם נקבל <span class="ratio">5 : 3</span>.',
-         '2. יש 10 משולשים אפורים ו-16 משולשים סה"כ במשולש הגדול. היחס בין השטח האפור לשטח המשולש הגדול הוא <span class="ratio">10 : 16</span> ואם נצמצם נקבל <span class="ratio">5 : 8</span>.'] });
+  ok: 'إجابة صحيحة!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  body: ['1. جميع المثلثات متطابقة وبالتالي فهي متساوية المساحة. يوجد 10 مثلثات رمادية و6 مثلثات باللون السماوي، لذلك النسبة بين المساحة الرمادية والمساحة السماوية هي <span class="ratio">10: 6</span> وبعد التبسيط نحصل على <span class="ratio">5: 3</span>.',
+         '2. يوجد 10 مثلثات رمادية و16 مثلثاً في المجموع داخل المثلث الكبير. النسبة بين المساحة الرمادية ومساحة المثلث الكبير هي <span class="ratio">10: 16</span> وبعد التبسيط نحصل على <span class="ratio">5: 8</span>.'] });
 defQ('s29', { type: 'saq', maxAttempts: 1, answers: { a: 'no', b: 'yes' },
   ok: 'כל הכבוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['1. היחס בין השטח האפור לבין השטח בצבע תכלת לאחר ההוספה של המשולשים הוא <span class="ratio">15 : 10</span>. אם נצמצם ב-5 נקבל שהיחס הוא <span class="ratio">3 : 2</span> — היחס לא נשמר.',
-         '2. הכפלנו פי אותו מספר את כמות המשולשים האפורים ואת כמות המשולשים בצבע תכלת, לכן היחס נשמר.'] });
+  body: ['1. النسبة بين المساحة الرمادية والمساحة الزرقاء السماوية بعد إضافة المثلثات هي <span class="ratio">15: 10</span>. إذا بسّطنا بـ-5 نحصل على أن النسبة هي <span class="ratio">3: 2</span> — النسبة لا تُحفظ.',
+         '2. لقد ضربنا كمية المثلثات الرمادية وكمية المثلثات الزرقاء في نفس العدد، لذلك نسبة محفوظة.'] });
 
 /* ── advanced set (slides 43-49) ── */
 defQ('s31', { type: 'input', inputs: ['s31-ang','s31-r1','s31-r2','s31-r3'], answers: [20, 2, 3, 13],
-  ok: 'זה מדוייק!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['סכום הזוויות במשולש הוא 180°. נחשב את הזווית השלישית: 180° - 130° - 30° = 20°.',
-         'היחס בין שלושת הזוויות הוא <span class="ratio">20 : 30 : 130</span>, ולאחר צמצום ב-10 נקבל <span class="ratio">2 : 3 : 13</span>.'] });
+  ok: 'هذا صحيح!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  body: ['مجموع الزوايا في المثلث هو 180°. نحسب الزاوية الثالثة: 180° - 130° - 30° = 20°.',
+         'النسبة بين الزوايا الثلاث هي <span class="ratio">20: 30: 130</span>، وبعد الاختزال بـ-10 نحصل على <span class="ratio">2: 3: 13</span>.'] });
 defQ('s32', { type: 'input', inputs: ['s32-a1','s32-a2','s32-r1','s32-r2','s32-r3'], answers: [70, 70, 4, 7, 7],
-  ok: 'מעולה!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['המשולש הוא שווה שוקיים ולכן 2 הזוויות שנותרו שוות: 180° - 40° = 140°, ו-140° : 2 = 70°.',
-         'היחס בין שלושת הזוויות הוא <span class="ratio">40 : 70 : 70</span>. נצמצם ב-10 ונקבל <span class="ratio">4 : 7 : 7</span>.'] });
-const AI_BODY = ['המשמעות של יחס <span class="ratio">1 : 1</span> היא שכמות המרואיינים שהשתמשו כל יום ב-AI היא <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">2</span></span> מכלל המרואיינים, כלומר — <span dir="ltr">4,750 : 2 = 2,375</span>. לכן המסקנה נכונה.'];
+  ok: 'ممتاز!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  body: ['المثلث متساوي الساقين، ولذلك فإن الزاويتين المتبقيتين متساويتان: 180° - 40° = 140°، و-140°: 2 = 70°.',
+         'النسبة بين الزوايا الثلاث هي <span class="ratio">40: 70: 70</span>. نبسّط بقسمة على 10 فنحصل على <span class="ratio">4: 7: 7</span>.'] });
+const AI_BODY = ['معنى النسبة <span class="ratio">1: 1</span> هو أن عدد المستطلَعين الذين استخدموا الذكاء الاصطناعي يوميًا يساوي <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">2</span></span> من إجمالي المستطلَعين، أي — <span dir="ltr">4,750: 2 = 2,375</span>. لذلك فالاستنتاج صحيح.'];
 /* keys on the AI table follow the deck's FEEDBACK text, which states the
    verdict and the arithmetic for each row (producer 20.08: restore). The
    96px BadgeTick graphics on slides 45-47 overlap rows/columns and
    contradict that text on row 1 — they are not the key here. */
-defQ('s33', { type: 'saq', answers: { a: 'yes' }, ok: 'יפה מאוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', body: AI_BODY });
+defQ('s33', { type: 'saq', answers: { a: 'yes' }, ok: 'أحسنت!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', body: AI_BODY });
 defQ('s34', { type: 'saq', answers: { b: 'yes' }, ok: 'יפה מאוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['אם היחס הוא <span class="ratio">13 : 7</span>, אז <span class="frac" dir="ltr"><span class="frac-num">7</span><span class="frac-den">20</span></span> מהמרואיינים חושבים שהשימוש ב-AI לא הפך אותם ליותר יעילים. <span class="frac" dir="ltr"><span class="frac-num">7</span><span class="frac-den">20</span></span> זה כמעט <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">3</span></span>. לכן המסקנה נכונה.'] });
+  body: ['إذا كانت النسبة <span class="ratio">13: 7</span>، إذن <span class="frac" dir="ltr"><span class="frac-num">7</span><span class="frac-den">20</span></span> من المُقابَلين يعتقدون أن استخدام الذكاء الاصطناعي (AI) لم يجعلهم أكثر كفاءة. <span class="frac" dir="ltr"><span class="frac-num">7</span><span class="frac-den">20</span></span> تقارب <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">3</span></span>. لذلك الاستنتاج صحيح.'] });
 defQ('s35', { type: 'saq', answers: { c: 'no' }, ok: 'יפה מאוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['היחס הוא <span class="ratio">2 : 3</span>, כלומר <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">5</span></span> מהמרואיינים חשבו שאין צורך בכישורים מיוחדים, וזה יותר מחצי מהם. לכן המסקנה אינה נכונה.'] });
+  body: ['النسبة هي 2: 3، أي أن 3/5 من المُستجوَبين اعتقدوا أنه لا حاجة إلى مهارات خاصة، وهذا أكثر من نصفهم. لذلك فإن الاستنتاج غير صحيح.'] });
 defQ('s36', { type: 'scq', answers: 'b', ok: 'נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['בתחילת המשחק היחס בין מספר הקלפים של טליה למספר הקלפים של יוני היה <span class="ratio">1 : 1</span>. המשמעות היא שעל כל קלף של טליה יש קלף אחד של יוני — כלומר מספר הקלפים היה שווה.'] });
+  body: ['في بداية اللعبة، كانت نسبة عدد أوراق طاليا إلى عدد أوراق يوني هي <span class="ratio">1: 1</span>. يعني ذلك أنه مقابل كل ورقة لطاليا توجد ورقة واحدة ليوني — أي أن عدد الأوراق كان متساوياً.'] });
 defQ('s37', { type: 'input', inputs: ['s37-in'], answers: [2], ok: 'מצוין!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['בסוף המשחק היחס בין מספר הקלפים של טליה למספר הקלפים של יוני היה <span class="ratio">6 : 3</span>. נצמצם ונקבל <span class="ratio">2 : 1</span> — כלומר לטליה יש פי 2 קלפים מיוני.'] });
+  body: ['في نهاية اللعبة، كانت نسبة عدد أوراق طاليا إلى عدد أوراق يوني هي <span class="ratio">6: 3</span>. نبسّط فنحصل على <span class="ratio">2: 1</span> — أي أن عدد أوراق طاليا يساوي ضعف عدد أوراق يوني.'] });
 
 /* ── peak question: the concert (slides 53-61) ── */
 defQ('s41', { type: 'input', inputs: ['s41-num','s41-den'], answers: [3, 5],
-  ok: 'זה נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['היחס בין מספר הכרטיסים המוזלים לבין סך כל הכרטיסים הוא <span class="ratio">3 : 5</span>, ולכן כשבר פשוט הוא <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">5</span></span>.'] });
+  ok: 'هذا صحيح!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  body: ['النسبة بين عدد التذاكر المخفضة وإجمالي عدد التذاكر هي <span class="ratio">3: 5</span>، وبالتالي ككسر بسيط هي <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">5</span></span>.'] });
 defQ('s42', { type: 'input', inputs: ['s42-in'], answers: [5], ok: 'זה נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['המשמעות של יחס <span class="ratio">3 : 5</span> היא שעל כל 3 כרטיסים שנמכרו במחיר מלא, נמכרו 5 כרטיסים במחיר מוזל.'] });
+  body: ['معنى النسبة <span class="ratio">3: 5</span> هو أنه مقابل كل 3 تذاكر بيعت بالسعر الكامل، بيعت 5 تذاكر بسعر مخفض.'] });
 defQ('s43', { type: 'input', inputs: ['s43-a','s43-b'], answers: [2, 3], ok: 'זה נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['היחס בכתיב מתמטי הוא <span class="ratio">120 : 180</span>. נצמצם ונקבל יחס <span class="ratio">2 : 3</span>.'] });
+  body: ['النسبة بالكتابة الرياضية هي <span class="ratio">120: 180</span>. نبسّطها فنحصل على النسبة <span class="ratio">2: 3</span>.'] });
 defQ('s44', { type: 'input', inputs: ['s44-a','s44-b'], answers: [2, 3], ok: 'מצוין!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['היחס המצומצם הוא <span class="ratio">2 : 3</span>. המשמעות היא שעל כל 2 כרטיסים במחיר מלא שנמכרו, נמכרו 3 כרטיסים מוזלים.'] });
+  body: ['النسبة المبسطة هي <span class="ratio">2: 3</span>. ويعني ذلك أنه مقابل كل 2 تذكرة بالسعر الكامل تم بيعها، تم بيع 3 تذاكر مخفضة.'] });
 defQ('s45', { type: 'scq', answers: 'b', ok: 'מצוין!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['היחס המתוכנן היה <span class="ratio">3 : 5</span>, ולאחר המכירה היחס בפועל היה <span class="ratio">2 : 3</span>. לכן, היחס לא נשמר.'] });
+  body: ['النسبة المخططة كانت <span class="ratio">3: 5</span>، وبعد البيع كانت النسبة الفعلية <span class="ratio">2: 3</span>. لذلك، لم يتم الحفاظ على النسبة.'] });
 defQ('s46', { type: 'input', inputs: ['s46-a','s46-b'], answers: [1, 10], ok: 'זה נכון מאוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['נשמרו 40 כרטיסים לנגנים, זמרים ואנשי צוות, מתוך 400 כרטיסים סך הכל. היחס הוא <span class="ratio">40 : 400</span> ולאחר צמצום <span class="ratio">1 : 10</span>.'] });
+  body: ['تم حجز 40 تذكرة للعازفين والمغنين وأعضاء الطاقم، من أصل 400 تذكرة إجمالاً. النسبة هي <span class="ratio">40: 400</span> وبعد التبسيط <span class="ratio">1: 10</span>.'] });
 defQ('s48', { type: 'scq', answers: 'a', ok: 'נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['נמכרו 180 כרטיסים במחיר מוזל ועוד 120 כרטיסים במחיר מלא, סה"כ 300 כרטיסים מתוך 400 מושבים באולם. כלומר <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">4</span></span> מהכרטיסים נמכרו במחיר מלא ומוזל. המסקנה: הדר צודקת.'] });
+  body: ['بيع 180 تذكرة بسعر مخفض و120 تذكرة بالسعر الكامل، بإجمالي 300 تذكرة من أصل 400 مقعد في القاعة. أي أن 3/4 من التذاكر بيعت بالسعر الكامل والمخفض. الاستنتاج: هدار على حق.'] });
 defQ('s49', { type: 'scq', answers: 'a', ok: 'נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['מחיר כרטיס מלא הוא פי 2 ממחיר כרטיס מוזל. לעומת זאת, היחס בין כמות הכרטיסים המוזלים לכמות הכרטיסים במחיר מלא הוא <span class="ratio">3 : 2</span>, ולכן עומר צודק.',
-         'ההכנסה מהכרטיסים המוזלים: 180 · 20 = 3,600 ש"ח. ההכנסה מהכרטיסים במחיר מלא: 120 · 40 = 4,800 ש"ח.',
-         'לכן ההכנסה מהכרטיסים במחיר מלא הייתה גבוהה יותר למרות שמספרם נמוך יותר.'] });
+  body: ['سعر التذكرة الكاملة يساوي ضعف سعر التذكرة المخفضة. في المقابل، النسبة بين عدد التذاكر المخفضة وعدد التذاكر بالسعر الكامل هي <span class="ratio">3: 2</span>، ولذلك عمر على حق.',
+         'الإيراد من التذاكر المخفضة: 180 · 20 = 3,600 ش"ح. الإيراد من التذاكر بالسعر الكامل: 120 · 40 = 4,800 ش"ح.',
+         'لذلك كان الدخل من التذاكر بالسعر الكامل أعلى على الرغم من أن عددها كان أقل.'] });
 
 ['s26','s27','s28','s29','s31','s32','s33','s34','s35','s36','s37',
  's41','s42','s43','s44','s45','s46','s48','s49'].forEach(sid => {
