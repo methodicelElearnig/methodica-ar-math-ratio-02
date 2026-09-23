@@ -401,7 +401,7 @@ function s1Check() {
   }
   s1Done = true;
   const chk = document.getElementById('s1-check');
-  if (chk) { setNavLabel(chk, 'هل نتابع؟'); chk.disabled = false; }
+  if (chk) { setNavLabel(chk, 'متابعة'); chk.disabled = false; }
   try { flushResumeSave(); } catch (e) {}   /* answer committed — see the flush contract in qFinish */
 }
 
@@ -547,7 +547,7 @@ function s3q2Check() {
      the generic engine's reveal in qCheck(). */
   [left, right].forEach(el => { el.classList.remove('error'); el.classList.add('correct'); });
   s3Feedback('s3q2-feedback', ok,
-    '<strong>' + (ok ? 'כל הכבוד!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:') + '</strong><br>' + S3Q2_EXPLAIN +
+    '<strong>' + (ok ? 'أحسنتم!' : 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:') + '</strong><br>' + S3Q2_EXPLAIN +
     (ok ? '' : '<br>الإجابة الصحيحة هي <span dir="ltr"><strong>1: 4</strong></span>'));
   document.getElementById('s3q2-check').disabled = true;
   s3UpdateGate();
@@ -557,13 +557,13 @@ function s3q2Check() {
 /* §7/§8/§10 — single-attempt yes/no checks (slides 11, 12, 15) */
 const S3_YESNO = {
   s3q3: { correct: 'b', flag: 'q3',
-          ok: 'כל הכבוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+          ok: 'أحسنتم!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
           body: 'لم يتم الحفاظ على نسبة الكأس الحقيقية، وسنفهم السبب بعد قليل.' },
   s3q4: { correct: 'a', flag: 'q4',
-          ok: 'כל הכבוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+          ok: 'أحسنتم!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
           body: 'تم الحفاظ على نسبة الكأس الحقيقية، وسنفهم السبب بعد قليل.' },
   s3q5: { correct: 'b', flag: 'q5',
-          ok: 'صحيح!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+          ok: 'صحيح!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
           body: 'لكي نفحص كم ستكون النسبة بعد 5 سنوات، نضيف 5 سنوات إلى كل واحد من الأعمار ونحصل على النسبة <span dir="ltr">10:15</span>.<br>' +
                 'بعد الاختزال نحصل على النسبة <span dir="ltr">2: 3</span>، وهي غير مكافِئة لنسبة الأعمار الحالية.<br>' +
                 '<strong>استنتاج:</strong> إضافة عدد متساوٍ إلى طرفَيّ النسبة لا تُحافظ على النسبة.<br>' +
@@ -815,19 +815,19 @@ function renderQprog(sid) {
     const r = stationState(cfg.set, i);
     const st = r === true ? 'is-correct' : r === false ? 'is-wrong' : i === cfg.idx ? 'is-current' : '';
     html += '<div class="qprog-station ' + st + '"><span class="qprog-dot">' + QP_TICK + QP_X +
-            '</span><span class="qprog-label">שאלה ' + (i + 1) + '</span></div>';
+            '</span><span class="qprog-label">سؤال ' + (i + 1) + '</span></div>';
     if (i < count - 1) html += '<span class="qprog-line' + (r !== null ? ' is-done' : '') + '"></span>';
   }
   host.innerHTML = html;
 }
 
-/* slide feedback lines: "כל הכבוד! / זה לא מדוייק" — retry line is the
+/* slide feedback lines: "أحسنتم! / זה לא מדוייק" — retry line is the
    percent-02 universal standard */
 function mcqPopupCfg() {
   return {
     retry:   { bg: '#ffdbdc', title: 'الإجابة غير دقيقة.', body: ['هل نحاول مجدداً؟'] },
-    correct: { bg: '#edf8ed', title: 'כל הכבוד!', body: [] },
-    wrong2:  { bg: '#ffdbdc', title: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', body: ['الإجابات الصحيحة معلَّمة.'] },
+    correct: { bg: '#edf8ed', title: 'أحسنتم!', body: [] },
+    wrong2:  { bg: '#ffdbdc', title: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:', body: ['الإجابات الصحيحة معلَّمة.'] },
   };
 }
 
@@ -889,7 +889,7 @@ function mcqMark(q, id, cls) {
 }
 
 function mcqCheck(q) {
-  if (q.answered) { advanceScreen(); return; }   // label is שנמשיך? → go next
+  if (q.answered) { advanceScreen(); return; }   // label is متابعة → go next
   if (q.selected.size < 1) return;
 
   q.attempts++;
@@ -926,7 +926,7 @@ function mcqFinish(q) {
   if (tog) tog.classList.remove('hidden');
   document.querySelectorAll('#' + q.id + ' ' + (q.optSelector || '.scq-opt')).forEach(o => { o.disabled = true; });
   const chk = document.getElementById(q.id + '-check');
-  if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+  if (chk) { setNavLabel(chk, 'متابعة'); chk.disabled = false; }
   /* setQResult for these lives in mcqPracticeCheck, which owns the "did this call answer it"
      test — not repeated here. */
   try { flushResumeSave(); } catch (e) {}
@@ -950,7 +950,7 @@ function mcqReset(q) {
   });
   document.getElementById(q.id + '-popup')?.classList.add('hidden');
   const chk = document.getElementById(q.id + '-check');
-  if (chk) { setNavLabel(chk, 'צדקתי?'); chk.disabled = true; }
+  if (chk) { setNavLabel(chk, 'هل إجابتي صحيحة؟'); chk.disabled = true; }
 }
 
 
@@ -999,7 +999,7 @@ function scqCheck(sid) {
     q.done = true;
     document.querySelectorAll('#' + sid + ' .scq-opt').forEach(o => { o.disabled = true; });
     const chk = document.getElementById(sid + '-check');
-    if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+    if (chk) { setNavLabel(chk, 'متابعة'); chk.disabled = false; }
     hideHintButton(sid);
     setQResult(sid, wasOk);
     try { flushResumeSave(); } catch (e) {}
@@ -1073,31 +1073,31 @@ function s15Check() {
     s15Done = true;
     document.querySelectorAll('#s15 .saq-pill').forEach(pp => { pp.disabled = true; });
     const chk = document.getElementById('s15-check');
-    if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+    if (chk) { setNavLabel(chk, 'متابعة'); chk.disabled = false; }
     hideHintButton('s15');
     setQResult('s15', wasOk);
     try { flushResumeSave(); } catch (e) {}
   };
-  if (ok) { mark(false); showPopup('s15', '#edf8ed', 'כל הכבוד!', S15_BODY); finish(true); }
-  else if (s15Attempts >= 2) { mark(true); showPopup('s15', '#ffdbdc', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', S15_BODY); finish(false); }
+  if (ok) { mark(false); showPopup('s15', '#edf8ed', 'أحسنتم!', S15_BODY); finish(true); }
+  else if (s15Attempts >= 2) { mark(true); showPopup('s15', '#ffdbdc', 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:', S15_BODY); finish(false); }
   else {
     mark(false);
     s15LastWrong = JSON.stringify(s15Picks);
-    showPopup('s15', '#ffdbdc', 'זה לא מדוייק, ננסה שוב?', []);
+    showPopup('s15', '#ffdbdc', 'الإجابة غير دقيقة، هل نحاول مجدداً؟', []);
     document.getElementById('s15-check').disabled = true;
   }
 }
 
 /* ─── S16/S17: single-choice practice questions ─── */
 SCQ.s16 = { correctId: 'c', selected: null, attempts: 0, done: false, lastWrong: null,
-  okTitle: 'صحيح جدًا!', badTitle: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  okTitle: 'صحيح جدًا!', badTitle: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['1. لم تُحفَظ النسبة، لأنه أُضيفت فقط مربَّعات كعكة مع سكاكر. النسبة الجديدة هي <span dir="ltr">20: 42</span> (وبعد الاختزال <span dir="ltr">10: 21</span>) وهي لا تُساوي <span dir="ltr">3: 7</span>.',
          '2. لم تُحفَظ النسبة، لأن عدد مربَّعات الكعكة مع سكاكر قد تضاعفَ. النسبة الجديدة هي <span dir="ltr">36: 42</span> (بعد الاختزال <span dir="ltr">6: 7</span>) وهي لا تُساوي <span dir="ltr">3: 7</span>.',
          '3. تم الحفاظ على النسبة وبقيت بعد الاختزال <span dir="ltr">3: 7</span>، لأن كلاً من عدد مربعات الكعكة التي تحتوي على حلوى وإجمالي عدد مربعات الكعكة قد تضاعف بمقدار 2.'] };
 SCQ.s17 = { correctId: 'c', selected: null, attempts: 0, done: false, lastWrong: null,
-  okTitle: 'ممتاز!', badTitle: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['أ. بما أن كمية المطر في عزوز تظهر أولاً في الكتابة اللفظية، يجب أن تكون الكتابة الرياضية 4: 1، وبالتالي فإن العبارة غير صحيحة.',
-         'ب. كمية الأمطار التي هطلت في إيلات هي 1/5 من إجمالي كمية الأمطار التي هطلت في المكانين معاً، ولذلك فإن القول غير صحيح.',
+  okTitle: 'ممتاز!', badTitle: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
+  body: ['أ. بما أن كمية المطر في عزوز تظهر أولاً في الكتابة اللفظية، يجب أن تكون الكتابة الرياضية <span dir="ltr">4: 1</span>، وبالتالي فإن العبارة غير صحيحة.',
+         'ب. كمية الأمطار التي هطلت في إيلات هي <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">5</span></span> من إجمالي كمية الأمطار التي هطلت في المكانين معاً، ولذلك فإن القول غير صحيح.',
          'ج. النسبة بين كمية الأمطار التي هطلت في عزوز وكمية الأمطار التي هطلت في المكانين هي <span class="frac" dir="ltr"><span class="frac-num">4</span><span class="frac-den">5</span></span>، وهذه هي العبارة الصحيحة.'] };
 function s16Select(id) { scqSelect('s16', id); }
 function s16Check()    { scqCheck('s16'); }
@@ -1106,19 +1106,19 @@ function s17Check()    { scqCheck('s17'); }
 
 /* ─── S18/S22/S23: multi-select practice questions ─── */
 function mcqCfg(okTitle, badTitle, body) {
-  return { retry: { bg: '#ffdbdc', title: 'זה לא מדוייק, ננסה שוב?', body: [] },
+  return { retry: { bg: '#ffdbdc', title: 'الإجابة غير دقيقة، هل نحاول مجدداً؟', body: [] },
            correct: { bg: '#edf8ed', title: okTitle, body: body },
            wrong2: { bg: '#ffdbdc', title: badTitle, body: body } };
 }
 MCQ.s18 = { id: 's18', correctIds: new Set(['a', 'b']), maxAttempts: 2,
   selected: new Set(), attempts: 0, answered: false, done: false, lastWrong: null,
-  popups: mcqCfg('נכון!', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', [
-    'היגדים 1 ו-2 נכונים:',
+  popups: mcqCfg('صحيح!', 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:', [
+    'العبارتان 1 وَ 2 صحيحتان:',
     '1. <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">7</span></span> من طول الفيديو مكوّنة من مقاطع فيديو مصوَّرة، ولذلك الجزء المتبقي للرسوم المتحركة هو <span class="frac" dir="ltr"><span class="frac-num">4</span><span class="frac-den">7</span></span>.',
     '2. النسبة بين وقت الرسوم المتحركة ووقت مقاطع الفيديو هي <span class="frac" dir="ltr"><span class="frac-num">4</span><span class="frac-den">7</span></span>: <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">7</span></span>، وبعد الاختزال تُصبح النسبة <span dir="ltr">4: 3</span>.']) };
 MCQ.s22 = { id: 's22', correctIds: new Set(['a', 'b', 'c']), maxAttempts: 2,
   selected: new Set(), attempts: 0, answered: false, done: false, lastWrong: null,
-  popups: mcqCfg('رائع!', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', [
+  popups: mcqCfg('رائع!', 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:', [
     'العبارات 1، 2، 3 صحيحة:',
     '1. النسبة هي <span dir="ltr">6: 18</span>، وعند التبسيط نحصل على النسبة <span dir="ltr">1: 3</span>.',
     '2. مقابل كل طالب/ة اختار النجارة، هناك 3 طلاب اختاروا الصياغة، لذلك فإن عدد الطلاب الذين اختاروا النجارة هو <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">4</span></span> من إجمالي طلاب التخصص.',
@@ -1129,7 +1129,7 @@ MCQ.s22 = { id: 's22', correctIds: new Set(['a', 'b', 'c']), maxAttempts: 2,
    claim as correct and never mentions the 3/5 claim; flagged to producer. */
 MCQ.s23 = { id: 's23', correctIds: new Set(['a', 'b', 'd']), maxAttempts: 2,
   selected: new Set(), attempts: 0, answered: false, done: false, lastWrong: null,
-  popups: mcqCfg('أحسنت، هذا صحيح!', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', [
+  popups: mcqCfg('أحسنت، هذا صحيح!', 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:', [
     'العبارات الصحيحة هي:',
     '1. نوعا تلقّت 15 تعليقاً من زملاء صفّها و-20 تعليقاً من زملاء صفوف أخرى. لذلك النسبة هي <span dir="ltr">15: 20</span>.',
     '2. نُبسِّط النسبة <span dir="ltr">15: 20</span> بالقسمة على 5 فنحصل على <span dir="ltr">3: 4</span>، أو كسرًا <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">4</span></span>.',
@@ -1171,18 +1171,18 @@ function s19Check() {
     xapiReport('s19', wasOk, v);
     s19Done = true; el.disabled = true;
     const chk = document.getElementById('s19-check');
-    if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+    if (chk) { setNavLabel(chk, 'متابعة'); chk.disabled = false; }
     hideHintButton('s19'); setQResult('s19', wasOk);
     try { flushResumeSave(); } catch (e) {}
   };
-  if (ok) { el.classList.add('correct'); showPopup('s19', '#edf8ed', 'כל הכבוד!', S19_BODY); finish(true); }
+  if (ok) { el.classList.add('correct'); showPopup('s19', '#edf8ed', 'أحسنتم!', S19_BODY); finish(true); }
   else if (s19Attempts >= 2) {
     el.value = 16; el.classList.remove('error'); el.classList.add('correct');
     showPopup('s19', '#ffdbdc', 'هذا خطأ، لنتعلم منه:', S19_BODY.concat(['الإجابة الصحيحة هي 16 سم.']));
     finish(false);
   } else {
     el.classList.add('error'); s19LastWrong = v;
-    showPopup('s19', '#ffdbdc', 'זה לא מדוייק, ננסה שוב?', []);
+    showPopup('s19', '#ffdbdc', 'الإجابة غير دقيقة، هل نحاول مجدداً؟', []);
     document.getElementById('s19-check').disabled = true;
   }
 }
@@ -1215,19 +1215,19 @@ function s20Check() {
     xapiReport('s20', wasOk, v.join(':'));
     s20Done = true; L.disabled = true; R.disabled = true;
     const chk = document.getElementById('s20-check');
-    if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+    if (chk) { setNavLabel(chk, 'متابعة'); chk.disabled = false; }
     hideHintButton('s20'); setQResult('s20', wasOk);
     try { flushResumeSave(); } catch (e) {}
   };
-  if (ok) { L.classList.add('correct'); R.classList.add('correct'); showPopup('s20', '#edf8ed', 'כל הכבוד!', S20_BODY); finish(true); }
+  if (ok) { L.classList.add('correct'); R.classList.add('correct'); showPopup('s20', '#edf8ed', 'أحسنتم!', S20_BODY); finish(true); }
   else if (s20Attempts >= 2) {
     L.value = 1; R.value = 2;
     [L, R].forEach(el => { el.classList.remove('error'); el.classList.add('correct'); });
-    showPopup('s20', '#ffdbdc', 'זו טעות, בואו נלמד ממנה:', S20_BODY.concat(['الإجابة الصحيحة هي <span dir="ltr">1: 2</span>.']));
+    showPopup('s20', '#ffdbdc', 'هذا خطأ، لنتعلم منه:', S20_BODY.concat(['الإجابة الصحيحة هي <span dir="ltr">1: 2</span>.']));
     finish(false);
   } else {
     L.classList.add('error'); R.classList.add('error'); s20LastWrong = JSON.stringify(v);
-    showPopup('s20', '#ffdbdc', 'זה לא מדוייק, ננסה שוב?', []);
+    showPopup('s20', '#ffdbdc', 'الإجابة غير دقيقة، هل نحاول مجدداً؟', []);
     document.getElementById('s20-check').disabled = true;
   }
 }
@@ -1266,7 +1266,7 @@ function s24Check() {
     s24Done = true;
     ids.forEach(id => { document.getElementById(id).disabled = true; });
     const chk = document.getElementById('s24-check');
-    if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+    if (chk) { setNavLabel(chk, 'متابعة'); chk.disabled = false; }
     hideHintButton('s24'); setQResult('s24', wasOk);
     try { flushResumeSave(); } catch (e) {}
   };
@@ -1279,12 +1279,12 @@ function s24Check() {
       const el = document.getElementById(id);
       el.value = want[i]; el.classList.remove('error'); el.classList.add('correct');
     });
-    showPopup('s24', '#ffdbdc', 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', S24_BODY.concat(['الإجابة الصحيحة هي <span dir="ltr">2: 1</span>.']));
+    showPopup('s24', '#ffdbdc', 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:', S24_BODY.concat(['الإجابة الصحيحة هي <span dir="ltr">2: 1</span>.']));
     finish(false);
   } else {
     okEach.forEach((good, i) => { if (!good) document.getElementById(ids[i]).classList.add('error'); });
     s24LastWrong = JSON.stringify(v);
-    showPopup('s24', '#ffdbdc', 'זה לא מדוייק, ננסה שוב?', []);
+    showPopup('s24', '#ffdbdc', 'الإجابة غير دقيقة، هل نحاول مجدداً؟', []);
     document.getElementById('s24-check').disabled = true;
   }
 }
@@ -1375,7 +1375,7 @@ function qFinish(sid, ok) {
   scr.querySelectorAll('.viq-input-box').forEach(i => { i.disabled = true; });
   scr.querySelectorAll('.saq-pill, .scq-opt').forEach(b => { b.disabled = true; });
   const chk = document.getElementById(sid + '-check');
-  if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+  if (chk) { setNavLabel(chk, 'متابعة'); chk.disabled = false; }
   hideHintButton(sid);
   if (QPROG[sid]) setQResult(sid, ok);
   /* ⚠️ The flush contract: this is where an answer is COMMITTED, so the state write must be
@@ -1491,7 +1491,7 @@ function qCheck(sid) {
   }
   else {
     q.lastWrong = snapshot;
-    showPopup(sid, '#ffdbdc', 'זה לא מדוייק, ננסה שוב?', []);
+    showPopup(sid, '#ffdbdc', 'الإجابة غير دقيقة، هل نحاول مجدداً؟', []);
     const chk = document.getElementById(sid + '-check');
     if (chk) chk.disabled = true;
   }
@@ -1502,12 +1502,12 @@ function defQ(sid, cfg) { Q[sid] = Object.assign({ attempts: 0, done: false, las
 /* ── practice set C (slides 38-41) ── */
 defQ('s26', { type: 'input', inputs: ['s26-0a','s26-0b','s26-1a','s26-1b','s26-2a','s26-2b'],
   answers: [1.3, 10, 1, 5, 1, 10],
-  ok: 'מצויין!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  ok: 'ممتاز!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['1. النسبة بين وزن البروتين ووزن الكربوهيدرات في وحدة واحدة هي <span class="ratio">1.3: 10</span>.',
          '2. النسبة بين وزن الدهون ووزن الكربوهيدرات هي <span class="ratio">2: 10</span>، وبعد التبسيط هي <span class="ratio">1: 5</span>.',
          '3. وزن جميع المكونات في وحدة واحدة هو 20 غرام، لذلك نسبة وزن الدهون إلى الوزن الكلي هي <span class="ratio">2: 20</span> وبعد التبسيط نحصل على <span class="ratio">1: 10</span>.'] });
 defQ('s27', { type: 'saq', maxAttempts: 1, answers: { a: 'no', b: 'yes', c: 'yes' },
-  ok: 'هذه إجابة صحيحة جداً!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  ok: 'هذه إجابة صحيحة جداً!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['العبارتان 2 و-3 صحيحتان:',
          'وزن الكربوهيدرات هو 10 غرام ووزن الدهون هو 2 غرام، لذلك وزن الكربوهيدرات أكبر بـ 5 أضعاف من وزن الدهون.',
          'النسبة بين وزن السكريات في 100 غرام ووزن السكريات في 20 غرام هي <span class="ratio">6.7: 1.3</span>، وبعد التبسيط تكون النسبة تقريباً <span class="ratio">5: 1</span>.',
@@ -1515,21 +1515,21 @@ defQ('s27', { type: 'saq', maxAttempts: 1, answers: { a: 'no', b: 'yes', c: 'yes
 defQ('s28', { type: 'input', inputs: ['s28-0a','s28-0b','s28-1a','s28-1b'], answers: [5, 3, 5, 8],
   /* each row on its own terms: 10:6 or 5:3 above, 10:16 or 5:8 below */
   accept: [[10, 6, 10, 16], [10, 6, 5, 8], [5, 3, 10, 16], [5, 3, 5, 8]],
-  ok: 'إجابة صحيحة!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  ok: 'إجابة صحيحة!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['1. جميع المثلثات متطابقة وبالتالي فهي متساوية المساحة. يوجد 10 مثلثات رمادية و6 مثلثات باللون السماوي، لذلك النسبة بين المساحة الرمادية والمساحة السماوية هي <span class="ratio">10: 6</span> وبعد التبسيط نحصل على <span class="ratio">5: 3</span>.',
          '2. يوجد 10 مثلثات رمادية و16 مثلثاً في المجموع داخل المثلث الكبير. النسبة بين المساحة الرمادية ومساحة المثلث الكبير هي <span class="ratio">10: 16</span> وبعد التبسيط نحصل على <span class="ratio">5: 8</span>.'] });
 defQ('s29', { type: 'saq', maxAttempts: 1, answers: { a: 'no', b: 'yes' },
-  ok: 'כל הכבוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  ok: 'أحسنتم!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['1. النسبة بين المساحة الرمادية والمساحة الزرقاء السماوية بعد إضافة المثلثات هي <span class="ratio">15: 10</span>. إذا بسّطنا بـ-5 نحصل على أن النسبة هي <span class="ratio">3: 2</span> — النسبة لا تُحفظ.',
          '2. لقد ضربنا كمية المثلثات الرمادية وكمية المثلثات الزرقاء في نفس العدد، لذلك نسبة محفوظة.'] });
 
 /* ── advanced set (slides 43-49) ── */
 defQ('s31', { type: 'input', inputs: ['s31-ang','s31-r1','s31-r2','s31-r3'], answers: [20, 2, 3, 13],
-  ok: 'هذا صحيح!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  ok: 'هذا صحيح!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['مجموع الزوايا في المثلث هو 180°. نحسب الزاوية الثالثة: 180° - 130° - 30° = 20°.',
          'النسبة بين الزوايا الثلاث هي <span class="ratio">20: 30: 130</span>، وبعد الاختزال بـ-10 نحصل على <span class="ratio">2: 3: 13</span>.'] });
 defQ('s32', { type: 'input', inputs: ['s32-a1','s32-a2','s32-r1','s32-r2','s32-r3'], answers: [70, 70, 4, 7, 7],
-  ok: 'ممتاز!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  ok: 'ممتاز!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['المثلث متساوي الساقين، ولذلك فإن الزاويتين المتبقيتين متساويتان: 180° - 40° = 140°، و-140°: 2 = 70°.',
          'النسبة بين الزوايا الثلاث هي <span class="ratio">40: 70: 70</span>. نبسّط بقسمة على 10 فنحصل على <span class="ratio">4: 7: 7</span>.'] });
 const AI_BODY = ['معنى النسبة <span class="ratio">1: 1</span> هو أن عدد المستطلَعين الذين استخدموا الذكاء الاصطناعي يوميًا يساوي <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">2</span></span> من إجمالي المستطلَعين، أي — <span dir="ltr">4,750: 2 = 2,375</span>. لذلك فالاستنتاج صحيح.'];
@@ -1537,33 +1537,33 @@ const AI_BODY = ['معنى النسبة <span class="ratio">1: 1</span> هو أ�
    verdict and the arithmetic for each row (producer 20.08: restore). The
    96px BadgeTick graphics on slides 45-47 overlap rows/columns and
    contradict that text on row 1 — they are not the key here. */
-defQ('s33', { type: 'saq', answers: { a: 'yes' }, ok: 'أحسنت!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:', body: AI_BODY });
-defQ('s34', { type: 'saq', answers: { b: 'yes' }, ok: 'יפה מאוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+defQ('s33', { type: 'saq', answers: { a: 'yes' }, ok: 'أحسنت!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:', body: AI_BODY });
+defQ('s34', { type: 'saq', answers: { b: 'yes' }, ok: 'أحسنت!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['إذا كانت النسبة <span class="ratio">13: 7</span>، إذن <span class="frac" dir="ltr"><span class="frac-num">7</span><span class="frac-den">20</span></span> من المُقابَلين يعتقدون أن استخدام الذكاء الاصطناعي (AI) لم يجعلهم أكثر كفاءة. <span class="frac" dir="ltr"><span class="frac-num">7</span><span class="frac-den">20</span></span> تقارب <span class="frac" dir="ltr"><span class="frac-num">1</span><span class="frac-den">3</span></span>. لذلك الاستنتاج صحيح.'] });
-defQ('s35', { type: 'saq', answers: { c: 'no' }, ok: 'יפה מאוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['النسبة هي 2: 3، أي أن 3/5 من المُستجوَبين اعتقدوا أنه لا حاجة إلى مهارات خاصة، وهذا أكثر من نصفهم. لذلك فإن الاستنتاج غير صحيح.'] });
-defQ('s36', { type: 'scq', answers: 'b', ok: 'נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+defQ('s35', { type: 'saq', answers: { c: 'no' }, ok: 'أحسنت!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
+  body: ['النسبة هي <span class="ratio">2: 3</span>، أي أن <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">5</span></span> من المُستجوَبين اعتقدوا أنه لا حاجة إلى مهارات خاصة، وهذا أكثر من نصفهم. لذلك فإن الاستنتاج غير صحيح.'] });
+defQ('s36', { type: 'scq', answers: 'b', ok: 'صحيح!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['في بداية اللعبة، كانت نسبة عدد أوراق طاليا إلى عدد أوراق يوني هي <span class="ratio">1: 1</span>. يعني ذلك أنه مقابل كل ورقة لطاليا توجد ورقة واحدة ليوني — أي أن عدد الأوراق كان متساوياً.'] });
-defQ('s37', { type: 'input', inputs: ['s37-in'], answers: [2], ok: 'מצוין!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+defQ('s37', { type: 'input', inputs: ['s37-in'], answers: [2], ok: 'ممتاز!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['في نهاية اللعبة، كانت نسبة عدد أوراق طاليا إلى عدد أوراق يوني هي <span class="ratio">6: 3</span>. نبسّط فنحصل على <span class="ratio">2: 1</span> — أي أن عدد أوراق طاليا يساوي ضعف عدد أوراق يوني.'] });
 
 /* ── peak question: the concert (slides 53-61) ── */
 defQ('s41', { type: 'input', inputs: ['s41-num','s41-den'], answers: [3, 5],
-  ok: 'هذا صحيح!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+  ok: 'هذا صحيح!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['النسبة بين عدد التذاكر المخفضة وإجمالي عدد التذاكر هي <span class="ratio">3: 5</span>، وبالتالي ككسر بسيط هي <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">5</span></span>.'] });
-defQ('s42', { type: 'input', inputs: ['s42-in'], answers: [5], ok: 'זה נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+defQ('s42', { type: 'input', inputs: ['s42-in'], answers: [5], ok: 'هذا صحيح!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['معنى النسبة <span class="ratio">3: 5</span> هو أنه مقابل كل 3 تذاكر بيعت بالسعر الكامل، بيعت 5 تذاكر بسعر مخفض.'] });
-defQ('s43', { type: 'input', inputs: ['s43-a','s43-b'], answers: [2, 3], ok: 'זה נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+defQ('s43', { type: 'input', inputs: ['s43-a','s43-b'], answers: [2, 3], ok: 'هذا صحيح!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['النسبة بالكتابة الرياضية هي <span class="ratio">120: 180</span>. نبسّطها فنحصل على النسبة <span class="ratio">2: 3</span>.'] });
-defQ('s44', { type: 'input', inputs: ['s44-a','s44-b'], answers: [2, 3], ok: 'מצוין!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+defQ('s44', { type: 'input', inputs: ['s44-a','s44-b'], answers: [2, 3], ok: 'ممتاز!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['النسبة المبسطة هي <span class="ratio">2: 3</span>. ويعني ذلك أنه مقابل كل 2 تذكرة بالسعر الكامل تم بيعها، تم بيع 3 تذاكر مخفضة.'] });
-defQ('s45', { type: 'scq', answers: 'b', ok: 'מצוין!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+defQ('s45', { type: 'scq', answers: 'b', ok: 'ممتاز!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['النسبة المخططة كانت <span class="ratio">3: 5</span>، وبعد البيع كانت النسبة الفعلية <span class="ratio">2: 3</span>. لذلك، لم يتم الحفاظ على النسبة.'] });
-defQ('s46', { type: 'input', inputs: ['s46-a','s46-b'], answers: [1, 10], ok: 'זה נכון מאוד!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+defQ('s46', { type: 'input', inputs: ['s46-a','s46-b'], answers: [1, 10], ok: 'صحيح جدًا!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['تم حجز 40 تذكرة للعازفين والمغنين وأعضاء الطاقم، من أصل 400 تذكرة إجمالاً. النسبة هي <span class="ratio">40: 400</span> وبعد التبسيط <span class="ratio">1: 10</span>.'] });
-defQ('s48', { type: 'scq', answers: 'a', ok: 'נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-  body: ['بيع 180 تذكرة بسعر مخفض و120 تذكرة بالسعر الكامل، بإجمالي 300 تذكرة من أصل 400 مقعد في القاعة. أي أن 3/4 من التذاكر بيعت بالسعر الكامل والمخفض. الاستنتاج: هدار على حق.'] });
-defQ('s49', { type: 'scq', answers: 'a', ok: 'נכון!', bad: 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
+defQ('s48', { type: 'scq', answers: 'a', ok: 'صحيح!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
+  body: ['بيع 180 تذكرة بسعر مخفض و120 تذكرة بالسعر الكامل، بإجمالي 300 تذكرة من أصل 400 مقعد في القاعة. أي أن <span class="frac" dir="ltr"><span class="frac-num">3</span><span class="frac-den">4</span></span> من التذاكر بيعت بالسعر الكامل والمخفض. الاستنتاج: هدار على حق.'] });
+defQ('s49', { type: 'scq', answers: 'a', ok: 'صحيح!', bad: 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
   body: ['سعر التذكرة الكاملة يساوي ضعف سعر التذكرة المخفضة. في المقابل، النسبة بين عدد التذاكر المخفضة وعدد التذاكر بالسعر الكامل هي <span class="ratio">3: 2</span>، ولذلك عمر على حق.',
          'الإيراد من التذاكر المخفضة: 180 · 20 = 3,600 ش"ح. الإيراد من التذاكر بالسعر الكامل: 120 · 40 = 4,800 ش"ح.',
          'لذلك كان الدخل من التذاكر بالسعر الكامل أعلى على الرغم من أن عددها كان أقل.'] });
@@ -1976,7 +1976,7 @@ function _lock(sel, root) {
 }
 function _doneButton(sid) {
   var chk = document.getElementById(sid + '-check');
-  if (chk) { setNavLabel(chk, 'שנמשיך?'); chk.disabled = false; }
+  if (chk) { setNavLabel(chk, 'متابعة'); chk.disabled = false; }
   hideHintButton(sid);
 }
 
@@ -1996,7 +1996,7 @@ function paintS1() {
     popup.style.background = ok ? '#edf8ed' : '#ffdbdc';
     resetPopupPosition(popup);
     document.getElementById('s1-popup-title').innerHTML =
-      ok ? 'כל הכבוד!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:';
+      ok ? 'أحسنتم!' : 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:';
     document.getElementById('s1-popup-body').innerHTML =
       S1_BODY.map(function (x) { return '<p>' + x + '</p>'; }).join('');
     popup.classList.remove('hidden');
@@ -2028,7 +2028,7 @@ function paintS3() {
       else if (s3q1Selected.has(o.dataset.id)) o.classList.add('wrong');
     });
     s3Feedback('s3q1-feedback', allCorrect,
-      '<strong>' + (allCorrect ? 'כל הכבוד!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:') +
+      '<strong>' + (allCorrect ? 'أحسنتم!' : 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:') +
       '</strong><br>' + S3Q1_EXPLAIN);
     var c1 = document.getElementById('s3q1-check'); if (c1) c1.disabled = true;
   }
@@ -2040,9 +2040,9 @@ function paintS3() {
       l.disabled = true; r.disabled = true;
       l.classList.add('correct'); r.classList.add('correct');
       s3Feedback('s3q2-feedback', okq2,
-        '<strong>' + (okq2 ? 'כל הכבוד!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:') +
+        '<strong>' + (okq2 ? 'أحسنتم!' : 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:') +
         '</strong><br>' + S3Q2_EXPLAIN +
-        (okq2 ? '' : '<br>התשובה הנכונה היא <span dir="ltr"><strong>1 : 4</strong></span>'));
+        (okq2 ? '' : '<br>الإجابة الصحيحة هي <span dir="ltr"><strong>1: 4</strong></span>'));
       var c2 = document.getElementById('s3q2-check'); if (c2) c2.disabled = true;
     }
   }
@@ -2110,7 +2110,7 @@ function paintS15() {
   });
   _lock('#s15 .saq-pill');
   showPopup('s15', reveal ? '#ffdbdc' : '#edf8ed',
-            reveal ? 'זה לא מדויק, בואו נבין למה.' : 'כל הכבוד!', S15_BODY);
+            reveal ? 'זה לא מדויק, בואו נבין למה.' : 'أحسنتم!', S15_BODY);
   _doneButton('s15');
   if (QPROG.s15) renderQprog('s15');
 }
@@ -2123,8 +2123,8 @@ function paintS19() {
   el.classList.remove('error');
   el.classList.add('correct');
   showPopup('s19', ok ? '#edf8ed' : '#ffdbdc',
-            ok ? 'כל הכבוד!' : 'זו טעות, בואו נלמד ממנה:',
-            ok ? S19_BODY : S19_BODY.concat(['התשובה הנכונה היא 16 ס"מ.']));
+            ok ? 'أحسنتم!' : 'هذا خطأ، لنتعلم منه:',
+            ok ? S19_BODY : S19_BODY.concat(['الإجابة الصحيحة هي 16 سم.']));
   _doneButton('s19');
   if (QPROG.s19) renderQprog('s19');
 }
@@ -2135,8 +2135,8 @@ function paintS20() {
   var ok = screenWasCorrect('s20');
   [L, R].forEach(function (el) { el.disabled = true; el.classList.remove('error'); el.classList.add('correct'); });
   showPopup('s20', ok ? '#edf8ed' : '#ffdbdc',
-            ok ? 'כל הכבוד!' : 'זו טעות, בואו נלמד ממנה:',
-            ok ? S20_BODY : S20_BODY.concat(['התשובה הנכונה היא <span dir="ltr">1 : 2</span>.']));
+            ok ? 'أحسنتم!' : 'هذا خطأ، لنتعلم منه:',
+            ok ? S20_BODY : S20_BODY.concat(['الإجابة الصحيحة هي <span dir="ltr">1: 2</span>.']));
   _doneButton('s20');
   if (QPROG.s20) renderQprog('s20');
 }
@@ -2150,8 +2150,8 @@ function paintS24() {
     el.disabled = true; el.classList.remove('error'); el.classList.add('correct');
   });
   showPopup('s24', ok ? '#edf8ed' : '#ffdbdc',
-            ok ? 'מצויין!' : 'זה לא מדויק, התשובה הנכונה מוצגת,<br>בואו נבין למה:',
-            ok ? S24_BODY : S24_BODY.concat(['התשובה הנכונה היא <span dir="ltr">2 : 1</span>.']));
+            ok ? 'ممتاز!' : 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:',
+            ok ? S24_BODY : S24_BODY.concat(['الإجابة الصحيحة هي <span dir="ltr">2: 1</span>.']));
   _doneButton('s24');
   if (QPROG.s24) renderQprog('s24');
 }
@@ -2191,7 +2191,7 @@ function paintMCQ(sid) {
   var tog = document.getElementById(sid + '-answers-toggle');
   if (tog) {
     tog.classList.remove('hidden');
-    tog.textContent = q.view === 'mine' ? 'הצגת התשובות הנכונות' : 'הצגת התשובות שלי';
+    tog.textContent = q.view === 'mine' ? 'عرض الإجابات الصحيحة' : 'عرض إجاباتي';
   }
   if (q._popup) mcqShowPopup(q, q._popup);
   _doneButton(sid);
@@ -2390,7 +2390,7 @@ function endComponentHere(btnId) {
 }
 
 /* Putting a fired gate back after a reload. restoreScreenUI() rebuilds an answered screen from the
-   payload and _doneButton() re-enables its "שנמשיך?" — including on the screen a gated learner was
+   payload and _doneButton() re-enables its "متابعة" — including on the screen a gated learner was
    stopped on. Without this, a reload would hand that learner the button back and let them walk into
    s25: the original bug, only now invisible until someone refreshes.
 
