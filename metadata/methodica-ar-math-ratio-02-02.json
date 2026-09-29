@@ -1,0 +1,148 @@
+{
+  "id": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-02/",
+  "title": "وقت التدريب",
+  "learningUnitId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02/",
+  "componentPurpose": "practice",
+  "isAssessment": false,
+  "recommendedAfterFail": [],
+  "isRequired": true,
+  "relativeDifficulty": 3,
+  "masteryLevel": null,
+  "order": 2,
+  "depthLevel": "core-curriculum-basic",
+  "cognitiveLevels": [
+    "process-thinking"
+  ],
+  "languages": [
+    "Arabic"
+  ],
+  "skills": [],
+  "estimatedTimeInMinutes": 12,
+  "createdAt": "2026-09-24T11:30:25.000Z",
+  "updatedAt": "2026-09-24T11:30:25.000Z",
+  "subContent": [
+    {
+      "id": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-02/methodica-ar-math-ratio-02-02-001/",
+      "title": "كعكة الشوكولاتة مع الحلوى",
+      "informationToBot": "מטרת הפריט: תרגול זיהוי יחס חלק-לשלם (עוגה בת 42 ריבועים, 16 עם סוכריות לב, 2 עם סוכריות סמיילי - סה\"כ 18 עם סוכריות, 24 בלי) וזיהוי אילו שינויים בכמויות שומרים על יחס נתון. כיווני חשיבה ואסטרטגיות: חישוב יחס חלק-לשלם כשבר; זיהוי ששמירה על יחס דורשת הכפלת שני הגורמים באותו מספר, לא הוספת כמות קבועה. טעויות נפוצות: חישוב 'פי כמה גדול' באופן הפוך; הנחה שהוספת כמות קבועה (ולא הכפלה) שומרת על היחס. מידע נוסף: אין.",
+      "contentType": "practice",
+      "mediaFormat": "interactive-content",
+      "questions": [
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-02/methodica-ar-math-ratio-02-02-001/q1",
+          "questionType": "matching",
+          "questionText": "تائير تحتفل بعيد ميلادها الـ 13. لقد أعدّت كعكة شوكولاتة وقسّمتها إلى 42 مربعاً متساوي المساحة. على 16 مربعاً وضعت حلوى على شكل قلب وعلى مربعَين وضعت حلوى على شكل وجه مبتسم. أ. بالنسبة لكل عبارة، ضعوا علامة صح أو خطأ:",
+          "answers": {
+            "source": [
+              "النسبة بين عدد مربعات الكعكة بدون الحلوى وعدد جميع مربعات الكعكة هي 24/42",
+              "عدد مربعات الكعكة التي تحتوي على الحلوى هو 3/7 من إجمالي مربعات الكعكة",
+              "عدد مربعات الكعكة بدون حلوى يساوي 4 أضعاف عدد مربعات الكعكة مع الحلوى"
+            ],
+            "target": [
+              "صحيح",
+              "لا صحيح"
+            ]
+          },
+          "correctAnswers": [
+            {
+              "source": "النسبة بين عدد مربعات الكعكة بدون الحلوى وعدد جميع مربعات الكعكة هي 24/42",
+              "target": "صحيح"
+            },
+            {
+              "source": "عدد مربعات الكعكة التي تحتوي على الحلوى هو 3/7 من إجمالي مربعات الكعكة",
+              "target": "صحيح"
+            },
+            {
+              "source": "عدد مربعات الكعكة بدون حلوى يساوي 4 أضعاف عدد مربعات الكعكة مع الحلوى",
+              "target": "لا صحيح"
+            }
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-02/methodica-ar-math-ratio-02-02-001/q2",
+          "questionType": "choice",
+          "questionText": "ب. في أي حالة تُحفظ النسبة بين عدد مربعات الكعكة التي تحتوي على حلوى وعدد مربعات الكعكة بدون حلوى؟",
+          "answers": [
+            "أضافت تائير حلوى سمايلي إضافية في زوايا الكعكة",
+            "أعدّت تائير كعكة جديدة، ضاعفت فيها عدد مربعات الكعكة التي تحتوي على حلوى بمقدار 2",
+            "أعدّت تائير كعكة جديدة، حيث تضاعف كلٌّ من عدد مربعات الكعكة الإجمالي وعدد مربعات الكعكة التي تحتوي على حلوى بمقدار 2"
+          ],
+          "correctAnswers": [
+            "أعدّت تائير كعكة جديدة، حيث تضاعف كلٌّ من عدد مربعات الكعكة الإجمالي وعدد مربعات الكعكة التي تحتوي على حلوى بمقدار 2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-02/methodica-ar-math-ratio-02-02-002/",
+      "title": "كمية الأمطار في عزوز وإيلات",
+      "informationToBot": "מטרת הפריט: תרגול בניית יחס מתוך היגד 'פי כמה' (כמות הגשם בעזוז גדולה פי 4 מכמות הגשם באילת) והבחנה בין יחס חלק-לחלק ליחס חלק-לשלם. כיווני חשיבה ואסטרטגיות: תרגום 'גדול פי X' ליחס X:1; בדיקת כל אפשרות בנפרד מול הנתון, כולל אפשרויות שמנסחות יחס חלק-לשלם (עזוז מתוך סך שני המקומות). טעויות נפוצות: היפוך סדר הכתיבה ביחס (רישום 1:4 במקום 4:1); בניית יחס חלק-לשלם שגוי. מידע נוסף: אין.",
+      "contentType": "practice",
+      "mediaFormat": "interactive-content",
+      "questions": [
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-02/methodica-ar-math-ratio-02-02-002/q1",
+          "questionType": "choice",
+          "questionText": "كمية المطر التي هطلت في عزوز في شتاء 2026 كانت أكبر بـ4 أضعاف من كمية المطر التي هطلت في إيلات. ضعوا علامة على العبارة الصحيحة:",
+          "answers": [
+            "النسبة بين كمية المطر التي هطلت في عزوز وكمية المطر التي هطلت في إيلات هي 4 : 1"
+          ],
+          "correctAnswers": [
+            "النسبة بين كمية المطر التي هطلت في عزوز وكمية المطر التي هطلت في إيلات هي 4 : 1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-02/methodica-ar-math-ratio-02-02-003/",
+      "title": "وقت الرسوم المتحركة مقابل الفيديو في المقطع",
+      "informationToBot": "מטרת הפריט: תרגול חישוב יחס חלק-לחלק מתוך שני חלקים משלימים (3/7 מהסרטון וידאו מצולם, השאר אנימציה) ומעבר בין ייצוג כשבר לייצוג כיחס. כיווני חשיבה ואסטרטגיות: חישוב החלק המשלים (1 פחות 3/7), ובניית היחס בין שני החלקים תוך שמירה על סדר הכתיבה התואם לניסוח (אנימציה:וידאו, לא ההפך). טעויות נפוצות: היפוך סדר הכתיבה ביחס; השוואה שגויה בין הכמויות (איזה חלק גדול מאיזה). מידע נוסף: אין.",
+      "contentType": "practice",
+      "mediaFormat": "interactive-content",
+      "questions": [
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-02/methodica-ar-math-ratio-02-02-003/q1",
+          "questionType": "choice",
+          "questionText": "أور يُعِد مقطع فيديو قصير. 3/7 من طول المقطع مكونة من مقاطع فيديو مصورة، وبقية المقطع مصنوعة بالرسوم المتحركة الحاسوبية. ضعوا علامة على العبارات الصحيحة:",
+          "answers": [
+            "3/7 من طول المقطع مكونة من مقاطع فيديو مصورة، والجزء المتبقي للرسوم المتحركة هو 4/7",
+            "النسبة بين وقت الرسوم المتحركة الحاسوبية ووقت مقاطع الفيديو المصورة في الفيلم هي 3 : 4",
+            "في فيديو أور، يوجد وقت أطول للفيديو المصوَّر مقارنةً بوقت الرسوم المتحركة الحاسوبية"
+          ],
+          "correctAnswers": [
+            "3/7 من طول المقطع مكونة من مقاطع فيديو مصورة، والجزء المتبقي للرسوم المتحركة هو 4/7",
+            "النسبة بين وقت الرسوم المتحركة الحاسوبية ووقت مقاطع الفيديو المصورة في الفيلم هي 3 : 4"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-02/methodica-ar-math-ratio-02-02-004/",
+      "title": "المربع ABCD والمثلث PE",
+      "informationToBot": "מטרת הפריט: תרגול שילוב יחס עם חישוב שטח והיקף בגאומטריה - ריבוע ABCD ששטחו 64 סמ\"ר (צלע 8 ס\"מ), ומשולש שגובהו PE ביחס 1:2 לצלע הריבוע. כיווני חשיבה ואסטרטגיות: חילוץ אורך צלע הריבוע משטחו (שורש), החלת היחס הנתון לחישוב הגובה, וחישוב יחס שטחים מתוך רכיבי הצורה המורכבת. טעויות נפוצות: בלבול בין אורך צלע לשטח; שכחת חלוקה ב-2 בחישוב שטח משולש. מידע נוסף: אין.",
+      "contentType": "practice",
+      "mediaFormat": "interactive-content",
+      "questions": [
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-02/methodica-ar-math-ratio-02-02-004/q1",
+          "questionType": "numeric",
+          "questionText": "مساحة المربع ABCD هي 64 سم². النسبة بين طول ضلع المربع وارتفاع المثلث (PE) هي 2:1. أ. ما هو طول الارتفاع بالسنتيمتر؟",
+          "answers": [],
+          "correctAnswers": [
+            16
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-02/methodica-ar-math-ratio-02-02-004/q2",
+          "questionType": "fill-in",
+          "questionText": "ب. ما النسبة المختزلة بين مساحة المثلث APB ومساحة المضلع APBCD؟",
+          "answers": [],
+          "correctAnswers": [
+            "2 : 1",
+            "2:1"
+          ]
+        }
+      ]
+    }
+  ]
+}

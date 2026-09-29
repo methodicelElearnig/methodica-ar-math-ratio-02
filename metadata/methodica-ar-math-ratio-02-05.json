@@ -1,0 +1,119 @@
+{
+  "id": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-05/",
+  "title": "سؤال القمة",
+  "learningUnitId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02/",
+  "componentPurpose": "practice",
+  "isAssessment": true,
+  "recommendedAfterFail": [],
+  "isRequired": true,
+  "relativeDifficulty": 5,
+  "masteryLevel": null,
+  "order": 5,
+  "depthLevel": "core-curriculum-basic",
+  "cognitiveLevels": [
+    "interpretation-and-reasoning"
+  ],
+  "languages": [
+    "Arabic"
+  ],
+  "skills": [],
+  "estimatedTimeInMinutes": 16,
+  "createdAt": "2026-09-24T11:30:25.000Z",
+  "updatedAt": "2026-09-24T11:30:25.000Z",
+  "subContent": [
+    {
+      "id": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-05/methodica-ar-math-ratio-02-05-001/",
+      "title": "بيع تذاكر لحفل فرق موسيقية (6 أقسام)",
+      "informationToBot": "מטרת הפריט: שאלת השיא של היחידה - תרחיש שלם של מכירת כרטיסים למופע להקות (400 מושבים, כרטיסים מוזלים/מחיר מלא/ללא עלות לצוות), הבודק ייצוגי יחס שונים, שימור יחס, ופרשנות משמעות יחס בהקשר כספי. תתי-סעיפים: א) ביטוי היחס המתוכנן בין מספר הכרטיסים המוזלים לסך כל הכרטיסים (3:5) כשבר, והשלמת משפט 'על כל 3 מלא נמכרו X מוזלים'. ב) חישוב וצמצום היחס בפועל בין כרטיסי מחיר מלא למוזלים (120 מלא, 180 מוזלים -> 2:3) ופירוש משמעותו במשפט משלים. ג) בדיקה האם היחס המתוכנן נשמר בפועל. ד) חישוב יחס מצומצם בין כרטיסי צוות (40) לכלל הכרטיסים (400) -> 1:10. ה) בדיקת טענה לגבי חלק הכרטיסים שנמכרו (300) מכלל המושבים (400) -> 3/4. ו) השוואת הכנסות משני סוגי כרטיסים תוך שילוב יחס מחירים (מוזל:מלא=1:2) עם יחס כמויות שנמכרו (מוזל:מלא=3:2). טעויות נפוצות: בלבול בין 'היחס נשמר' לבין 'שתי הכמויות גדלו'; היפוך סדר הכתיבה ביחסים; מסקנה שגויה לגבי הכנסה מבלי לשלב את יחס המחירים עם יחס הכמויות. מידע נוסף: מחיר כרטיס מלא 40 ש\"ח, מחיר כרטיס מוזל 20 ש\"ח. שאלה ו' היא בחירה מתוך שלוש אפשרויות (לא שתיים). צילום מסך: לא צורף.",
+      "contentType": "practice",
+      "mediaFormat": "interactive-content",
+      "questions": [
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-05/methodica-ar-math-ratio-02-05-001/q1",
+          "questionType": "fill-in",
+          "questionText": "أ.1. لكي يتمكن أكبر عدد ممكن من الطلاب من شراء تذاكر بسعر مناسب، تقرر أن تكون النسبة بين عدد التذاكر المخفضة وإجمالي عدد التذاكر 5:3. اكتبوا النسبة ككسر بسيط.",
+          "answers": [],
+          "correctAnswers": [
+            "5/3"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-05/methodica-ar-math-ratio-02-05-001/q2",
+          "questionType": "numeric",
+          "questionText": "أ.2. أكملوا الجملة: على كل 3 تذاكر تُباع بالسعر الكامل، ستُباع ___ تذاكر مخفضة.",
+          "answers": [],
+          "correctAnswers": [
+            5
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-05/methodica-ar-math-ratio-02-05-001/q3",
+          "questionType": "fill-in",
+          "questionText": "ب.1. خلال أيام البيع، تم بيع 120 تذكرة بالسعر الكامل و180 تذكرة مخفضة. اكتبوا النسبة المختزلة بين عدد التذاكر المباعة بالسعر الكامل وعدد التذاكر المباعة بالسعر المخفض.",
+          "answers": [],
+          "correctAnswers": [
+            "3 : 2",
+            "3:2"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-05/methodica-ar-math-ratio-02-05-001/q4",
+          "questionType": "numeric",
+          "questionText": "ب.2. أكملوا الجملة: لكل 2 تذاكر بيعت بالسعر الكامل، بيعت ___ تذاكر مخفضة.",
+          "answers": [],
+          "correctAnswers": [
+            3
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-05/methodica-ar-math-ratio-02-05-001/q5",
+          "questionType": "choice",
+          "questionText": "ج. كما ذُكر، خلال أيام البيع، تم بيع 120 تذكرة بالسعر الكامل و180 تذكرة مخفضة، ونذكّر بأن النسبة المخططة بين عدد التذاكر المخفضة وإجمالي عدد التذاكر هي 5:3. هل تم الحفاظ على النسبة المخططة للمبيعات بين عدد التذاكر بالسعر الكامل وعدد التذاكر بالسعر المخفض عند انتهاء المبيعات؟",
+          "answers": [
+            "نعم",
+            "لا",
+            "لا يمكن معرفة ذلك"
+          ],
+          "correctAnswers": [
+            "لا"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-05/methodica-ar-math-ratio-02-05-001/q6",
+          "questionType": "fill-in",
+          "questionText": "د. تم حجز 40 تذكرة للموسيقيين والمغنيين وأعضاء الطاقم. ما هي النسبة المختصرة بين عدد التذاكر المحجوزة للموسيقيين وأعضاء الطاقم وإجمالي التذاكر (400)؟",
+          "answers": [],
+          "correctAnswers": [
+            "10 : 1",
+            "10:1"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-05/methodica-ar-math-ratio-02-05-001/q7",
+          "questionType": "choice",
+          "questionText": "هـ. في المرحلة الأولى، أراد الطلاب حساب عدد التذاكر التي بيعت بالسعر الكامل والمخفَّض من مجموع التذاكر. ادّعت هدار أن التذاكر التي بيعت بالسعر الكامل والمخفَّض تشكّل معاً 3/4 من مجموع المقاعد في القاعة (تذكير - بيعت 180 تذكرة بسعر مخفَّض، و120 بسعر كامل، والمجموع 400 تذكرة). هل هي على حق؟",
+          "answers": [
+            "نعم",
+            "لا",
+            "لا يمكن معرفة ذلك"
+          ],
+          "correctAnswers": [
+            "نعم"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-05/methodica-ar-math-ratio-02-05-001/q8",
+          "questionType": "choice",
+          "questionText": "و. في المرحلة الثانية، فحص الطلاب أسعار التذاكر: سعر التذكرة الكاملة 40 شيكل، سعر التذكرة المخفَّضة 20 شيكل. ادّعى عمر: 'على الرغم من أننا بعنا تذاكر مخفَّضة أكثر (180) من التذاكر بالسعر الكامل (120)، إلا أن الإيراد من التذاكر بالسعر الكامل كان أعلى.' هل هو محق؟",
+          "answers": [
+            "نعم، لأن النسبة بين سعر التذكرة المخفضة وسعر التذكرة الكاملة هي 2 : 1، والنسبة بين عدد التذاكر المخفضة المباعة وعدد التذاكر بالسعر الكامل المباعة هي 2 : 3",
+            "نعم، لأن عدد التذاكر المخفضة أكبر بمقدار 1.5 مرة من عدد التذاكر بالسعر الكامل"
+          ],
+          "correctAnswers": [
+            "نعم، لأن النسبة بين سعر التذكرة المخفضة وسعر التذكرة الكاملة هي 2 : 1، والنسبة بين عدد التذاكر المخفضة المباعة وعدد التذاكر بالسعر الكامل المباعة هي 2 : 3"
+          ]
+        }
+      ]
+    }
+  ]
+}
