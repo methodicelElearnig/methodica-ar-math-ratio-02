@@ -5,7 +5,7 @@
   "componentPurpose": "practice",
   "isAssessment": false,
   "recommendedAfterFail": [
-    "methodica-ar-math-ratio-02-01"
+    "methodica-ar-math-ratio-02-02"
   ],
   "isRequired": false,
   "relativeDifficulty": 2,
@@ -37,12 +37,13 @@
           "answers": [
             "النسبة بين عدد المشاركين في ورشة النجارة وعدد المشاركين في ورشة الصياغة هي 3 : 1",
             "عدد المشاركين في ورشة الصياغة أكبر بـ 3 أضعاف من عدد المشاركين في ورشة النجارة",
-            "إذا انضم طالب واحد إلى كل ورشة، ستُحفظ النسبة بين عدد المشاركين في ورشة الصياغة وعدد المشاركين في ورشة النجارة"
+            "إذا انضم طالب واحد إلى كل ورشة، ستُحفظ النسبة بين عدد المشاركين في ورشة الصياغة وعدد المشاركين في ورشة النجارة",
+            "النسبة بين عدد المشاركين في ورشة النجارة إلى إجمالي الطلاب في مسار الفنون هي 1/4"
           ],
           "correctAnswers": [
             "النسبة بين عدد المشاركين في ورشة النجارة وعدد المشاركين في ورشة الصياغة هي 3 : 1",
             "عدد المشاركين في ورشة الصياغة أكبر بـ 3 أضعاف من عدد المشاركين في ورشة النجارة",
-            "إذا انضم طالب واحد إلى كل ورشة، ستُحفظ النسبة بين عدد المشاركين في ورشة الصياغة وعدد المشاركين في ورشة النجارة"
+            "النسبة بين عدد المشاركين في ورشة النجارة إلى إجمالي الطلاب في مسار الفنون هي 1/4"
           ]
         }
       ]
@@ -92,7 +93,7 @@
           "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-03/methodica-ar-math-ratio-02-03-003/q2",
           "questionType": "fill-in",
           "questionText": "ب. ما النسبة بين الوقت الذي يعمل فيه الهاتف في الوضع العادي والوقت الذي يعمل فيه في الوضع الصامت؟",
-          "answers": [],
+          "answers": null,
           "correctAnswers": [
             "1 : 2",
             "1:2"
@@ -111,29 +112,30 @@
           "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-03/methodica-ar-math-ratio-02-03-004/q1",
           "questionType": "fill-in",
           "questionText": "على ملصق وجبة خفيفة من الحبوب مكتوب: في 20 غرام من المنتج (وحدة واحدة) يوجد 10 غرام كربوهيدرات، و1.3 غرام بروتين، و2 غرام دهون. أ.1. النسبة بين وزن البروتين ووزن الكربوهيدرات في وحدة واحدة:",
-          "answers": [],
+          "answers": null,
           "correctAnswers": [
-            "10 : 1.3"
+            "10 : 1.3",
+            "1.3:10"
           ]
         },
         {
           "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-03/methodica-ar-math-ratio-02-03-004/q2",
           "questionType": "fill-in",
           "questionText": "أ.2. النسبة المختصرة بين وزن الدهون ووزن الكربوهيدرات في وحدة واحدة:",
-          "answers": [],
+          "answers": null,
           "correctAnswers": [
             "5 : 1",
-            "5:1"
+            "1:5"
           ]
         },
         {
           "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-03/methodica-ar-math-ratio-02-03-004/q3",
           "questionType": "fill-in",
           "questionText": "أ.3. النسبة المبسَّطة بين وزن الدهون في الوحدة ووزن جميع المكونات في وجبة خفيفة واحدة:",
-          "answers": [],
+          "answers": null,
           "correctAnswers": [
             "10 : 1",
-            "10:1"
+            "1:10"
           ]
         },
         {
@@ -179,20 +181,20 @@
           "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-03/methodica-ar-math-ratio-02-03-005/q1",
           "questionType": "fill-in",
           "questionText": "المثلث أمامكم مقسّم إلى مثلثات صغيرة متطابقة، ومُلوَّنة بالرمادي والأزرق الفاتح (16 مثلثاً صغيراً: 10 رمادية و6 زرقاء فاتحة). أ.1. ما النسبة بين المساحة الرمادية والمساحة الزرقاء السماوية؟",
-          "answers": [],
+          "answers": null,
           "correctAnswers": [
             "3 : 5",
-            "3:5"
+            "5:3"
           ]
         },
         {
           "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-03/methodica-ar-math-ratio-02-03-005/q2",
           "questionType": "fill-in",
           "questionText": "أ.2. ما النسبة بين المساحة الرمادية ومساحة المثلث الكبير؟",
-          "answers": [],
+          "answers": null,
           "correctAnswers": [
             "8 : 5",
-            "8:5"
+            "5:8"
           ]
         },
         {

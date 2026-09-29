@@ -2,8 +2,30 @@
 
 ## Decision
 
-**Hebrew master, Arabic text.** `metadata/methodica-ar-math-ratio-02-*.json` is the Hebrew
-unit's `metadata/` (as shipped by `methodica-math-ratio-02`) with only these changes:
+**Hebrew master, Arabic text — the master is the LIVE Hebrew record in Kata** (since 29.09.26,
+before the first send). `metadata/methodica-ar-math-ratio-02-*.json` is the published Hebrew unit
+`methodica-math-ratio-02` as Kata returned it (`deployments/!kata-snapshots/2026-09-29-before-ar/_raw/`,
+turned into this repo's shape by `raw2meta.js`) with only the changes below.
+
+Why the live record and not the Hebrew repo's `metadata/`: the drift check before sending showed
+Kata's published Hebrew differs from the Hebrew repo (and from `metadata-src/`), and in every
+structural point that can be checked against code, Kata matches the lomda. Owner decision, as on
+ar-science-mass-measure-03 (64b30d2):
+
+| | Hebrew repo `metadata/` | live Kata (now the master) |
+|---|---|---|
+| 01 `componentPurpose` | both | instruction |
+| 04 `isRequired` | true | false |
+| 03 `recommendedAfterFail` | 01 | **02** |
+| 01-002 | 6 questions, q1 true-false, q5 matching | 5: q1 multi-select (4 statements), q2–q4, q6 (the lomda never reports q5) |
+| 01-003 | 6 questions | none (the guided item is ungraded) |
+| answer lists | 02-002: 1, 03-001: 3, 05 q8: 2 | 3 / 4 / 3 (as on screen) |
+| 04-002 correct targets | true, false, true | false, true, false |
+| 05 q4 answer | `3` | `"2,3"` |
+| fill-in alternates | e.g. `4:1` | e.g. `1:4` |
+
+The first build (commit 0094351) used the Hebrew repo's `metadata/` as master; the sections below on
+the Hebrew repo's mismatches describe that version. The only changes are:
 
 | Field | Source |
 |---|---|
@@ -24,10 +46,11 @@ The runtime reads only the ids (`questionId` lookup, `METADATA.id`); grading liv
 ## Rebuild
 
 ```bash
-# scratch copies: he/0N.html he/0N.js he/main.js at 3031dd2, ar/... at 87af0c3 (0N.html = current), he-meta/ = Hebrew metadata/
+# scratch copies: he/0N.html he/0N.js he/main.js at 3031dd2, ar/... at 87af0c3 (0N.html = current)
 NODE_PATH=/tmp/lomda-test/node_modules node dict.js <scratch>            # -> <scratch>/dict.json
-node build-meta.js <repo> <scratch>/dict.json [--write]                  # reads <scratch>/override.json and <scratch>/he-meta/
-node mdiff.js <scratch>/he-meta <repo>/metadata                          # non-text diff, expect answers text only
+node raw2meta.js <snapshot>/_raw/methodica-math-ratio-02.json <Hebrew _unit.json> <scratch>/he-live
+HE_DIR=<scratch>/he-live node build-meta.js <repo> <scratch>/dict.json [--write]   # reads <scratch>/override.json
+node mdiff.js <scratch>/he-live <repo>/metadata                          # non-text diff, expect answers text only
 ```
 
 ## The supplied `metadata-ar/` (24.09) — deviations from the Hebrew unit
@@ -45,7 +68,7 @@ Kept untouched in `metadata-ar/` (commit 7ffc37d). Not used for any of these fie
 - **05 q4:** `fill-in` with an Arabic sentence as the answer (HE `numeric`, `3`).
 - **Unit:** `manufacturer` `"310"` (string; HE 310).
 
-## Hebrew metadata vs its own lomda — found on the way, NOT changed (parity)
+## Hebrew repo metadata vs its own lomda (first build; mostly resolved by the live master)
 
 These are in the Hebrew unit too. Report to the Hebrew unit's owner; fixing them here alone would
 break parity.
@@ -58,16 +81,16 @@ break parity.
 
 ## Written here (no Arabic source) — for the native Arabic review
 
-From `override.json`:
-- `01-002 q1` text, `01-002 q5` text, `01-003 q6` text, `05-001 q4` text.
-- `02-003 q1` answer 1, `03-002 q1` answer 3 (`3/7`, the Hebrew claim).
-- `02-002 q1` answer 1 (the screen's text, with the Hebrew ratio order).
-
-Choices between two lomda spellings:
+From `override.json` (live-master build):
+- `02-003 q1` answer 1 and `03-002 q1` answer 3: the live Hebrew statements (`3/7`); the screens
+  word them differently.
+- `03-001 q1` answer 4: the "1/4 of the art-track students" statement (the supplier has it at another position).
+- `05-001 q8` answer 3: translated from the live Hebrew ("…3/5 of the tickets sold…").
 - `01-001 q1` answer 3 is **جال**, the answer button. The chat bubble on s1 spells it **غال**.
-- `01-002 q5` ÷ is **القسمة**, the reveal card.
+- `04-002` statements 2 and 3 drop the parenthetical that the Arabic screen adds and the Hebrew does not have.
 
-`04-002` statements 2 and 3 drop the parenthetical that the Arabic screen adds and the Hebrew metadata does not have.
+Answers taken from `metadata-ar/` by position (where the lomda dictionary had no exact match) were each
+checked by meaning against the live Hebrew, and their ratios put in the Hebrew order.
 
 ## Arabic lomda text notes (visible, not changed — native review)
 

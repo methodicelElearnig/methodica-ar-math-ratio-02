@@ -17,7 +17,7 @@ for (const [he, ar] of Object.entries(dict)) {
 const report = { unmatched: [], ambiguous: [], sources: [] };
 // Hebrew question -> supplied Arabic question (1-based), per item, where they differ from 1:1.
 // null = no Arabic counterpart in metadata-ar; the text comes from OVERRIDE below.
-const ALIGN = {
+const ALIGN = process.env.HE_DIR ? {} : {
   '01-2': { q1: null, q2: 'q2', q3: 'q3', q4: 'q4', q5: null, q6: 'q5' },
   '01-3': { q1: 'q1', q2: 'q3', q3: 'q4', q4: 'q5', q5: null, q6: null },
 };
@@ -49,7 +49,7 @@ function tr(he, where, fallback) {
 const idMap = s => s
   .replace('https://lomdot.education.gov.il/metodica/720active/math/ratio/02/', 'https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/')
   .replace(/methodica-math-ratio-02/g, 'methodica-ar-math-ratio-02');
-const md = p.join(repo, 'metadata'), ar = p.join(repo, 'metadata-ar'), heDir = p.join(p.dirname(dictFile), 'he-meta');
+const md = p.join(repo, 'metadata'), ar = p.join(repo, 'metadata-ar'), heDir = process.env.HE_DIR || p.join(p.dirname(dictFile), 'he-meta');
 const out = {};
 for (const n of ['01', '02', '03', '04', '05']) {
   const he = JSON.parse(fs.readFileSync(p.join(heDir, `methodica-math-ratio-02-${n}.json`), 'utf8'));
@@ -121,5 +121,6 @@ for (const [f, j] of Object.entries(out)) {
   JSON.stringify(j, (k, v) => { if (k !== 'informationToBot' && typeof v === 'string' && HEB.test(v)) report.unmatched.push(`${f} ${k}: still Hebrew`); return v; });
 }
 console.log('UNMATCHED', report.unmatched.length); report.unmatched.forEach(l => console.log('  ' + l));
+if (process.env.SHOW_SOURCES) report.sources.filter(s => /metadata-ar/.test(s) && !/ text:/.test(s)).forEach(s => console.log('  SRC ' + s));
 console.log('AMBIGUOUS', report.ambiguous.length); report.ambiguous.forEach(l => console.log('  ' + l));
 if (WRITE) for (const [f, j] of Object.entries(out)) fs.writeFileSync(p.join(md, f), JSON.stringify(j, null, 2) + '\n');
