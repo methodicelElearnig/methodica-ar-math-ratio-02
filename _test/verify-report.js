@@ -1099,8 +1099,8 @@ function checkSetGate() {
   ok('gate', 'the gate\'s button exists in the markup', val("!!document.getElementById('s24-check')") === true);
   ok('gate', 'need is reachable: 0 < need <= QSET_SIZE[set]',
     val('SET_GATES[24].need > 0 && SET_GATES[24].need <= QSET_SIZE[SET_GATES[24].set]') === true);
-  ok('gate', 'need matches the promise printed on s21 ("2 שאלות ומעלה")',
-    /ענו נכון על 2 שאלות ומעלה/.test(fs.readFileSync(path.join(BASE, PART_DIR('03'), 'index.html'), 'utf8')) &&
+  ok('gate', 'need matches the promise printed on s21 ("سؤالين أو أكثر" — the Arabic dual is the 2)',
+    /بشكل صحيح على سؤالين أو أكثر/.test(fs.readFileSync(path.join(BASE, PART_DIR('03'), 'index.html'), 'utf8')) &&
     val('SET_GATES[24].need') === 2);
 
   /* Verdicts against explicit qResults fixtures — the fail-open cases are unreachable by walking. */
