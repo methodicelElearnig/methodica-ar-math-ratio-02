@@ -239,7 +239,16 @@ function checkDeployContract() {
       ok('paths', c + ' -> ' + s + ' exists on disk', fs.existsSync(path.join(BASE, s)));
     }
   }
-  const rootHtml = fs.readFileSync(path.join(BASE, 'index.html'), 'utf8');
+  /* A package ships no root index.html (28.09.26, package-allowlist.ps1 $RootFiles = @()):
+     platforms launch each component by its own .../<component>/index.html. So the redirect is
+     checked where it lives, in the repo, and its absence is what a package must show. */
+  const rootPath = path.join(BASE, 'index.html');
+  if (!fs.existsSync(rootPath)) {
+    ok('paths', 'no root index.html: a package (it carries DEPLOY.md), not a broken tree',
+      fs.existsSync(path.join(BASE, 'DEPLOY.md')));
+    return;
+  }
+  const rootHtml = fs.readFileSync(rootPath, 'utf8');
   const target = (rootHtml.match(/replace\('\.\/([^'/]+)/) || [])[1];
   ok('paths', 'root redirect target is lowercase and exists',
     !!target && target === target.toLowerCase() && fs.existsSync(path.join(BASE, target)), String(target));
