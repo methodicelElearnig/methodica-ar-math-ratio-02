@@ -1,0 +1,203 @@
+{
+  "id": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/index.html",
+  "title": "هيا نتعلم شيئاً جديداً",
+  "learningUnitId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02/",
+  "componentPurpose": "instruction",
+  "isAssessment": false,
+  "recommendedAfterFail": [],
+  "isRequired": true,
+  "relativeDifficulty": 3,
+  "masteryLevel": null,
+  "order": 1,
+  "depthLevel": "core-curriculum-basic",
+  "cognitiveLevels": [
+    "process-thinking"
+  ],
+  "languages": [
+    "Arabic"
+  ],
+  "skills": [],
+  "estimatedTimeInMinutes": 24,
+  "createdAt": "2026-09-24T11:30:25.000Z",
+  "updatedAt": "2026-09-24T11:30:25.000Z",
+  "subContent": [
+    {
+      "id": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-001/index.html",
+      "title": "من يحتاج الشاحن أولاً",
+      "informationToBot": "מטרת הפריט: פתיחה מוטיבציונית המציגה אותו נתון (רבע מהסוללה נותרה) בשלוש דרכי ביטוי שונות (25%, רבע, 0.25), כדי להראות שמדובר באותה כמות המבוטאת באופנים שונים לפני שהמושג נלמד באופן פורמלי. מה התלמיד אמור להבין: ש-25%, רבע ו-0.25 הם אותו ערך בדיוק, ושאין דרך לקבוע מי 'הכי חלש' כי כולם שווים. כיווני חשיבה ואסטרטגיות: המרת כל הביטויים לאותה צורה (למשל שבר עשרוני) כדי להשוות ביניהם. טעויות נפוצות: הנחה שאחוז/שבר/עשרוני שונים מייצגים כמויות שונות, ולכן בחירת אחת הדמויות כ'תשובה'. מידע נוסף: פריט הוק בפתיחת היחידה, אחרי מסך בחירת דמות מלווה (שאינו נשאל). צילום מסך: לא צורף.",
+      "contentType": "motivational",
+      "mediaFormat": "interactive-content",
+      "questions": [
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-001/index.html?q=q1",
+          "questionType": "choice",
+          "questionText": "أوشر: 'معي بس 25% بطارية'. عدن: 'معي ربع بطارية فقط'. غال: 'لم يتبقَّ لي سوى 0.25 من البطارية'. من منهم يجب أن يستخدم الشاحن أولاً؟",
+          "answers": [
+            "أوشر",
+            "عدن",
+            "جال",
+            "هم بحاجة إلى إجراء قرعة"
+          ],
+          "correctAnswers": [
+            "هم بحاجة إلى إجراء قرعة"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-002/index.html",
+      "title": "طرق التعبير عن النسبة والحفاظ على النسبة",
+      "informationToBot": "מטרת הפריט: הקניית הרעיון שניתן לבטא יחס בכמה דרכים (כתיב מילולי, כתיב מתמטי, שבר פשוט/עשרוני, אחוזים), הקניית יחס בין קבוצה חלקית לקבוצה השלמה, והקניית הכלל ששמירה על יחס דורשת כפל/חילוק של שני גורמי היחס באותו מספר (לא חיבור/חיסור). מה התלמיד אמור להבין/לתרגל: זיהוי שאותו יחס יכול להיכתב במספר צורות שקולות; הבחנה בין יחס חלק-לחלק ליחס חלק-לשלם; זיהוי שרק כפל/חילוק שומרים על יחס. כיווני חשיבה ואסטרטגיות: השאלה הראשונה (על כדורי הרגל/הסל) היא שאלת 'סמנו את כל התשובות הנכונות' על 4 ניסוחים שונים של אותו נתון - כולם נכונים בו-זמנית, כי הם רק ביטויים שונים (יחס, שבר, אחוז, עשרוני) של אותה עובדה; יש לבדוק כל טענה בנפרד ולא להניח שרק אחת נכונה. טעויות נפוצות: היפוך סדר המספרים ביחס; מחשבה שחיבור/חיסור אותו מספר לשני הגורמים שומר על היחס; בחירת טענה בודדת בשאלת ריבוי-הבחירה במקום לסמן את כל הנכונות. מידע נוסף: המסך כולל גם כרטיסיות היפוך (flip cards) עם ארבע הפעולות (כפל/חילוק/חיבור/חיסור) שמסבירות אילו פעולות שומרות על היחס - אלו כרטיסי מידע להעמקה, לא שאלה מוערכת. צילום מסך: לא צורף.",
+      "contentType": "instruction",
+      "mediaFormat": "text",
+      "questions": [
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-002/index.html?q=q1",
+          "questionType": "choice",
+          "questionText": "في مخزن قاعة الرياضة يوجد 8 كرات قدم و12 كرة سلة. أي من الادعاءات التالية مستنتج من المعطى؟ ضعوا علامة على جميع الإجابات الصحيحة.",
+          "answers": [
+            "النسبة بين عدد كرات القدم وعدد كرات السلة هي 8: 12",
+            "عدد كرات القدم هو 8/20 من مجموع الكرات",
+            "60% من الكرات هي كرات سلة",
+            "0.6 من الكرات هي كرات سلة"
+          ],
+          "correctAnswers": [
+            "النسبة بين عدد كرات القدم وعدد كرات السلة هي 8: 12",
+            "عدد كرات القدم هو 8/20 من مجموع الكرات",
+            "60% من الكرات هي كرات سلة",
+            "0.6 من الكرات هي كرات سلة"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-002/index.html?q=q2",
+          "questionType": "fill-in",
+          "questionText": "في قائمة التشغيل التي أنشأها إيتاي، يوجد 9 أغاني بوب و27 أغنية روك. ما النسبة المختزلة بين عدد أغاني البوب وعدد الأغاني في قائمة التشغيل بأكملها؟",
+          "answers": [],
+          "correctAnswers": [
+            "1 : 4",
+            "1:4"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-002/index.html?q=q3",
+          "questionType": "true-false",
+          "questionText": "النسبة بين عرض كأس البطولة الحقيقي وارتفاعه هي 2: 3. أضاف إيتاي 4 سم إلى العرض والارتفاع كليهما. هل تم الحفاظ على نسبة (2:3) في كأس إيتاي؟",
+          "answers": [
+            "نعم",
+            "لا"
+          ],
+          "correctAnswers": [
+            "لا"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-002/index.html?q=q4",
+          "questionType": "true-false",
+          "questionText": "نوعة ضاعفت مقياس العرض ومقياس الارتفاع للكأس الحقيقي بمقدار 3 أضعاف. هل تم الحفاظ على نسبة الكأس الحقيقية (2:3)؟",
+          "answers": [
+            "نعم",
+            "لا"
+          ],
+          "correctAnswers": [
+            "نعم"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-002/index.html?q=q5",
+          "questionType": "true-false",
+          "questionText": "يوفال يبلغ 5 سنوات وأخته يردين تبلغ 10 سنوات. النسبة بين أعمارهم هي 5: 10 (مختزلة 1: 2). هل بعد 5 سنوات ستُحفظ النسبة بين أعمارهم؟",
+          "answers": [
+            "نعم",
+            "لا"
+          ],
+          "correctAnswers": [
+            "لا"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-003/index.html",
+      "title": "لنحل معاً: تغليف الكعكة - مسحوق السكر والكريمة",
+      "informationToBot": "מטרת הפריט: פתרון שלב-שלב יחד עם הדמות של תרגיל הבודק טענות על יחס בין משקל אבקת סוכר (25 גרם) למשקל שמנת (200 גרם) בציפוי עוגה - יחס חלק-לחלק, יחס חלק-לשלם, ושמירת יחס בפעולת חיבור. מה התלמיד אמור להבין/לתרגל: הבחנה בין יחס חלק-לחלק ליחס חלק-לשלם; שהסדר בכתיב המתמטי של היחס חייב להתאים לסדר בכתיב המילולי (הראשון-שנזכר-ראשון); שחיבור אותו מספר לשני גורמי היחס אינו שומר עליו. כיווני חשיבה ואסטרטגיות: לפני חישוב, לזהות איזה גודל 'ראשון' ואיזה 'שני' בניסוח המילולי ולשמור על אותו סדר בכתיב המתמטי; לצמצם שברים כדי להשוות לטענה הנתונה. טעויות נפוצות: היפוך סדר הכתיב המתמטי (25:200 לעומת 200:25); בלבול בין קבוצה חלקית לקבוצה שלמה; הנחה שחיבור אותו מספר לשני האגפים שומר על היחס. מידע נוסף: מהלך מודרך לחלוטין - הדמות מובילה את הפתרון שלב-שלב, ובכל שלב מוצגות שתי אפשרויות כשהתשובה הנכונה מודגשת אוטומטית (הלומד לא נבדק בפועל, זהו תוכן הדגמתי). צילום מסך: לא צורף. הערה לגרסה הערבית: script.js של הרכיב הערבי מציין במפורש (שורות 42-49) שפריט 003 נעדר מ-XAPI_EVAL_ITEMS ואינו מוערך - gstepSelect() מסמן את האפשרות הנכונה כ'נכונה' תמיד בלי קשר לבחירת הלומד, בדיוק כמו בעברית.",
+      "contentType": "solved-exercise",
+      "mediaFormat": "text",
+      "questions": [
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-003/index.html?q=q1",
+          "questionType": "true-false",
+          "questionText": "لتحضير تغليف الكعكة، يُخلط 25 غرام من مسحوق السكر مع 200 غرام من الكريمة. أ. ادعاء: النسبة بين وزن مسحوق السكر ووزن القشدة هي 1: 8. هل الادعاء صحيح؟",
+          "answers": [
+            "نعم",
+            "لا"
+          ],
+          "correctAnswers": [
+            "نعم"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-003/index.html?q=q2",
+          "questionType": "choice",
+          "questionText": "ما هي النسبة بالكتابة الرياضية بين وزن مسحوق السكر ووزن القشطة وفقاً للبيانات الواردة في السؤال؟",
+          "answers": [
+            "200 : 25",
+            "25 : 200"
+          ],
+          "correctAnswers": [
+            "25 : 200"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-003/index.html?q=q3",
+          "questionType": "choice",
+          "questionText": "ب. ادعاء: وزن المسحوق يشكّل 1/9 من وزن الطلاء الجاهز. ما هي طريقة التعبير عن النسبة في الادعاء؟",
+          "answers": [
+            "النسبة بين كمية جزئية واحدة وكمية جزئية ثانية",
+            "النسبة بين كمية جزئية والكمية الكلية"
+          ],
+          "correctAnswers": [
+            "النسبة بين كمية جزئية والكمية الكلية"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-003/index.html?q=q4",
+          "questionType": "choice",
+          "questionText": "ما هو الوزن الكلي للطلاء؟",
+          "answers": [
+            "220 غرام",
+            "225 غرام"
+          ],
+          "correctAnswers": [
+            "225 غرام"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-003/index.html?q=q5",
+          "questionType": "choice",
+          "questionText": "ج. ادعاء: إذا زدنا وزن مسحوق السكر ووزن القشطة بمقدار 20 غراماً لكل منهما، فإن النسبة بينهما لن تتغير. أولاً، ما العملية التي سنجريها على كل واحد من الأوزان في النسبة؟",
+          "answers": [
+            "جمع",
+            "طرح",
+            "ضرب",
+            "قسمة"
+          ],
+          "correctAnswers": [
+            "جمع"
+          ]
+        },
+        {
+          "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-003/index.html?q=q6",
+          "questionType": "true-false",
+          "questionText": "هل تُحفظ النسبة في عمليات الجمع، وبالتالي هل الادعاء 'إذا زدنا وزن مسحوق السكر ووزن القشطة بمقدار 20 غراماً لكل منهما، فإن النسبة بينهما لن تتغير' صحيح؟",
+          "answers": [
+            "نعم",
+            "لا"
+          ],
+          "correctAnswers": [
+            "لا"
+          ]
+        }
+      ]
+    }
+  ]
+}
