@@ -2110,7 +2110,7 @@ function paintS15() {
   });
   _lock('#s15 .saq-pill');
   showPopup('s15', reveal ? '#ffdbdc' : '#edf8ed',
-            reveal ? 'זה לא מדויק, בואו נבין למה.' : 'أحسنتم!', S15_BODY);
+            reveal ? 'هذا غير دقيق، هيا نفهم لماذا.' : 'أحسنتم!', S15_BODY);
   _doneButton('s15');
   if (QPROG.s15) renderQprog('s15');
 }
