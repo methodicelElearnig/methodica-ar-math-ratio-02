@@ -1122,7 +1122,7 @@ html, body {
    ═══════════════════════════════════════════════════════ */
 .scq-hint {
   position: absolute;
-  bottom: 17px; left: 180px;
+  bottom: 17px; left: 245px;
   z-index: 12;
   height: 40px; box-sizing: border-box;   /* Figma 1731:45026 — same pill as continue */
   min-width: 140px;
@@ -1170,10 +1170,11 @@ html, body {
 .scq-hint-body p { margin: 0 0 12px; }
 .scq-hint-body p:last-child { margin-bottom: 0; }
 .scq-hint-close {
-  width: 196px; padding: 16px 40px;
+  min-width: 196px; padding: 16px 40px;
   border: none; border-radius: 1000px; background: #fff;
   color: #303030;
   font-family: 'Assistant', sans-serif; font-size: 24px; font-weight: 400;
+  display: flex; align-items: center; justify-content: center;
   cursor: pointer; white-space: nowrap;
 }
 .scq-hint-close:hover { font-weight: 600; }
@@ -2299,7 +2300,7 @@ html, body {
    Sits in the bottom bar beside the hint pill, in the same pill shape. ── */
 .answers-toggle {
   position: absolute;
-  bottom: 17px; left: 336px;
+  bottom: 17px; left: 185px;
   z-index: 12;
   height: 40px; box-sizing: border-box;
   min-width: 190px; padding: 0 20px;
