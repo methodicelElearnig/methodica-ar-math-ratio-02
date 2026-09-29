@@ -1,6 +1,26 @@
-# methodica-math-ratio-02 — ביטוי יחס בדרכים שונות (יעד 1.2)
+# methodica-ar-math-ratio-02 — التعبير عن النسبة بطرق مختلفة (Arabic version of methodica-math-ratio-02, יעד 1.2)
 
 The 51-screen unit, in the client's multi-component structure.
+
+## Arabic version (29.09.26)
+
+This repo is the **Arabic** copy of the Hebrew unit `methodica-math-ratio-02`. Learner-visible
+text is Arabic; behaviour and layout are the Hebrew unit's. The rest of this README was written
+for the Hebrew unit; where it names Hebrew text, the Arabic unit shows the translation.
+
+- **Identity:** folders `methodica-ar-math-ratio-02-0N`, ids under
+  `https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/`, storage keys with `-ar`
+  (`unit-js/10-identity.js`, `unit-js/40-resume.js`). Content is served from `/720/ar/math/ratio/02`.
+- **Kata:** there is no Arabic unit. `send-metadata.ps1` adds the five components to the Hebrew
+  unit `methodica-math-ratio-02` in parent-unit mode. See `docs-and-tools/SEND-METADATA.md`.
+- **Metadata:** `metadata/` is the Hebrew metadata with Arabic text; the supplier's
+  `metadata-ar/` is kept as delivered and not shipped. See
+  `docs-and-tools/ar-metadata/AR-METADATA-REPORT.md`.
+- **Reverted review edits:** the translation pass moved two bottom-bar buttons and added hint
+  pills; both were reverted to Hebrew, restorable by one `git revert` each. See
+  `docs-and-tools/AR-REVIEW-REVERTS.md`.
+- **Open:** three images in part 05 still carry Hebrew text (`ticket-booth.jpg`, `concert-1.jpg`,
+  `concert-6.jpg`); videos and character PNGs not checked for Hebrew; native Arabic review.
 
 ## Where the split comes from
 
@@ -27,7 +47,7 @@ screen number — any screen added here must extend `end`, or the unit's `comple
 
 - `index.html` — redirects to component 01, **carrying the query string** (the platform's `?slxapi`
   and `?registration` launch parameters; without them reporting and resume are dead).
-- `methodica-math-ratio-02-01 … -05/` — five component apps
+- `methodica-ar-math-ratio-02-01 … -05/` — five component apps
   (`index.html` + `script.js` + `assets/`). No stylesheet and no fonts of their own; `assets/` holds
   only what that component's **own** markup names.
 - `unit-js/` — the shared layer, one copy for the unit. `main.js` is the approved engine plus this
@@ -73,10 +93,10 @@ that omits them is a unit with no stylesheet and no fonts. See `unit-js/README.m
 ## Identity
 
 ```
-prefix     https://lomdot.education.gov.il/metodica/720active/math/ratio/02/
-unit       <prefix>methodica-math-ratio-02/
-component  <prefix>methodica-math-ratio-02-0N/
-item       <prefix>methodica-math-ratio-02-0N/methodica-math-ratio-02-0N-00M/
+prefix     https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/
+unit       <prefix>methodica-ar-math-ratio-02/
+component  <prefix>methodica-ar-math-ratio-02-0N/
+item       <prefix>methodica-ar-math-ratio-02-0N/methodica-ar-math-ratio-02-0N-00M/
 ```
 
 Trailing slashes at unit, component and item level. ⚠️ Everything in this repo was previously slugged
@@ -152,8 +172,8 @@ against component 03 on 17.09.26.
 `advanceScreen()` consults `gateBlocks()` **last**, immediately before `goTo`. Below the threshold
 the component **ends where it stands**: `endComponentHere()` does what `leaveToPart` does — report
 `partResult()` through `xapiEndComponent`, record the durable score, flush — and the **platform**
-routes on that `completed`. `metadata/methodica-math-ratio-02-03.json` carries
-`recommendedAfterFail: ["methodica-math-ratio-02-01"]`, the only non-empty one in the unit.
+routes on that `completed`. `metadata/methodica-ar-math-ratio-02-03.json` carries
+`recommendedAfterFail: ["methodica-ar-math-ratio-02-01"]`, the only non-empty one in the unit.
 
 Deliberately:
 
@@ -265,8 +285,8 @@ present, POST if not), so it can be run as often as needed and will update in pl
 duplicate.
 
 > On reading `metadata-from/` back: `retrieve-metadata.ps1` **reconstructs** id URLs from its
-> `-IdBase` and trims the trailing slash, so retrieved ids look like `…/methodica-math-ratio-02-01`
-> against our `…/methodica-math-ratio-02-01/`. That is the script's formatting, not a difference in
+> `-IdBase` and trims the trailing slash, so retrieved ids look like `…/methodica-ar-math-ratio-02-01`
+> against our `…/methodica-ar-math-ratio-02-01/`. That is the script's formatting, not a difference in
 > what Kata stores — Kata keys on `uniqueKey`, the last path segment with slashes trimmed. Do not
 > "fix" `metadata/` to match a retrieval.
 

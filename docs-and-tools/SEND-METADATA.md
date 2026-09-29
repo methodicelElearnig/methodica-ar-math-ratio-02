@@ -27,6 +27,8 @@ So the script runs in **parent-unit mode** by default: `$ParentUnitKey =
 - Content is served from `/720/ar/math/ratio/02` (`$ContentBaseUrl`), titles are sent as
   `Arabic` (`$TitleLangKey`).
 - `-ParentUnitKey ''` restores the original behaviour (upsert this repo's `*_unit.json`).
+- Dry run 29.09.26: `created=21 updated=1 failed=0` (5 components + 16 items, plus the `LINKED`
+  line for `-03`'s `recommendedAfterFail`), one read-only `GET` on the parent unit.
 - **Not sent yet** (29.09.26). Before the live run, retrieve the Hebrew parent into
   `deployments/!kata-snapshots/<date>-before-ar` and copy any drifted non-text fields into
   `metadata/` (as done for ar-science-mass-measure-03).
