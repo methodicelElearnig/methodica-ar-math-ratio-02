@@ -22,7 +22,7 @@
   ב-localStorage, ואז תמונת מצב הייתה חלקית מעצם הגדרתה. ראו RESUME.md §3.
 
   שני דברים שנשארו ב-localStorage/sessionStorage הם **קאש נגזר**, לא מקור אמת:
-    • methodica_math_ratio_02_selectedCharacter / ratio02_c0N_scaled —
+    • methodica_ar_math_ratio_02_selectedCharacter / ratio02_c0N_scaled —
       applyUnitProfile מיישר אותם מהמסמך בכל טעינה, ולכן הזרקת המסמך לבדה
       מספיקה.
     • lomda_nav_edges::… — כפילות של doc.prev, וגם per-tab ולכן לא נגיש
@@ -277,19 +277,19 @@
 /* ═══════════════════ קבועים שנגזרים מהיחידה ═══════════════════
    מסונכרנים ידנית מול הקוד. אי-התאמה כאן = ולידציה שמאשרת מסמך שהיחידה תזרוק. */
 var RESUME_STATE_VERSION = 5;                       // unit-js/40-resume.js
-var UNIT_SLUG   = 'methodica-math-ratio-02';
-var SLUG_RE     = /^methodica-math-ratio-02-0[1-5]$/;
+var UNIT_SLUG   = 'methodica-ar-math-ratio-02';
+var SLUG_RE     = /^methodica-ar-math-ratio-02-0[1-5]$/;
 
 /* ⚠️ RANGES, not counts — this unit numbers screens UNIT-WIDE 0..50 and each part
    owns a slice, instead of every part restarting at 0. So the legal value of
    parts[slug].currentScreen is [start..end], not 0..N-1. The five parts are the
    deck's five רכיבים; mirrored from each script.js's window.PART_CONFIG. */
 var SCREEN_RANGE = {
-  'methodica-math-ratio-02-01': [0, 13],
-  'methodica-math-ratio-02-02': [14, 20],
-  'methodica-math-ratio-02-03': [21, 29],
-  'methodica-math-ratio-02-04': [30, 37],
-  'methodica-math-ratio-02-05': [38, 50]
+  'methodica-ar-math-ratio-02-01': [0, 13],
+  'methodica-ar-math-ratio-02-02': [14, 20],
+  'methodica-ar-math-ratio-02-03': [21, 29],
+  'methodica-ar-math-ratio-02-04': [30, 37],
+  'methodica-ar-math-ratio-02-05': [38, 50]
 };
 
 /* CACHE_KEYS[0] MUST be the character key and the rest MUST be the score keys —
@@ -297,7 +297,7 @@ var SCREEN_RANGE = {
    RESULT_KEYS in unit-js/40-resume.js. All five components carry graded items in
    this unit, so all five score keys are present. */
 var CACHE_KEYS = [                                   // unit-js/40-resume.js
-  'methodica_math_ratio_02_selectedCharacter',
+  'methodica_ar_math_ratio_02_selectedCharacter',
   'ratio02_c01_scaled',
   'ratio02_c02_scaled',
   'ratio02_c03_scaled',

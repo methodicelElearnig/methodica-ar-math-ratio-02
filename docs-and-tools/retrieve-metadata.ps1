@@ -102,14 +102,14 @@ $LogFile = Join-Path $PSScriptRoot 'retrieve-metadata.log'
 # ── (2) PER-UNIT — usually fine as-is ───────────────────────────────────────
 # Which language to unwrap the unit's title object with:
 #   { "Hebrew": "מדידת מסה" } -> "מדידת מסה".
-$TitleLangKey = 'Hebrew'
+$TitleLangKey = 'Arabic'   # Arabic unit
 # Value written to each component's `manufacture`. KATA returns the provider's
 # display name ("מתודיקה"); the metadata files use the slug. Set to $null to pass
 # KATA's own value through instead.
 $Manufacture = 'methodica'
 # Fallback URL prefix for rebuilding `id` fields, used ONLY when no component
 # carries a hostedContentRef to derive the real prefix from (override with -IdBase).
-if (-not $IdBase) { $IdBase = 'https://lomdot.education.gov.il/metodica/720active/math/ratio/02' }
+if (-not $IdBase) { $IdBase = 'https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02' }   # Arabic unit
 
 # ── (3) OUTPUT FORMATTING — mirrors the hand-authored style of metadata/ ─────
 # An empty array is always `[]`. A non-empty array of primitives goes on one line

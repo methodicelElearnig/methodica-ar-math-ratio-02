@@ -1,6 +1,6 @@
 'use strict';
 /* ═══════════════════════════════════════════════════════════════════
-   methodica-math-ratio-02-03 — component 03 of 5 · deck slides 36-44
+   methodica-ar-math-ratio-02-03 — component 03 of 5 · deck slides 36-44
    תרגול בסיסי וסטנדרטי ב
 
    CONFIGURATION ONLY. Every behaviour is shared in ../unit-js/.
@@ -8,16 +8,16 @@
 
 window.PART_CONFIG = {
   start: 21, end: 29,
-  next: 'methodica-math-ratio-02-04',
-  prev: 'methodica-math-ratio-02-02'
+  next: 'methodica-ar-math-ratio-02-04',
+  prev: 'methodica-ar-math-ratio-02-02'
 };
 
 var PART_FIRST = window.PART_CONFIG.start;
 var PART_LAST  = window.PART_CONFIG.end;
 
-var XAPI_COMP_SLUG     = 'methodica-math-ratio-02-03';
+var XAPI_COMP_SLUG     = 'methodica-ar-math-ratio-02-03';
 var XAPI_COMP_ID       = XAPI_ID_PREFIX + XAPI_COMP_SLUG + '/';
-var XAPI_METADATA_FILE = '../metadata/methodica-math-ratio-02-03.json';
+var XAPI_METADATA_FILE = '../metadata/methodica-ar-math-ratio-02-03.json';
 
 /* screen -> [item suffix, page-within-item]; null = no catalogue item.
    ⚠️ THIS component's [start..end] only.

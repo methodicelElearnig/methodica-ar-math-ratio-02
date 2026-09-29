@@ -1,17 +1,17 @@
 'use strict';
 /* ═══════════════════ xAPI (720) — identity ═══════════════════
-   Shared by all five components of methodica-math-ratio-02. Loaded first; see unit-js/README.md.
+   Shared by all five components of methodica-ar-math-ratio-02. Loaded first; see unit-js/README.md.
 
    Canonical id prefix for this unit. Every id the lomda reports is built from it and must match
    metadata/*.json byte-for-byte, INCLUDING the trailing slashes that convention carries. */
-var XAPI_ID_PREFIX = 'https://lomdot.education.gov.il/metodica/720active/math/ratio/02/';
+var XAPI_ID_PREFIX = 'https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/';
 
 /* The unit id is the prefix PLUS the unit slug — it must equal metadata unit id exactly.
    (The prefix alone is only the folder; keying the unit on that resolved to "02".)
 
    ⚠️ NOT 'methodica-math-ratio-01-02'. That was this repo's slug until 2026-09-04 and it is
    byte-identical to ratio-01's COMPONENT 02 id, so it collides in Kata's uniqueKey space. */
-window.XAPI_UNIT_ID = XAPI_ID_PREFIX + 'methodica-math-ratio-02/';   // resume State document key
+window.XAPI_UNIT_ID = XAPI_ID_PREFIX + 'methodica-ar-math-ratio-02/';   // resume State document key
 
 /* Last path segment of a canonical id — the short slug the bug-report form records. */
 function shortId(u){ return String(u || '').replace(/\/+$/, '').split('/').pop(); }

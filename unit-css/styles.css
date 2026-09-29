@@ -1,6 +1,6 @@
 /* ═══ unit-css/styles.css ═══ */
 /* ═══════════════════════════════════════════════════════
-   methodica-math-ratio-02 — ONE stylesheet for the whole unit,
+   methodica-ar-math-ratio-02 — ONE stylesheet for the whole unit,
    vendored from the approved methodica-math-percent-02-01 engine.
    Canvas: 1280 × 710 px   (720 reference engine)
 
@@ -1755,7 +1755,7 @@ html, body {
 }
 
 /* ═══ unit.css ═══ */
-/* methodica-math-ratio-02 — unit-specific styles on top of the
+/* methodica-ar-math-ratio-02 — unit-specific styles on top of the
    vendored engine stylesheet (style.css). */
 
 /* S1 — battery chat card (built per the WhatsApp-style reference) */

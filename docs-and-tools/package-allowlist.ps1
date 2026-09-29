@@ -26,6 +26,12 @@
     repos. Keep it that way — if the two units ever diverge structurally, change the
     RULES below rather than forking the file.
 
+    ⚠️ methodica-ar-math-ratio-02 (the Arabic unit) DEVIATES in one rule: $ComponentGlob.
+    Its component folders are methodica-ar-math-ratio-02-0N, which the original
+    'methodica-math-*-[0-9][0-9]' does not match — every component file would be silently
+    excluded while build and verify, reading the same rule, both pass. The widened glob
+    matches the Hebrew folder names too, so it is safe to carry back (as in ar-ratio-01).
+
     It ships NO root files (rule set 28.09.26 for all 720 units; Documentation/
     reporting-and-resume/ADDING-REPORTING-AND-RESUME.md §5.2). Platforms launch every component
     by its own .../<component>/index.html link — Kata's hostedContentRef — so a unit-level entry
@@ -58,7 +64,7 @@ $UnitDirs = @{
 
 # Inside a component folder: these files, plus everything under assets/.
 $ComponentFiles = @('index.html', 'script.js', 'styles.css')
-$ComponentGlob  = 'methodica-math-*-[0-9][0-9]'
+$ComponentGlob  = 'methodica-*-[0-9][0-9]'   # methodica-math-… and methodica-ar-math-… (see .NOTES)
 
 # ── Hygiene: if any of these turn up INSIDE a package, it is unsafe to upload ──
 $SecretPatterns = @('*key*', '*.ps1', '*.log', 'index_dev.html', 'README.md', '.git*', '_*')

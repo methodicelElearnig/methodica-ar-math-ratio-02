@@ -1,8 +1,8 @@
-/* methodica-math-ratio-02 — engine vendored from ratio-01-01
+/* methodica-ar-math-ratio-02 — engine vendored from ratio-01-01
    (percent-02 lineage, approved behaviors). Built maven-first. */
 
 window.lomdaState = { selectedCharacter: null };
-const CHARACTER_STORAGE_KEY = 'methodica_math_ratio_02_selectedCharacter';
+const CHARACTER_STORAGE_KEY = 'methodica_ar_math_ratio_02_selectedCharacter';
 /* 08.09 producer: the finale screen (was 51) is removed; s50 now ends the unit. */
 const TOTAL_SCREENS = 51; // slides 2-63: learning, guided, practice A/B/C, advanced, peak question
 let currentScreen = window.PART_CONFIG ? window.PART_CONFIG.start : 0;   /* a component opens on ITS first screen; the markup marks that one active */
@@ -761,8 +761,8 @@ function stationState(setKey, idx) {
    The gate is a HARD stop: no message, no retry — the answers are already revealed on screen by the
    time a set is resolved, so a retry would be nothing but a second look at them. The component
    reports itself 'completed' and ENDS here, and the PLATFORM routes on that statement:
-   metadata/methodica-math-ratio-02-03.json carries recommendedAfterFail:
-   ["methodica-math-ratio-02-01"], the only non-empty one in the unit. That is exactly the contract
+   metadata/methodica-ar-math-ratio-02-03.json carries recommendedAfterFail:
+   ["methodica-ar-math-ratio-02-01"], the only non-empty one in the unit. That is exactly the contract
    leaveToPart() honours at the component's forward edge; this is a SECOND, earlier forward edge for
    a learner who did not clear the set.
 
@@ -1628,8 +1628,8 @@ function submitReport() {
   if (errEl) errEl.setAttribute('hidden', '');
   var now  = new Date();
   var meta = window.METADATA || {
-    learningUnitId: 'methodica-math-ratio-02',
-    id: 'methodica-math-ratio-02',
+    learningUnitId: 'methodica-ar-math-ratio-02',
+    id: 'methodica-ar-math-ratio-02',
   };
   var body = new URLSearchParams();
   body.append('entry.301404029_year',  now.getFullYear());
@@ -2351,11 +2351,11 @@ function partResult() {
    so ?resetState clears their localStorage mirrors too. If they drift, a reset document sits
    beside a stale cache. */
 var UNIT_SCORE_KEYS = {
-  'methodica-math-ratio-02-01': 'ratio02_c01_scaled',
-  'methodica-math-ratio-02-02': 'ratio02_c02_scaled',
-  'methodica-math-ratio-02-03': 'ratio02_c03_scaled',
-  'methodica-math-ratio-02-04': 'ratio02_c04_scaled',
-  'methodica-math-ratio-02-05': 'ratio02_c05_scaled'
+  'methodica-ar-math-ratio-02-01': 'ratio02_c01_scaled',
+  'methodica-ar-math-ratio-02-02': 'ratio02_c02_scaled',
+  'methodica-ar-math-ratio-02-03': 'ratio02_c03_scaled',
+  'methodica-ar-math-ratio-02-04': 'ratio02_c04_scaled',
+  'methodica-ar-math-ratio-02-05': 'ratio02_c05_scaled'
 };
 
 function recordPartResult(res) {

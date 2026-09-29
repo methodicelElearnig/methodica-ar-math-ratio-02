@@ -1,6 +1,6 @@
 'use strict';
 /* ═══════════════════════════════════════════════════════════════════
-   methodica-math-ratio-02-01 — component 01 of 5 · deck slides 3-26
+   methodica-ar-math-ratio-02-01 — component 01 of 5 · deck slides 3-26
    הקנייה ותרגול מונחה
 
    CONFIGURATION ONLY. Every behaviour is shared in ../unit-js/.
@@ -13,16 +13,16 @@
    null marks an edge of the unit. */
 window.PART_CONFIG = {
   start: 0, end: 13,
-  next: 'methodica-math-ratio-02-02',
+  next: 'methodica-ar-math-ratio-02-02',
   prev: null                                   // first component
 };
 
 var PART_FIRST = window.PART_CONFIG.start;     // read by ../unit-js/40-resume.js's comments/tools
 var PART_LAST  = window.PART_CONFIG.end;
 
-var XAPI_COMP_SLUG     = 'methodica-math-ratio-02-01';
+var XAPI_COMP_SLUG     = 'methodica-ar-math-ratio-02-01';
 var XAPI_COMP_ID       = XAPI_ID_PREFIX + XAPI_COMP_SLUG + '/';
-var XAPI_METADATA_FILE = '../metadata/methodica-math-ratio-02-01.json';
+var XAPI_METADATA_FILE = '../metadata/methodica-ar-math-ratio-02-01.json';
 
 /* screen -> [item suffix, page-within-item]; null = no catalogue item.
    ⚠️ Covers THIS component's [start..end] only, never 0..TOTAL_SCREENS-1. Screens are numbered
@@ -64,5 +64,5 @@ Object.keys(XAPI_EVAL_ITEMS).forEach(function (it) {
    'completed' in component 05: MOE v2.5/v2.7 define object as item or component only, and the
    platform derives unit state itself (README.md "The platform owns routing"). */
 function onXapiReady() {
-  loadUnitMetadata('../metadata/methodica-math-ratio-02_unit.json', function () {});
+  loadUnitMetadata('../metadata/methodica-ar-math-ratio-02_unit.json', function () {});
 }

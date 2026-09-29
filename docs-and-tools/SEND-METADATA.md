@@ -8,6 +8,29 @@ already exists or `POST` if it doesn't — so it's safe to run more than once.
 The script lives in `docs-and-tools/` and resolves `../metadata` by default, so it is
 run from the repo root.
 
+## This unit: Arabic components inside the existing Hebrew unit
+
+`methodica-ar-math-ratio-02` has **no unit of its own in KATA**. KATA binds a learning
+objective to exactly one unit (`409 "objective already bound to a unit (strict 1:1)"`, seen
+on ar-ratio-01, 2026-09-24), and the KATA team's instruction (2026-09-25) is to add the
+Arabic components to the existing Hebrew unit.
+
+So the script runs in **parent-unit mode** by default: `$ParentUnitKey =
+'methodica-math-ratio-02'` (the Hebrew unit; override with `-ParentUnitKey`).
+
+- The parent unit is **read-only**: one `GET` confirms it exists, then the 5 components
+  and 16 items are created under `/api/v1/content-units/methodica-math-ratio-02/components`.
+  No `POST` / `PATCH` ever goes to the unit — a `PATCH` would overwrite the Hebrew unit's
+  title, sectors and audience.
+- `metadata/methodica-ar-math-ratio-02_unit.json` is **not read or sent**; it stays in the
+  repo as a record of the unit's own metadata.
+- Content is served from `/720/ar/math/ratio/02` (`$ContentBaseUrl`), titles are sent as
+  `Arabic` (`$TitleLangKey`).
+- `-ParentUnitKey ''` restores the original behaviour (upsert this repo's `*_unit.json`).
+- **Not sent yet** (29.09.26). Before the live run, retrieve the Hebrew parent into
+  `deployments/!kata-snapshots/<date>-before-ar` and copy any drifted non-text fields into
+  `metadata/` (as done for ar-science-mass-measure-03).
+
 ## Requirements
 
 - **PowerShell 7+** (`pwsh`). The script declares `#Requires -Version 7.0` and will

@@ -24,7 +24,7 @@ const path = require('path');
 const { JSDOM } = require('jsdom');
 
 const BASE = process.argv[2] || path.join(__dirname, '..');
-const UNIT = 'methodica-math-ratio-02';
+const UNIT = 'methodica-ar-math-ratio-02';
 const PART_DIR = c => UNIT + '-' + c;
 
 const failures = [];
@@ -152,8 +152,8 @@ function twoQuestionItem() {
   const s = b.stmts();
   eq('item', 'leaving the item closes it, then opens the next',
     s.map(label), ['answered q1', 'answered.last q2',
-                   'completed methodica-math-ratio-02-02-001',
-                   'initialized methodica-math-ratio-02-02-002']);
+                   'completed methodica-ar-math-ratio-02-02-001',
+                   'initialized methodica-ar-math-ratio-02-02-002']);
   const done = s.find(x => x.verb === 'completed');
   ok('item', 'the item completed claims expectsAnswer', done.opts.expectsAnswer === true,
     JSON.stringify(done.opts));
@@ -425,7 +425,7 @@ function crossPartSeam() {
   ok('seam', 'production: the document is this part\'s, with no landing pointer / parts / prev (v6)',
     doc.component === PART_DIR('02') && !('part' in doc) && !('parts' in doc) && !('prev' in doc), JSON.stringify(doc));
   ok('seam', 'production: no back edge was recorded',
-    b.val("sessionStorage.getItem('lomda_nav_edges::methodica-math-ratio-02')") === null, String(b.val("sessionStorage.getItem('lomda_nav_edges::methodica-math-ratio-02')")));
+    b.val("sessionStorage.getItem('lomda_nav_edges::methodica-ar-math-ratio-02')") === null, String(b.val("sessionStorage.getItem('lomda_nav_edges::methodica-ar-math-ratio-02')")));
   ok('seam', 'production: the last screen\'s button is disabled after the report',
     b.val("document.getElementById('s20-check').disabled") === true &&
     b.val("document.getElementById('s20-check').getAttribute('aria-disabled')") === 'true');
@@ -447,8 +447,8 @@ function crossPartSeam() {
   ok('seam', 'dev: this part\'s document was saved before the hop — its own payload, no pointer fields (v6)',
     dd.component === PART_DIR('02') && dd.payload && !('part' in dd) && !('parts' in dd) && !('prev' in dd), JSON.stringify(dd));
   ok('seam', 'dev: the back edge into 03 records this part (sessionStorage edge map)',
-    (function () { try { return JSON.parse(d.val("sessionStorage.getItem('lomda_nav_edges::methodica-math-ratio-02')"))[PART_DIR('03')].from === PART_DIR('02'); } catch (e) { return false; } })(),
-    String(d.val("sessionStorage.getItem('lomda_nav_edges::methodica-math-ratio-02')")));
+    (function () { try { return JSON.parse(d.val("sessionStorage.getItem('lomda_nav_edges::methodica-ar-math-ratio-02')"))[PART_DIR('03')].from === PART_DIR('02'); } catch (e) { return false; } })(),
+    String(d.val("sessionStorage.getItem('lomda_nav_edges::methodica-ar-math-ratio-02')")));
   d.dom.window.close();
 
   /* The finale: component 05's "סיימתי" reports the component — only. */
@@ -476,7 +476,7 @@ function crossPartSeam() {
    advanceScreen() only asked whether a screen was DONE, and mcqFinish()/s24's finish() set done on
    the second WRONG attempt too, so one correct answer of three walked the learner into s25's
    "יופי של עבודה!" (MOE tester, 17.09). The gate stops the component instead, and the PLATFORM
-   routes on the 'completed' — metadata recommendedAfterFail: ["methodica-math-ratio-02-01"].
+   routes on the 'completed' — metadata recommendedAfterFail: ["methodica-ar-math-ratio-02-01"].
 
    What this suite is really guarding is the two reload cases at the bottom. A gate that only works
    until the learner refreshes is the original bug with a longer reproduction. */

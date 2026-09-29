@@ -5,7 +5,7 @@
 
    Per-part seams read at CALL time (each component's own script.js declares them):
      SCREEN_TO_SUBCONTENT   screen -> [item suffix, page-in-item]; null = no catalog item
-     XAPI_COMP_SLUG         e.g. 'methodica-math-ratio-02-02'
+     XAPI_COMP_SLUG         e.g. 'methodica-ar-math-ratio-02-02'
      XAPI_COMP_ID           XAPI_ID_PREFIX + XAPI_COMP_SLUG + '/'
      XAPI_EVAL_ITEMS        items that carry a graded question IN CODE
      XAPI_ITEM_RESULT       optional; item suffix -> function returning an explicit result
@@ -67,7 +67,7 @@ var xapiCurrentItem = null;
 /* An explicit result for an item's 'completed', when the library's all-correct AND is wrong for
    it. Every component here builds XAPI_ITEM_RESULT from its own XAPI_EVAL_ITEMS, so every graded
    item supplies one, and this returns null for an item that is not graded — in this unit that is
-   methodica-math-ratio-02-01-003, the guided worked example (see unit-js/README.md). */
+   methodica-ar-math-ratio-02-01-003, the guided worked example (see unit-js/README.md). */
 function xapiItemResult(item){
   var map = (typeof XAPI_ITEM_RESULT !== 'undefined') ? XAPI_ITEM_RESULT : null;
   var f = map && map[item];

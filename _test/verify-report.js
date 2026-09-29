@@ -41,7 +41,7 @@ const path = require('path');
 const { JSDOM } = require('jsdom');
 
 const BASE = process.argv[2] || path.join(__dirname, '..');
-const UNIT = 'methodica-math-ratio-02';
+const UNIT = 'methodica-ar-math-ratio-02';
 const COMPONENTS = ['01', '02', '03', '04', '05'];
 const PART_DIR = c => UNIT + '-' + c;
 const TOTAL_SCREENS = 51;
@@ -290,7 +290,7 @@ function checkNoCollisions() {
 function checkConfigAgainstMetadata() {
   const unit = readJSON(path.join(BASE, 'metadata', UNIT + '_unit.json'));
   ok('meta', 'unit id ends with the unit slug and a trailing slash',
-    /\/methodica-math-ratio-02\/$/.test(unit.id), unit.id);
+    /\/methodica-ar-math-ratio-02\/$/.test(unit.id), unit.id);
   ok('meta', 'unit id is NOT ratio-01\'s component-02 id',
     unit.id.indexOf('methodica-math-ratio-01-02') === -1,
     'that string is byte-identical to ratio-01 component 02 and collides in Kata uniqueKey space');
@@ -544,7 +544,7 @@ function checkReportLayer() {
     /docs\.google\.com\/forms\/d\/e\/[\w-]+\/formResponse/.test(String(val('REPORT_FORM_ACTION'))),
     'one form serves all of 720 by the content owner\'s decision of 2026-08-13');
   ok('report', 'shortId trims the trailing slash',
-    val('shortId("https://x/y/methodica-math-ratio-02-01/")') === 'methodica-math-ratio-02-01',
+    val('shortId("https://x/y/methodica-ar-math-ratio-02-01/")') === 'methodica-ar-math-ratio-02-01',
     'every id in metadata/ ends in "/", so a shortId without the trim returns ""');
   for (const c of COMPONENTS) {
     const html = fs.readFileSync(path.join(BASE, PART_DIR(c), 'index.html'), 'utf8');
@@ -828,7 +828,7 @@ function checkPerComponentState() {
     return { w, exec, val, seed, stored, slug: PART_DIR(c), close: () => dom.window.close() };
   };
   const q = (r, extra) => '?slxapi=1&registration=' + r + (extra || '');
-  const CK = 'methodica_math_ratio_02_selectedCharacter';
+  const CK = 'methodica_ar_math_ratio_02_selectedCharacter';
 
   // ── shape ──
   let b = bootS('01', q('r1'));
