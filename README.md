@@ -12,8 +12,9 @@ for the Hebrew unit; where it names Hebrew text, the Arabic unit shows the trans
   `https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/`, storage keys with `-ar`
   (`unit-js/10-identity.js`, `unit-js/40-resume.js`). Content is served from `/720/ar/math/ratio/02`.
 - **Kata:** there is no Arabic unit. `send-metadata.ps1` adds the five components to the Hebrew
-  unit `methodica-math-ratio-02` in parent-unit mode. See `docs-and-tools/SEND-METADATA.md`.
-- **Metadata:** `metadata/` is the Hebrew metadata with Arabic text; the supplier's
+  unit `methodica-math-ratio-02` in parent-unit mode. **Sent 29.09.26** (draft). Retrieve with the
+  Hebrew key. See `docs-and-tools/SEND-METADATA.md`.
+- **Metadata:** `metadata/` is the live Hebrew Kata record with Arabic text; the supplier's
   `metadata-ar/` is kept as delivered and not shipped. See
   `docs-and-tools/ar-metadata/AR-METADATA-REPORT.md`.
 - **Review edits:** the translation pass added hint pills on 01 s16/s29 (reverted to Hebrew) and

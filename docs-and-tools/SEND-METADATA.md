@@ -29,9 +29,13 @@ So the script runs in **parent-unit mode** by default: `$ParentUnitKey =
 - `-ParentUnitKey ''` restores the original behaviour (upsert this repo's `*_unit.json`).
 - Dry run 29.09.26: `created=21 updated=1 failed=0` (5 components + 16 items, plus the `LINKED`
   line for `-03`'s `recommendedAfterFail`), one read-only `GET` on the parent unit.
-- **Not sent yet** (29.09.26). Before the live run, retrieve the Hebrew parent into
-  `deployments/!kata-snapshots/<date>-before-ar` and copy any drifted non-text fields into
-  `metadata/` (as done for ar-science-mass-measure-03).
+- **Sent 29.09.26** from `0a368d9`: live `created=21 updated=1 failed=0`, re-send `created=0
+  updated=22 failed=0`. The Hebrew records were byte-identical before and after (only
+  `componentCount` 5 → 10). The 5 Arabic components are `draft`. Record and snapshots:
+  `../../deployments/!kata-snapshots/KATA-SEND-2026-09-29.md`.
+- Before any re-send, retrieve the **mixed** unit with the Hebrew key
+  (`retrieve-metadata.ps1 -UnitKey methodica-math-ratio-02 -KeepRaw -OutDir …`). The Arabic
+  `metadata/` follows the live Hebrew records (see `ar-metadata/AR-METADATA-REPORT.md`).
 
 ## Requirements
 
