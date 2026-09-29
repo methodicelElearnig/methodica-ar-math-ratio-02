@@ -16,9 +16,9 @@ for the Hebrew unit; where it names Hebrew text, the Arabic unit shows the trans
 - **Metadata:** `metadata/` is the Hebrew metadata with Arabic text; the supplier's
   `metadata-ar/` is kept as delivered and not shipped. See
   `docs-and-tools/ar-metadata/AR-METADATA-REPORT.md`.
-- **Reverted review edits:** the translation pass moved two bottom-bar buttons and added hint
-  pills; both were reverted to Hebrew, restorable by one `git revert` each. See
-  `docs-and-tools/AR-REVIEW-REVERTS.md`.
+- **Review edits:** the translation pass added hint pills on 01 s16/s29 (reverted to Hebrew) and
+  moved the bottom-bar hint / answers buttons (kept: the Hebrew positions do not fit the Arabic
+  labels). See `docs-and-tools/AR-REVIEW-REVERTS.md`.
 - **Open:** three images in part 05 still carry Hebrew text (`ticket-booth.jpg`, `concert-1.jpg`,
   `concert-6.jpg`); videos and character PNGs not checked for Hebrew; native Arabic review.
 

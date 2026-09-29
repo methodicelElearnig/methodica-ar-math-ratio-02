@@ -6,10 +6,10 @@ functionality and layout identical to the Hebrew `methodica-math-ratio-02`.
 These changes were therefore reverted, each in its own commit so that any one
 can be brought back with a single `git revert <sha>`.
 
-| # | What | Revert commit | To restore |
-|---|------|---------------|------------|
-| 1 | Hint pills in part 01, s16 and s29 | `f968385` | `git revert f968385` |
-| 2 | Bottom-bar hint / answers-toggle positions (shared CSS) | `4532c36` | `git revert 4532c36` |
+| # | What | Revert commit | Status |
+|---|------|---------------|--------|
+| 1 | Hint pills in part 01, s16 and s29 | `f968385` | **reverted** — to restore: `git revert f968385` |
+| 2 | Bottom-bar hint / answers-toggle positions (shared CSS) | `4532c36` | **restored** in `f3a5e0f` (the Hebrew values do not fit the Arabic labels, see §2) |
 
 ## 1. Hint pills in part 01 (s16, s29)
 
@@ -43,14 +43,26 @@ Now:
 The review swapped the hint pill and the "answers" toggle in the bottom bar and
 let the hint-close button grow. Shared by all five parts.
 
-| Rule | Review value | Hebrew value (now) |
-|------|--------------|--------------------|
+| Rule | Review value (now) | Hebrew value |
+|------|--------------------|--------------|
 | `.scq-hint` | `left: 245px` | `left: 180px` |
 | `.answers-toggle` | `left: 185px` | `left: 336px` |
 | `.scq-hint-close` | `min-width: 196px` + `display:flex; align-items:center; justify-content:center` | `width: 196px` |
 
-Why reverted: parity with Hebrew layout. If the Arabic labels turn out not to fit
-the Hebrew positions in the browser check, restore this commit rather than
-re-editing by hand.
+Reverted in `4532c36` for parity, then **restored in `f3a5e0f`** after the browser check
+(29.09.26, part 03 s22, app scaled 0.8, px as rendered):
 
-After this revert `unit-css/styles.css` is byte-identical to the Hebrew unit's.
+| State | Hebrew CSS | Review CSS |
+|---|---|---|
+| Before answering: check button `هل إجابتي صحيحة؟` 19–209 | hint pill 144–304 covers most of it (only `ابتي صحيحة؟` shows; a click there hits the hint) | hint 196–356, check fully visible |
+| After answering: `متابعة` 19–131 + answers toggle | toggle 269–421, clear | toggle 148–300, clear |
+| Hint popup close `العودة إلى السؤال` | 216px of text in a fixed 196px button — overflows | button 256px, fits |
+
+The Arabic labels are wider than `צדקתי?` / `אפשר רמז?` / `חזרה לשאלה`, so the Hebrew
+positions cannot hold them. The layout differs from Hebrew only in these three rules;
+`unit-css/styles.css` is otherwise identical to the Hebrew unit's (plus comment slugs).
+
+Note for the Arabic review: the check button starts as `هل كنت على حق?` (34 places in the
+five `index.html`, with a Latin `?`) and `unit-js/main.js:229` / `:953` reset it to
+`هل إجابتي صحيحة؟` on retry / re-entry. In Hebrew both are `צדקתי?`. One wording should be chosen;
+the positions above were measured with the longer one.

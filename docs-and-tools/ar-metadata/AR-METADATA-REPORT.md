@@ -72,7 +72,7 @@ Choices between two lomda spellings:
 ## Arabic lomda text notes (visible, not changed — native review)
 
 - s1: **غال** in the chat bubble vs **جال** on the answer button.
-- The check button reads `هل كنت على حق?`, with a Latin `?` instead of `؟`.
+- The check button reads `هل كنت على حق?` (Latin `?`) in the HTML but `هل إجابتي صحيحة؟` after a retry (`main.js:229`, `:953`); Hebrew uses `צדקתי?` for both.
 - Hebrew prefix hyphens copied into the Arabic: `و-180` (05 s45), `و-140°`, `و-20` (main.js).
 - s21 `أجب` (singular) where the rest of the unit addresses the learner in the plural (`أجيبوا`).
 - Ratios are typeset `a: b`; the Hebrew uses `a : b` (display only; order is safe inside `dir="ltr"`).
