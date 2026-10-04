@@ -23,6 +23,13 @@ function xapiAnswerText(el){
   var c = el.cloneNode(true);
   var drop = c.querySelectorAll('.scq-info, .scq-tooltip, .s5-opt-info, .opt-tooltip');
   for (var i = 0; i < drop.length; i++) { drop[i].remove(); }
+  /* QA 2026-10-02 F-2: a stacked fraction (.frac > .frac-num + .frac-den) draws its bar as a CSS
+     border, so textContent read 2/3 as "23". Write it back as num/den. */
+  var fr = c.querySelectorAll('.frac');
+  for (var j = 0; j < fr.length; j++) {
+    var num = fr[j].querySelector('.frac-num'), den = fr[j].querySelector('.frac-den');
+    if (num && den) fr[j].textContent = ' ' + num.textContent.trim() + '/' + den.textContent.trim() + ' ';
+  }
   return c.textContent.replace(/\s+/g, ' ').trim();
 }
 

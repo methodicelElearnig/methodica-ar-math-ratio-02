@@ -652,6 +652,18 @@ function backThroughUnanswered() {
   eq('b1', 'once answered, leaving 002 sends its completed exactly once', done.length, 1);
 }
 
+/* ══════════════ F-2 (QA 2026-10-02): a fraction answer keeps its slash ══════════════
+   02 s17 options b and c carry stacked fractions (the bar is a CSS border), so the reported text read
+   "14" / "45" for 1/4 and 4/5. */
+function f2FractionText() {
+  const b = boot('02');
+  const tb = b.val('xapiAnswerText(document.querySelector(\'#s17 .scq-opt[data-id="b"]\'))');
+  const tc = b.val('xapiAnswerText(document.querySelector(\'#s17 .scq-opt[data-id="c"]\'))');
+  ok('F-2', '02 s17 option b is reported with 1/4', typeof tb === 'string' && tb.indexOf('1/4') !== -1, tb);
+  ok('F-2', '02 s17 option c is reported with 4/5', typeof tc === 'string' && tc.indexOf('4/5') !== -1, tc);
+  b.dom.window.close();
+}
+
 const SUITES = [
   ['fresh load', freshLoad],
   ['a two-question item', twoQuestionItem],
@@ -665,6 +677,7 @@ const SUITES = [
   ['the cross-part seam', crossPartSeam],
   ['the set-B gate', setBGate],
   ['B-1: Back through an unanswered item', backThroughUnanswered],
+  ['F-2: a fraction answer keeps its slash', f2FractionText],
 ];
 
 for (const [name, fn] of SUITES) {
