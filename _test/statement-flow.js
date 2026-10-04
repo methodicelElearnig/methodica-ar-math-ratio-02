@@ -634,6 +634,24 @@ function setBGate() {
 
 /* ══════════════ run ══════════════ */
 
+/* ══════════════ B-1 (QA 2026-10-02): Back through an unanswered item ══════════════
+   Live (ar-math-ratio-02 01): S3 (item 002) left unanswered with Back to S2. The library dropped
+   002's 'completed' (no 'answered' yet) while the ledger marked it sent, so the real one after the
+   learner answered was suppressed forever. The close must send nothing and mark nothing. */
+function backThroughUnanswered() {
+  const b = boot('01');
+  b.finishBoot();
+  b.exec('goTo(1); goTo(2); goTo(3);');
+  const n0 = b.stmts().length;
+  b.exec('goTo(2);');
+  const back = b.stmts().slice(n0);
+  ok('b1', 'Back S3 → S2 from unanswered 002 sends no completed', !back.some(s => s.verb === 'completed'), back.map(label).join(', '));
+  eq('b1', '…and leaves 002 out of the ledger', b.val("alreadySent('doneItems', itemLedgerKey('002'))"), false);
+  b.exec("goTo(3); xapiAnswered('002', 'q1', true, true, 'x'); goTo(4);");
+  const done = b.stmts().filter(s => s.verb === 'completed' && /-002\/?$/.test(String(s.opts && s.opts.objectId)));
+  eq('b1', 'once answered, leaving 002 sends its completed exactly once', done.length, 1);
+}
+
 const SUITES = [
   ['fresh load', freshLoad],
   ['a two-question item', twoQuestionItem],
@@ -646,6 +664,7 @@ const SUITES = [
   ['reporting off is off', reportingOff],
   ['the cross-part seam', crossPartSeam],
   ['the set-B gate', setBGate],
+  ['B-1: Back through an unanswered item', backThroughUnanswered],
 ];
 
 for (const [name, fn] of SUITES) {
