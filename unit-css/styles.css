@@ -1122,7 +1122,10 @@ html, body {
    ═══════════════════════════════════════════════════════ */
 .scq-hint {
   position: absolute;
-  bottom: 17px; left: 245px;
+  /* left = the check button's left (24) + its widest Arabic label, "هل إجابتي صحيحة؟" (237 px
+     wide), + the 16 px gap Hebrew has. At 245 the two overlapped by 16 px on every question
+     screen (MOE 05.10: "הכפתור רמז עולה על כפתור המשך"). */
+  bottom: 17px; left: 277px;
   z-index: 12;
   height: 40px; box-sizing: border-box;   /* Figma 1731:45026 — same pill as continue */
   min-width: 140px;
