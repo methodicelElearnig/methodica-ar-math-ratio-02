@@ -2299,22 +2299,6 @@ html, body {
 #s19 .scq-img--mid img, #s20 .scq-img--mid img { height: 470px; width: auto; max-width: none; }
 
 
-/* ── the answers/my-answers switch on a finished multi-select (deck slide 22).
-   Sits in the bottom bar beside the hint pill, in the same pill shape. ── */
-.answers-toggle {
-  position: absolute;
-  bottom: 17px; left: 185px;
-  z-index: 12;
-  height: 40px; box-sizing: border-box;
-  min-width: 190px; padding: 0 20px;
-  background: #fff; border: 1px solid var(--subject-700); border-radius: 1000px;
-  color: var(--subject-500);
-  font-family: 'Assistant', sans-serif; font-size: 20px; font-weight: 400;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; direction: rtl;
-}
-.answers-toggle.hidden { display: none; }
-
 /* the "no hint on this question" note is the deck's own aside, not fine print */
 .note-standalone {
   margin: 6px 0 0;

@@ -713,6 +713,7 @@ function gstepSelect(sid, id) {
     o.disabled = true;
   });
   st.answered = true;
+  st.picked = id;   /* for the painter: a wrong pick keeps its red mark after a resume */
   const cont = document.getElementById(sid + '-continue');
   if (cont) cont.disabled = false;
 }
@@ -850,25 +851,9 @@ function mcqToggle(q, id) {
   mcqUpdateBar(q);
 }
 
-/* After a multi-select is answered the screen shows the RIGHT answers; this
-   switches to what the learner marked and back, so they can compare the two
-   (producer 03.09, deck slide 22). */
-function mcqToggleView(sid) {
-  const q = MCQ[sid];
-  if (!q || !q.answered) return;
-  q.view = q.view === 'correct' ? 'mine' : 'correct';
-  const sel = '#' + q.id + ' ' + (q.optSelector || '.scq-opt');
-  document.querySelectorAll(sel).forEach(o => o.classList.remove('correct', 'wrong', 'selected'));
-  if (q.view === 'correct') {
-    q.correctIds.forEach(id => mcqMark(q, id, 'correct'));
-  } else {
-    (q.learnerPicks || new Set()).forEach(id =>
-      mcqMark(q, id, q.correctIds.has(id) ? 'correct' : 'wrong'));
-  }
-  const tog = document.getElementById(sid + '-answers-toggle');
-  if (tog) tog.textContent = q.view === 'correct' ? 'عرض إجاباتي' : 'عرض الإجابات الصحيحة';
-}
-
+/* A finished multi-select shows the right answers plus the learner's wrong picks (mcqCheck's final
+   branch). There is no "my answers / right answers" switch: multi-select questions don't have one
+   (team head, 07.10.26 — MOE monday 05.10 on ar 02-03 asked why it showed). */
 function mcqShowPopup(q, type) {
   const popup = document.getElementById(q.id + '-popup');
   if (!popup) return;
@@ -921,9 +906,6 @@ function mcqFinish(q) {
   q.done = true;
   /* keep what the learner actually picked, so the two views can be compared */
   q.learnerPicks = new Set(q.selected);
-  q.view = 'correct';
-  const tog = document.getElementById(q.id + '-answers-toggle');
-  if (tog) tog.classList.remove('hidden');
   document.querySelectorAll('#' + q.id + ' ' + (q.optSelector || '.scq-opt')).forEach(o => { o.disabled = true; });
   const chk = document.getElementById(q.id + '-check');
   if (chk) { setNavLabel(chk, 'متابعة'); chk.disabled = false; }
@@ -1362,6 +1344,13 @@ function restoreFeedback(sid) {
     showPopup(sid, q._popup.bg, q._popup.title, q._popup.body);
     return;
   }
+  /* showPopup() remembers a popup only for the Q engine, so on these screens "חזרה" brought the
+     answer marks back but not the feedback (single-choice SCQ screens and the hand-built ones).
+     Their painters rebuild exactly what the check left — DOM only, idempotent, and a no-op on an
+     unfinished screen — the same code a resume uses. */
+  const paint = { s1: paintS1, s15: paintS15, s19: paintS19, s20: paintS20, s24: paintS24 }[sid];
+  if (paint) { paint(); return; }
+  if (SCQ && SCQ[sid] && SCQ[sid].done) { paintSCQ(sid); return; }
   const mq = MCQ[sid];
   if (mq && mq.answered && mq._popup) mcqShowPopup(mq, mq._popup);
   const sq = SCQ && SCQ[sid];
@@ -1817,7 +1806,8 @@ function capturePartPayload() {
     vars:   {}
   };
 
-  Object.keys(GSTEPS).forEach(function (k) { st.gsteps[k] = !!GSTEPS[k].answered; });
+  /* the pick id when answered (older documents carry true) */
+  Object.keys(GSTEPS).forEach(function (k) { st.gsteps[k] = GSTEPS[k].answered ? (GSTEPS[k].picked || true) : false; });
 
   Object.keys(MCQ).forEach(function (k) {
     var m = MCQ[k];
@@ -1827,7 +1817,6 @@ function capturePartPayload() {
       attempts:     m.attempts,
       answered:     !!m.answered,
       done:         !!m.done,
-      view:         m.view || null,
       lastWrong:    m.lastWrong || null,
       _popup:       m._popup || null
     };
@@ -1888,7 +1877,9 @@ function applyResumeVars(st) {
 
   if (st.gsteps) {
     Object.keys(st.gsteps).forEach(function (k) {
-      if (GSTEPS[k]) GSTEPS[k].answered = !!st.gsteps[k];
+      if (!GSTEPS[k]) return;
+      GSTEPS[k].answered = !!st.gsteps[k];
+      if (typeof st.gsteps[k] === 'string') GSTEPS[k].picked = st.gsteps[k];
     });
   }
 
@@ -1901,7 +1892,6 @@ function applyResumeVars(st) {
       MCQ[k].attempts     = s.attempts || 0;
       MCQ[k].answered     = !!s.answered;
       MCQ[k].done         = !!s.done;
-      MCQ[k].view         = s.view || 'correct';
       MCQ[k].lastWrong    = s.lastWrong || null;
       MCQ[k]._popup       = s._popup || null;
     });
@@ -2089,6 +2079,8 @@ function paintGStep(sid) {
   document.querySelectorAll('#' + sid + ' .s19-opt').forEach(function (o) {
     o.disabled = true;
     if (o.dataset.id === stp.correctId) o.classList.add('correct');
+    else if (stp.picked && o.dataset.id === stp.picked) o.classList.add('incorrect');
+    if (stp.picked) o.setAttribute('aria-checked', o.dataset.id === stp.picked ? 'true' : 'false');
   });
   var cont = document.getElementById(sid + '-continue');
   if (cont) cont.disabled = false;
@@ -2110,7 +2102,7 @@ function paintS15() {
   });
   _lock('#s15 .saq-pill');
   showPopup('s15', reveal ? '#ffdbdc' : '#edf8ed',
-            reveal ? 'هذا غير دقيق، هيا نفهم لماذا.' : 'أحسنتم!', S15_BODY);
+            reveal ? 'هذا غير دقيق، الإجابة الصحيحة معروضة،<br>هيا نفهم لماذا:' : 'أحسنتم!', S15_BODY);
   _doneButton('s15');
   if (QPROG.s15) renderQprog('s15');
 }
@@ -2180,19 +2172,12 @@ function paintMCQ(sid) {
     o.classList.remove('correct', 'wrong', 'selected');
     o.disabled = true;
   });
-  /* honour whichever view the learner had open when they left */
-  if (q.view === 'mine') {
-    (q.learnerPicks || new Set()).forEach(function (id) {
-      mcqMark(q, id, q.correctIds.has(id) ? 'correct' : 'wrong');
-    });
-  } else {
-    q.correctIds.forEach(function (id) { mcqMark(q, id, 'correct'); });
-  }
-  var tog = document.getElementById(sid + '-answers-toggle');
-  if (tog) {
-    tog.classList.remove('hidden');
-    tog.textContent = q.view === 'mine' ? 'عرض الإجابات الصحيحة' : 'عرض إجاباتي';
-  }
+  /* exactly what mcqCheck left on screen: the right answers, plus the learner's wrong picks
+     (a resume used to drop the red marks) */
+  q.correctIds.forEach(function (id) { mcqMark(q, id, 'correct'); });
+  (q.learnerPicks || new Set()).forEach(function (id) {
+    if (!q.correctIds.has(id)) mcqMark(q, id, 'wrong');
+  });
   if (q._popup) mcqShowPopup(q, q._popup);
   _doneButton(sid);
   if (QPROG[sid]) renderQprog(sid);

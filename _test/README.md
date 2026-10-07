@@ -132,3 +132,15 @@ answers does. Concretely, the suite exists to catch:
   deliberate act rather than a silent drift.
 - **`correctAnswers` in `metadata/`.** The runtime never reads them. Two are known wrong,
   inherited from the deck — see the root `README.md`, *Known content issues*.
+
+## `back-resume.js` — every question screen after "חזרה" and after a resume (2026-10-07)
+
+Real Chrome (puppeteer-core + local Chrome). Each question screen is answered through its own
+controls into its final state, snapshotted, left and re-entered through the next screen's real
+"חזרה" (a part's last screen: back one and forward), and restored into a fresh page with
+`applyExecutionState`; the three snapshots (visibility, classes, disabled, text, values, popup
+position and colour) must match. 27 of 35 passed before the 07.10 fix, 35 of 35 after.
+
+```bash
+NODE_PATH=/tmp/lomda-test/node_modules node _test/back-resume.js
+```
