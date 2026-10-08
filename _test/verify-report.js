@@ -575,6 +575,41 @@ function checkReportLayer() {
     /No video reporting in this unit, deliberately/.test(src));
 }
 
+/* ══════════════ 9b. The challenge's result (MOE 2026-10-08) ══════════════
+   Component 04 ("בואו נאתגר את עצמנו") reports its real score over the 5 questions metadata
+   declares (PART_SCORE_N), unanswered counting as wrong, and success only at >= 0.6. The other
+   components keep their answered-only denominator. */
+
+function checkChallengeResult() {
+  const res = 'JSON.stringify((function(){ var r = partResult(); return r && [r.success, r.score.scaled]; })())';
+  const set = (pairs) => 'Object.keys(XAPI_Q_RESULTS).forEach(function (k) { delete XAPI_Q_RESULTS[k]; });' +
+    'Object.assign(XAPI_Q_RESULTS, ' + JSON.stringify(pairs) + ');';
+  const all = ['001/q1', '001/q2', '002/q1', '003/q1', '003/q2'];
+  const first = (n, ok) => Object.fromEntries(all.slice(0, n).map(k => [k, ok]));
+  {
+    const { dom, val, exec } = loadComponent('04');
+    ok('result', '04: PART_SCORE_N is the 5 declared questions', val('PART_SCORE_N') === 5,
+      String(val('PART_SCORE_N')));
+    const out = [];
+    for (const pairs of [{}, first(2, true), Object.assign(first(5, false), first(2, true)),
+                         first(3, true), Object.assign(first(5, false), first(3, true)), first(5, true)]) {
+      exec(set(pairs)); out.push(val(res));
+    }
+    ok('result', '04 challenge: success only at >= 60% of 5, unanswered = wrong (0, 2 of 2 answered, 2/5 fail; 3 of 3 answered, 3/5, 5/5 pass)',
+      out.join(' ') === '[false,0] [false,0.4] [false,0.4] [true,0.6] [true,0.6] [true,1]', out.join(' '));
+    exec(set({}));
+    dom.window.close();
+  }
+  {
+    const { dom, val, exec } = loadComponent('02');
+    exec(set({ '001/q1': true }));
+    ok('result', '02: no PART_SCORE_N, its result is still over the answered questions',
+      val('typeof PART_SCORE_N') === 'undefined' && val(res) === '[true,1]', val(res));
+    exec(set({}));
+    dom.window.close();
+  }
+}
+
 /* ══════════════ 10. The asset contract ══════════════
    Every failure mode in this section is SILENT in a browser. A missing font renders
    in a fallback face that looks plausible; a missing <img> renders as nothing at all.
@@ -1173,6 +1208,7 @@ const SUITES = [
   ['boot cover', checkBootCover],
   ['flush on commit', checkFlushOnCommit],
   ['report layer', checkReportLayer],
+  ['the challenge result', checkChallengeResult],
   ['asset contract', checkAssetContract],
   ['docs resolve', checkDocLinks],
 ];

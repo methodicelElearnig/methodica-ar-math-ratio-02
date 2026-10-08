@@ -35,6 +35,11 @@ var SCREEN_TO_SUBCONTENT = {
 
 var XAPI_EVAL_ITEMS = { '001': 1, '002': 1, '003': 1 };
 
+/* The challenge's result is over the 5 questions metadata declares (001 q1+q2, 002 q1, 003 q1+q2);
+   unanswered counts as wrong — read by partResult() in ../unit-js/main.js.
+   MOE 2026-10-08: real score, success only ≥60%, no gate, nothing shown. */
+var PART_SCORE_N = 5;
+
 var XAPI_ITEM_RESULT = {};
 Object.keys(XAPI_EVAL_ITEMS).forEach(function (it) {
   XAPI_ITEM_RESULT[it] = function () { return itemResultFor(it); };

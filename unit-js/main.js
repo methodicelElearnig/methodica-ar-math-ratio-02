@@ -2320,12 +2320,16 @@ function itemResultFor(item) {
   return { success: scaled >= XAPI_PASS, score: { scaled: scaled } };
 }
 
-/* This component's result, across every graded question it reported. */
+/* This component's result, across every graded question it reported.
+   A component whose script.js declares PART_SCORE_N (the challenge, -04) scores over those N
+   declared questions instead, so an unanswered one counts as wrong.
+   MOE 2026-10-08: real score, success only ≥60%, no gate, nothing shown. */
 function partResult() {
   var keys = Object.keys(XAPI_Q_RESULTS);
-  if (!keys.length) return null;
+  var n = (typeof PART_SCORE_N === 'number') ? PART_SCORE_N : keys.length;
+  if (!n) return null;
   var ok = keys.filter(function (k) { return XAPI_Q_RESULTS[k] === true; }).length;
-  var scaled = ok / keys.length;
+  var scaled = ok / n;
   return { success: scaled >= XAPI_PASS, score: { scaled: scaled } };
 }
 

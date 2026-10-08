@@ -83,7 +83,7 @@ that omits them is a unit with no stylesheet and no fonts. See `unit-js/README.m
 - `metadata/` — unit + per-component JSONs: 1 unit, 5 components, 16 items, 43 questions. Extracted
   from the deck and normalised to the shape live Kata accepts. ⚠️ **Not yet pushed** — see *Known
   content issues*.
-- `_test/` — headless regression harness, 1051 + 98 assertions across two suites. **Never shipped**,
+- `_test/` — headless regression harness, 1054 + 98 assertions across two suites. **Never shipped**,
   including its stub library — the allowlist excludes it twice over, by name and by the
   leading-underscore rule. See its README for what each suite covers, and
   [`Documentation/GITHUB-GH.md`](../../../Documentation/GITHUB-GH.md) for how to run them:
@@ -212,6 +212,17 @@ cases, and that the gate is *not* inside `leaveToPart`/`finishUnit`) and `_test/
 cases). The walks click the **real** buttons — a wrong attempt leaves the check button disabled
 until the answer changes, so the second attempt must pick a different wrong answer, and the harness
 records any click on a disabled target rather than walking through a door the UI keeps locked.
+
+### The challenge's result (MOE 2026-10-08)
+
+MOE decided with Maya that component 04 (the challenge, "בואו נאתגר את עצמנו") reports its real score:
+`score.scaled = correct / 5` over the 5 questions its metadata declares (001 q1+q2, 002 q1, 003
+q1+q2), with an unanswered question counted as wrong, and `success` only at `scaled >= 0.6`
+(`XAPI_PASS`, inclusive). There is no gate on screen: every learner continues, and nothing is shown.
+
+The 5 is `PART_SCORE_N` in `-04/script.js`. `partResult()` in `unit-js/main.js` uses it when a
+component declares it, and otherwise keeps the answered-only denominator, so no other component
+changes. Asserted by `_test/verify-report.js` (`result`).
 
 ### One document per component (2026-09-16, state v6)
 
