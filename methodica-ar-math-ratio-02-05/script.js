@@ -39,3 +39,9 @@ var XAPI_ITEM_RESULT = {};
 Object.keys(XAPI_EVAL_ITEMS).forEach(function (it) {
   XAPI_ITEM_RESULT[it] = function () { return itemResultFor(it); };
 });
+
+/* The threshold (2026-11-09, 08.11 sheet fixes 2, 4, 6): s38 promises "يحتوي على 6 بنود. عليكم الإجابة
+   بشكل صحيح على 4 منها على الأقل" — the six סעיפים, each right only when all its answers are: א = q1+q2 (s41, s42),
+   ב = q3+q4 (s43, s44), ג q5, ד q6, ה q7, ו q8. Read by partResult() in ../unit-js/main.js. */
+var PART_THRESHOLD = { K: 4, questions: [['001/q1', '001/q2'], ['001/q3', '001/q4'], ['001/q5'],
+                                         ['001/q6'], ['001/q7'], ['001/q8']] };

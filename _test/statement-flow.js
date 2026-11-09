@@ -567,6 +567,10 @@ function setBGate() {
     !!comp[0] && !!comp[0].result && comp[0].result.success === false &&
     comp[0].result.score.scaled < 0.6,
     JSON.stringify(comp[0] && comp[0].result));
+  /* 08.11 sheet fixes 1/2/4/6: the score is the gate's own count — 1 of set B's 3 questions */
+  ok('gate', 'and its scaled is 1/3: the 3 set B questions, the two answers on s24 counting as one',
+    !!comp[0] && !!comp[0].result && Math.abs(comp[0].result.score.scaled - 1 / 3) < 1e-9,
+    JSON.stringify(comp[0] && comp[0].result));
   ok('gate', 'nothing sent is unit-scoped', !s.some(x => x.opts && x.opts.scope === 'unit'));
 
   const itemId = x => String((x.opts || {}).objectId || '').replace(/\/+$/, '');

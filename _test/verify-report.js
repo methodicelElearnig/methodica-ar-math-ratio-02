@@ -575,37 +575,88 @@ function checkReportLayer() {
     /No video reporting in this unit, deliberately/.test(src));
 }
 
-/* ══════════════ 9b. The challenge's result (MOE 2026-10-08) ══════════════
-   Component 04 ("בואו נאתגר את עצמנו") reports its real score over the 5 questions metadata
-   declares (PART_SCORE_N), unanswered counting as wrong, and success only at >= 0.6. The other
-   components keep their answered-only denominator. */
+/* ══════════════ 9b. The score contract (MOE QA runbook §4 "ציון ומעבר") ══════════════
+   2026-11-09, fixes 1/2/4/6 of the 08.11 sheet. A component that promises K of N on its first screen:
+   success and score.scaled come from ONE count of the N threshold questions only (set C never enters),
+   success ⇔ scaled ≥ K/N, and the set gate (03) stops at the same K. A question with several parts
+   (a station over several screens, a peak סעיף with two answers) counts 1 and is right only when all
+   of them are. The challenge (04, MOE 2026-10-08) keeps "success only at ≥ 60%", over its 3 questions.
+   Each answer is seeded into BOTH maps — qResults (the strip) and XAPI_Q_RESULTS (what was reported) —
+   so the check holds whichever one the code reads.
+     stations: the qprog stations (screen lists), or questions: the peak's סעיפים (XAPI keys). */
 
-function checkChallengeResult() {
-  const res = 'JSON.stringify((function(){ var r = partResult(); return r && [r.success, r.score.scaled]; })())';
-  const set = (pairs) => 'Object.keys(XAPI_Q_RESULTS).forEach(function (k) { delete XAPI_Q_RESULTS[k]; });' +
-    'Object.assign(XAPI_Q_RESULTS, ' + JSON.stringify(pairs) + ');';
-  const all = ['001/q1', '001/q2', '002/q1', '003/q1', '003/q2'];
-  const first = (n, ok) => Object.fromEntries(all.slice(0, n).map(k => [k, ok]));
-  {
-    const { dom, val, exec } = loadComponent('04');
-    ok('result', '04: PART_SCORE_N is the 5 declared questions', val('PART_SCORE_N') === 5,
-      String(val('PART_SCORE_N')));
-    const out = [];
-    for (const pairs of [{}, first(2, true), Object.assign(first(5, false), first(2, true)),
-                         first(3, true), Object.assign(first(5, false), first(3, true)), first(5, true)]) {
-      exec(set(pairs)); out.push(val(res));
+const SCORE_CONTRACT = {
+  '02': { K: 3, N: 4, intro: '#s14', set: 'A',
+          stations: [['s15', 's16'], ['s17'], ['s18'], ['s19', 's20']] },
+  '03': { K: 2, N: 3, intro: '#s21', set: 'B', gate: 24,
+          stations: [['s22'], ['s23'], ['s24']],
+          challenge: [['s26', 's27'], ['s28', 's29']] },
+  '04': { pass: 0.6, N: 3, intro: '#s30', set: 'D',
+          stations: [['s31', 's32'], ['s33', 's34', 's35'], ['s36', 's37']] },
+  '05': { K: 4, N: 6, intro: '#s38',
+          questions: [['001/q1', '001/q2'], ['001/q3', '001/q4'], ['001/q5'], ['001/q6'], ['001/q7'], ['001/q8']] },
+};
+
+/* the XAPI keys a screen reports, read from XAPI_QMAP + SCREEN_TO_SUBCONTENT */
+const SC_SEED = `window.__scSeed = function (sid, ok) {
+  var n = +sid.slice(1), m = SCREEN_TO_SUBCONTENT[n];
+  if (QPROG[sid]) qResults[sid] = ok;
+  Object.keys(XAPI_QMAP).forEach(function (k) {
+    if (XAPI_QMAP[k][0] === n && m) XAPI_Q_RESULTS[m[0] + '/' + XAPI_QMAP[k][1]] = ok;
+  });
+};
+window.__scClear = function () {
+  Object.keys(qResults).forEach(function (k) { delete qResults[k]; });
+  Object.keys(XAPI_Q_RESULTS).forEach(function (k) { delete XAPI_Q_RESULTS[k]; });
+};`;
+
+function checkScoreContract() {
+  for (const c of Object.keys(SCORE_CONTRACT)) {
+    const sc = SCORE_CONTRACT[c];
+    const { dom, val, exec } = loadComponent(c);
+    exec(SC_SEED);
+    const units = sc.stations || sc.questions;
+    const put = (unit, okv) => unit.map(u => sc.stations
+      ? '__scSeed(' + JSON.stringify(u) + ', ' + okv + ');'
+      : 'XAPI_Q_RESULTS[' + JSON.stringify(u) + '] = ' + okv + ';').join(' ');
+    const seed = (correct, challengeOk) => exec('__scClear();' +
+      units.map((u, i) => put(u, i < correct)).join(' ') +
+      (sc.challenge || []).map(u => put(u, challengeOk)).join(' '));
+    const result = () => JSON.parse(val('JSON.stringify(partResult())') || 'null');
+    const passes = (k) => sc.K !== undefined ? k >= sc.K : k / sc.N >= sc.pass - 1e-9;
+
+    /* the screen's numbers are the code's: digits parsed, so it holds in either language */
+    const text = (val('document.querySelector(' + JSON.stringify(sc.intro) + ').textContent') || '')
+      .replace(/سؤالين/g, '2');                       /* the Arabic dual, "two questions" (03's s21) */
+    const nums = text.match(/\d+/g) || [];
+    eq('score', c + ' ' + sc.intro + ' promises ' + (sc.K !== undefined ? sc.K + ' of ' : '') + sc.N,
+      nums.map(Number), sc.K !== undefined ? [sc.N, sc.K] : [sc.N]);
+    if (sc.set) ok('score', c + ': the strip is the N threshold questions', val('QSET_SIZE.' + sc.set) === sc.N);
+    if (sc.gate) ok('score', c + ': the set gate is the same K over the same set',
+      val('SET_GATES[' + sc.gate + '].set') === sc.set && val('SET_GATES[' + sc.gate + '].need') === sc.K);
+
+    for (let k = 0; k <= sc.N; k++) for (const chal of (sc.challenge ? [false, true] : [false])) {
+      seed(k, chal);
+      const res = result() || {};
+      const tag = c + ' ' + k + '/' + sc.N + (sc.challenge ? (chal ? ' + set C all right' : ' + set C all wrong') : '');
+      const rule = sc.K !== undefined ? 'correct ≥ ' + sc.K : 'scaled ≥ ' + sc.pass;
+      ok('score', tag + ': success = ' + rule, res.success === passes(k), JSON.stringify(res));
+      ok('score', tag + ': scaled = correct / ' + sc.N + (sc.challenge ? ' (set C not counted)' : ''),
+        !!res.score && Math.abs(res.score.scaled - k / sc.N) < 1e-9, JSON.stringify(res));
+      ok('score', tag + ': success ⇔ scaled ≥ ' + (sc.K !== undefined ? 'K/N' : 'the pass line'),
+        !!res.score && res.success === (res.score.scaled >= (sc.K !== undefined ? sc.K / sc.N : sc.pass) - 1e-9));
+      if (sc.gate) ok('score', tag + ': the gate blocks exactly below K', val('gateBlocks(' + sc.gate + ')') === (k < sc.K));
     }
-    ok('result', '04 challenge: success only at >= 60% of 5, unanswered = wrong (0, 2 of 2 answered, 2/5 fail; 3 of 3 answered, 3/5, 5/5 pass)',
-      out.join(' ') === '[false,0] [false,0.4] [false,0.4] [true,0.6] [true,0.6] [true,1]', out.join(' '));
-    exec(set({}));
-    dom.window.close();
-  }
-  {
-    const { dom, val, exec } = loadComponent('02');
-    exec(set({ '001/q1': true }));
-    ok('result', '02: no PART_SCORE_N, its result is still over the answered questions',
-      val('typeof PART_SCORE_N') === 'undefined' && val(res) === '[true,1]', val(res));
-    exec(set({}));
+
+    /* fix 6: every multi-part question with one part wrong contributes 0 */
+    units.forEach((u, i) => {
+      if (u.length < 2) return;
+      exec('__scClear();' + units.map(v => put(v, true)).join(' ') + put([u[u.length - 1]], false));
+      const res = result() || {};
+      ok('score', c + ': ' + u.join('+') + ' with one part wrong counts 0 (' + (sc.N - 1) + '/' + sc.N + ')',
+        !!res.score && Math.abs(res.score.scaled - (sc.N - 1) / sc.N) < 1e-9, JSON.stringify(res));
+    });
+    exec('__scClear();');
     dom.window.close();
   }
 }
@@ -1208,7 +1259,7 @@ const SUITES = [
   ['boot cover', checkBootCover],
   ['flush on commit', checkFlushOnCommit],
   ['report layer', checkReportLayer],
-  ['the challenge result', checkChallengeResult],
+  ['the score contract', checkScoreContract],
   ['asset contract', checkAssetContract],
   ['docs resolve', checkDocLinks],
 ];
