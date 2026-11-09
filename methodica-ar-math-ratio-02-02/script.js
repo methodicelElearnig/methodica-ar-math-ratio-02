@@ -40,3 +40,8 @@ var XAPI_ITEM_RESULT = {};
 Object.keys(XAPI_EVAL_ITEMS).forEach(function (it) {
   XAPI_ITEM_RESULT[it] = function () { return itemResultFor(it); };
 });
+
+/* The threshold (2026-11-09, 08.11 sheet fixes 2, 4, 6): s14 promises "4 أسئلة … يجب الإجابة بشكل صحيح على
+   3 أسئلة على الأقل" — set A's four stations, s15+s16 and s19+s20 each one question. Read by
+   partResult() in ../unit-js/main.js. */
+var PART_THRESHOLD = { set: 'A', K: 3 };

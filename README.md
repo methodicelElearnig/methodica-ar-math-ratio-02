@@ -83,7 +83,7 @@ that omits them is a unit with no stylesheet and no fonts. See `unit-js/README.m
 - `metadata/` — unit + per-component JSONs: 1 unit, 5 components, 16 items, 43 questions. Extracted
   from the deck and normalised to the shape live Kata accepts. ⚠️ **Not yet pushed** — see *Known
   content issues*.
-- `_test/` — headless regression harness, 1054 + 98 assertions across two suites. **Never shipped**,
+- `_test/` — headless regression harness, 1146 + 104 assertions across two suites. **Never shipped**,
   including its stub library — the allowlist excludes it twice over, by name and by the
   leading-underscore rule. See its README for what each suite covers, and
   [`Documentation/GITHUB-GH.md`](../../../Documentation/GITHUB-GH.md) for how to run them:
@@ -220,9 +220,27 @@ MOE decided with Maya that component 04 (the challenge, "בואו נאתגר א�
 q1+q2), with an unanswered question counted as wrong, and `success` only at `scaled >= 0.6`
 (`XAPI_PASS`, inclusive). There is no gate on screen: every learner continues, and nothing is shown.
 
-The 5 is `PART_SCORE_N` in `-04/script.js`. `partResult()` in `unit-js/main.js` uses it when a
-component declares it, and otherwise keeps the answered-only denominator, so no other component
-changes. Asserted by `_test/verify-report.js` (`result`).
+Since 2026-11-09 (08.11 sheet fix 6) the denominator is the challenge's **3 questions**, not the 5
+sub-questions: `PART_THRESHOLD = { set: 'D' }` in `-04/script.js`, so a question is right only when all
+its parts are. The 60% rule is unchanged (with N = 3 it is 2 of 3, as before).
+
+### The score contract (2026-11-09, MOE sheet 08.11, fixes 1, 2, 4, 6)
+
+Every component whose first screen promises "K of N" reports exactly that: `success` and
+`score.scaled` come from one count of the N threshold questions, `success = correct >= K`,
+`scaled = correct / N`. Each part declares it in its `script.js` as `PART_THRESHOLD`, and
+`partResult()` in `unit-js/main.js` reads it:
+
+| Part | Screen | `PART_THRESHOLD` | Counts |
+|---|---|---|---|
+| 02 | s14 "4 أسئلة … 3 أسئلة على الأقل" | `{ set: 'A', K: 3 }` | set A's 4 stations (s15+s16, s19+s20 one question each) |
+| 03 | s21 "3 أسئلة … سؤالين أو أكثر للمضي قدمًا" (the dual = 2) | `{ set: 'B', K: 2 }` | set B's 3 stations, the same count as the s24 gate; set C never enters |
+| 04 | s30 "3 أسئلة متقدمة" (no K) | `{ set: 'D' }` | set D's 3 stations, MOE's 60% rule |
+| 05 | s38 "6 بنود … 4 منها على الأقل" | `{ K: 4, questions: [...] }` | the 6 סעיפים, א (q1+q2) and ב (q3+q4) right only when both are |
+
+01 promises nothing and keeps the answered-only result. Asserted by `_test/verify-report.js`
+(`score`: every count, set C right/wrong, the gate's K, the screen's digits, every multi-part question
+with one part wrong) and `_test/statement-flow.js` (the gate's `completed` carries 1/3).
 
 ### One document per component (2026-09-16, state v6)
 

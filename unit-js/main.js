@@ -2320,13 +2320,42 @@ function itemResultFor(item) {
   return { success: scaled >= XAPI_PASS, score: { scaled: scaled } };
 }
 
-/* This component's result, across every graded question it reported.
-   A component whose script.js declares PART_SCORE_N (the challenge, -04) scores over those N
-   declared questions instead, so an unanswered one counts as wrong.
-   MOE 2026-10-08: real score, success only ≥60%, no gate, nothing shown. */
+/* This component's result.
+
+   2026-11-09 (08.11 sheet fixes 1, 2, 4, 6): a component whose script.js declares PART_THRESHOLD
+   scores exactly what its first screen promises — success and score.scaled from ONE count of its
+   N threshold questions:
+     { set: 'A', K: 3 }   the qprog stations of that set (stationState ANDs a question's screens),
+                          which is also the count the set gate reads (SET_GATES, setScore)
+     { questions: [[...XAPI keys], ...], K: 4 }   the peak's סעיפים, each right only when all its keys are
+   success = ok >= K. Without K (the challenge, -04: no threshold on screen) it is MOE's 2026-10-08
+   rule, scaled >= XAPI_PASS. A question never answered counts as wrong; the harder set after the
+   threshold (03's set C) reports its own answered and never enters. Until now: every answered
+   XAPI key at 60% — sub-questions counted separately, set C included, and a K the screen never said.
+
+   A component without PART_THRESHOLD (01, nothing promised) keeps the answered-only result. */
+function partThresholdCount(t) {
+  if (t.set) {
+    var ok = 0;
+    for (var i = 0; i < QSET_SIZE[t.set]; i++) { if (stationState(t.set, i) === true) ok++; }
+    return { ok: ok, n: QSET_SIZE[t.set] };
+  }
+  return {
+    ok: t.questions.filter(function (subs) {
+      return subs.every(function (k) { return XAPI_Q_RESULTS[k] === true; });
+    }).length,
+    n: t.questions.length
+  };
+}
 function partResult() {
+  if (typeof PART_THRESHOLD === 'object' && PART_THRESHOLD) {
+    var c = partThresholdCount(PART_THRESHOLD);
+    var sc = c.ok / c.n;
+    var pass = (typeof PART_THRESHOLD.K === 'number') ? c.ok >= PART_THRESHOLD.K : sc >= XAPI_PASS;
+    return { success: pass, score: { scaled: sc } };
+  }
   var keys = Object.keys(XAPI_Q_RESULTS);
-  var n = (typeof PART_SCORE_N === 'number') ? PART_SCORE_N : keys.length;
+  var n = keys.length;
   if (!n) return null;
   var ok = keys.filter(function (k) { return XAPI_Q_RESULTS[k] === true; }).length;
   var scaled = ok / n;

@@ -42,3 +42,9 @@ var XAPI_ITEM_RESULT = {};
 Object.keys(XAPI_EVAL_ITEMS).forEach(function (it) {
   XAPI_ITEM_RESULT[it] = function () { return itemResultFor(it); };
 });
+
+/* The threshold (2026-11-09, 08.11 sheet fixes 1, 2, 4, 6): s21 promises "3 أسئلة … أجب بشكل صحيح على
+   سؤالين أو أكثر للمضي قدمًا" (the dual = 2) — set B's three stations (s24's two answers are one question), the same
+   count the s24 gate reads. Set C (s26-s29) reports its own answered and never enters the result.
+   Read by partResult() in ../unit-js/main.js. */
+var PART_THRESHOLD = { set: 'B', K: 2 };
