@@ -977,7 +977,7 @@ function scqCheck(sid) {
     if (o) { o.classList.remove('selected'); o.classList.add(cls); }
   };
   const finish = (wasOk) => {
-    xapiReport(sid, wasOk, xapiAnswerText(document.querySelector('#' + sid + ' .scq-opt[data-id="' + q.selected + '"]')));
+    xapiReport(sid, wasOk, String(q.selected));   // the option letter: xapiSpecFor turns it into the metadata text
     q.done = true;
     document.querySelectorAll('#' + sid + ' .scq-opt').forEach(o => { o.disabled = true; });
     const chk = document.getElementById(sid + '-check');
@@ -1051,7 +1051,7 @@ function s15Check() {
     });
   };
   const finish = (wasOk) => {
-    xapiReport('s15', wasOk, Object.keys(S15_CORRECT).map(k => k + ':' + s15Picks[k]).join(', '));
+    xapiReport('s15', wasOk, { pairs: _xapiRowPairs('s15', document.getElementById('s15'), s15Picks) });
     s15Done = true;
     document.querySelectorAll('#s15 .saq-pill').forEach(pp => { pp.disabled = true; });
     const chk = document.getElementById('s15-check');
@@ -1395,10 +1395,8 @@ function xapiReportQScreen(sid, q, ok, each, vals) {
     return;
   }
   if (sid === 's33' || sid === 's34' || sid === 's35') { xapiReportAiTable(sid, ok); return; }
-  var answer = (q.type === 'input') ? (vals || []).join(', ')
-             : (q.type === 'saq')   ? Object.keys(q.answers).map(function (k) {
-                                        return k + ':' + (q.picks ? q.picks[k] : '');
-                                      }).join(', ')
+  var answer = (q.type === 'input') ? xapiInputText(sid, vals)
+             : (q.type === 'saq')   ? { pairs: _xapiRowPairs(sid, document.getElementById(sid), q.picks) }
              : (q.selected == null ? '' : String(q.selected));
   xapiReport(sid, ok, answer);
 }
@@ -2579,8 +2577,97 @@ function _xapiIsLastQuestion(item, qKey) {
 function xapiReport(key, correct, answer) {
   var k = xapiKeyFor(key);
   if (!k) return;
-  try { xapiAnswered(k.item, k.qKey, correct, _xapiIsLastQuestion(k.item, k.qKey), answer); }
+  try { xapiAnswered(k.item, k.qKey, correct, _xapiIsLastQuestion(k.item, k.qKey), xapiSpecFor(key, answer)); }
   catch (e) {}
+}
+
+/* ── What the learner chose, as the response layer (20-xapi.js) wants it (2026-11-11) ──
+   MOE runbook 10.11: result.response must be Kata's correctXapiResponsesPattern, byte for byte. The
+   call sites here pass option letters ('a,b,c'), row picks and raw input values. Letters and rows
+   become the option's / row's on-screen TEXT, cleaned the way the metadata writes it (a fraction
+   drawn as two spans -> '3/7', a '1.' / letter list prefix dropped); the layer then emits the
+   metadata's own string. When the cleaned text is not in the metadata, the closest metadata entry
+   by shared words is used, and only then the on-screen POSITION. */
+function _xapiCleanText(el) {
+  if (!el) return '';
+  var c = el.cloneNode(true);
+  Array.prototype.forEach.call(c.querySelectorAll('.frac'), function (f) {
+    var n = f.querySelector('.frac-num'), d = f.querySelector('.frac-den');
+    if (n && d) f.textContent = n.textContent.trim() + '/' + d.textContent.trim();
+  });
+  Array.prototype.forEach.call(c.querySelectorAll('.scq-info, .opt-tooltip, .sr-only, svg'), function (x) { x.remove(); });
+  return c.textContent.replace(/\s+/g, ' ').trim()
+    .replace(/^(?:\d{1,2}|[\u05D0-\u05EA]|[\u0621-\u064A])[.)]\s+/, '');
+}
+function _xapiInPool(text, pool) {
+  var l = _xapiLoose(text);
+  return (pool || []).some(function (x) { return _xapiLoose(x) === l; });
+}
+/* The metadata entry that shares most words with an on-screen text (Jaccard >= 0.6), or null: the
+   catalogue sometimes words an option a little differently (03-001/q1) or
+   writes a ratio in the other direction ('1 : 3' / '3 : 1'). */
+function _xapiClosest(text, pool) {
+  var words = function (s) { var o = {}; _xapiNorm(s).split(' ').forEach(function (w) { if (w) o[w] = 1; }); return o; };
+  var a = words(text), best = null, bestJ = 0.6;
+  (pool || []).forEach(function (x) {
+    var b = words(x), inter = 0, uni = Object.keys(a).length;
+    Object.keys(b).forEach(function (w) { if (a[w]) inter++; else uni++; });
+    var j = uni ? inter / uni : 0;
+    if (j >= bestJ) { bestJ = j; best = x; }
+  });
+  return best;
+}
+function _xapiMeta(key) { var k = xapiKeyFor(key); return k ? xapiQMeta(k.item, k.qKey) : {}; }
+function _xapiOptBox(key) {
+  var el = document.getElementById(key + '-block');
+  if (!el) { var c = document.getElementById(key + '-check'); el = c && c.closest('.rs-block'); }
+  return el || document.getElementById(key);
+}
+function _xapiOptPick(key, letter, pool) {
+  var box = _xapiOptBox(key);
+  var opts = box ? Array.prototype.slice.call(box.querySelectorAll('.scq-opt[data-id]')) : [];
+  var i = opts.map(function (o) { return o.getAttribute('data-id'); }).indexOf(String(letter));
+  if (i === -1) return String(letter);
+  var txt = _xapiCleanText(opts[i]);
+  return _xapiInPool(txt, pool) ? txt : (_xapiClosest(txt, pool) || i);
+}
+/* yes/no rows -> matching pairs {source: the row's statement, target: the pill's label}. A screen
+   without .saq-row elements (the AI table, one row per screen) is one row. base = the position of
+   its first row in answers.source, for the position fallback. */
+function _xapiRowPairs(key, box, picks, base) {
+  var m = _xapiMeta(key), src = (m.answers && m.answers.source) || [], tgt = (m.answers && m.answers.target) || [];
+  var rows = box ? Array.prototype.slice.call(box.querySelectorAll('.saq-row[data-id]')) : [];
+  var list = rows.length ? rows.map(function (r) { return { id: r.getAttribute('data-id'), el: r }; })
+                         : Object.keys(picks || {}).map(function (id) { return { id: id, el: box }; });
+  return list.map(function (r, i) {
+    var v = picks && picks[r.id];
+    if (!v) return null;
+    var st = _xapiCleanText(r.el && r.el.querySelector('.saq-text'));
+    var pill = r.el && r.el.querySelector('.saq-pill[data-val="' + v + '"]');
+    var tt = _xapiCleanText(pill);
+    return { source: _xapiInPool(st, src) ? st : (_xapiClosest(st, src) || (base || 0) + i),
+             target: _xapiInPool(tt, tgt) ? tt : (v === 'yes' ? 0 : 1) };
+  }).filter(Boolean);
+}
+/* typed fields -> Kata's spelling for that question (ratio 'a:b', fraction 'a/b', '2,3') */
+var XAPI_INPUT_TEXT = {
+  s31: function (v) { return v.slice(1).join(':'); },        // angle, then the ratio r1:r2:r3
+  s32: function (v) { return v.slice(2).join(':'); },        // two angles, then r1:r2:r3
+  s41: function (v) { return v[0] + '/' + v[1]; },          // numerator / denominator
+  s44: function (v) { return v.join(','); }                  // Kata numeric '2,3'
+};
+function xapiInputText(sid, vals) {
+  vals = (vals || []).map(function (x) { return String(x == null ? '' : x).trim(); });
+  return XAPI_INPUT_TEXT[sid] ? XAPI_INPUT_TEXT[sid](vals) : vals.join(':');
+}
+function xapiSpecFor(key, answer) {
+  if (answer && typeof answer === 'object') return answer;              // already structured
+  var s = answer == null ? '' : String(answer);
+  if (/^[a-z](?:,[a-z])*$/.test(s)) {                                     // option letters
+    var pool = _xapiMeta(key).answers;
+    return { choices: s.split(',').map(function (l) { return _xapiOptPick(key, l, Array.isArray(pool) ? pool : []); }) };
+  }
+  return s;                                                              // a typed value / ratio
 }
 
 function xapiHint(sid) {
@@ -2604,10 +2691,10 @@ function xapiReportAiTable(currentSid, currentOk) {
     return null;                                   /* still unanswered */
   });
   if (verdicts.indexOf(null) !== -1) return;       /* wait for the last row */
-  var answer = _aiRows.map(function (s) {
-    return Object.keys(Q[s].answers).map(function (r) {
-      return r + ':' + (Q[s].picks ? Q[s].picks[r] : '');
-    }).join('');
-  }).join(' | ');
-  xapiReport('s33', verdicts.every(Boolean), answer);
+  /* the rows of the three screens, in screen order, are the metadata's answers.source */
+  var pairs = [];
+  _aiRows.forEach(function (s, i) {
+    _xapiRowPairs('s33', document.getElementById(s), Q[s].picks, i).forEach(function (p) { pairs.push(p); });
+  });
+  xapiReport('s33', verdicts.every(Boolean), { pairs: pairs });
 }
