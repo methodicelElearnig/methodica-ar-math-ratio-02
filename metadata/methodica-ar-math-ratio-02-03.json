@@ -126,10 +126,10 @@
           "answers": null,
           "correctAnswers": [
             "1 : 2",
-            "1:2"
+            "2:1"
           ],
           "xapiInteractionComponents": null,
-          "correctXapiResponsesPattern": ["1 : 2", "1:2"]
+          "correctXapiResponsesPattern": ["1 : 2", "2:1"]
         }
       ]
     },
