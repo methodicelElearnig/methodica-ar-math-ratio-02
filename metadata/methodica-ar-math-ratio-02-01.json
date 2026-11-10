@@ -40,7 +40,16 @@
           ],
           "correctAnswers": [
             "هم بحاجة إلى إجراء قرعة"
-          ]
+          ],
+          "xapiInteractionComponents": {
+            "choices": [
+              {"id": "أوشر", "description": "أوشر"},
+              {"id": "عدن", "description": "عدن"},
+              {"id": "جال", "description": "جال"},
+              {"id": "هم بحاجة إلى إجراء قرعة", "description": "هم بحاجة إلى إجراء قرعة"}
+            ]
+          },
+          "correctXapiResponsesPattern": ["هم بحاجة إلى إجراء قرعة"]
         }
       ]
     },
@@ -66,6 +75,17 @@
             "عدد كرات القدم هو 8/20 من مجموع الكرات",
             "60% من الكرات هي كرات سلة",
             "0.6 من الكرات هي كرات سلة"
+          ],
+          "xapiInteractionComponents": {
+            "choices": [
+              {"id": "النسبة بين عدد كرات القدم وعدد كرات السلة هي 12 : 8", "description": "النسبة بين عدد كرات القدم وعدد كرات السلة هي 12 : 8"},
+              {"id": "عدد كرات القدم هو 8/20 من مجموع الكرات", "description": "عدد كرات القدم هو 8/20 من مجموع الكرات"},
+              {"id": "60% من الكرات هي كرات سلة", "description": "60% من الكرات هي كرات سلة"},
+              {"id": "0.6 من الكرات هي كرات سلة", "description": "0.6 من الكرات هي كرات سلة"}
+            ]
+          },
+          "correctXapiResponsesPattern": [
+            "النسبة بين عدد كرات القدم وعدد كرات السلة هي 12 : 8[,]عدد كرات القدم هو 8/20 من مجموع الكرات[,]60% من الكرات هي كرات سلة[,]0.6 من الكرات هي كرات سلة"
           ]
         },
         {
@@ -76,7 +96,9 @@
           "correctAnswers": [
             "4 : 1",
             "1:4"
-          ]
+          ],
+          "xapiInteractionComponents": null,
+          "correctXapiResponsesPattern": ["4 : 1", "1:4"]
         },
         {
           "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-002/q3",
@@ -88,7 +110,14 @@
           ],
           "correctAnswers": [
             "لا"
-          ]
+          ],
+          "xapiInteractionComponents": {
+            "choices": [
+              {"id": "نعم", "description": "نعم"},
+              {"id": "لا", "description": "لا"}
+            ]
+          },
+          "correctXapiResponsesPattern": ["لا"]
         },
         {
           "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-002/q4",
@@ -100,7 +129,14 @@
           ],
           "correctAnswers": [
             "نعم"
-          ]
+          ],
+          "xapiInteractionComponents": {
+            "choices": [
+              {"id": "نعم", "description": "نعم"},
+              {"id": "لا", "description": "لا"}
+            ]
+          },
+          "correctXapiResponsesPattern": ["نعم"]
         },
         {
           "questionId": "https://lomdot.education.gov.il/metodica/720/ar/math/ratio/02/methodica-ar-math-ratio-02-01/methodica-ar-math-ratio-02-01-002/q6",
@@ -112,7 +148,14 @@
           ],
           "correctAnswers": [
             "لا"
-          ]
+          ],
+          "xapiInteractionComponents": {
+            "choices": [
+              {"id": "نعم", "description": "نعم"},
+              {"id": "لا", "description": "لا"}
+            ]
+          },
+          "correctXapiResponsesPattern": ["لا"]
         }
       ]
     },

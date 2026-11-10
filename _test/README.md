@@ -144,3 +144,9 @@ position and colour) must match. 27 of 35 passed before the 07.10 fix, 35 of 35 
 ```bash
 NODE_PATH=/tmp/lomda-test/node_modules node _test/back-resume.js
 ```
+
+## `responses.js` (2026-11-11)
+
+Answered `result.response` = Kata's `correctXapiResponsesPattern` (MOE runbook 10.11.26). Replays `_test/walks/` (the Phase 3 live-round step files of 10.11, right `-C` and wrong `-W`) in real Chrome against `xapi-720-k.js`; right walks: every metadata question with a pattern answered there sends the pattern byte for byte (`05-001/q1` asserted as the page's `3/5`, a known class J item); every walk: no ` | `, `->`, `x:yes` picks, bare option letters or invisible marks. Serves the repo itself.
+
+    NODE_PATH=<tools>/node_modules node _test/responses.js
