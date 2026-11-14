@@ -4,7 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>التعبير عن النسبة بطرق مختلفة — المكوّن 01</title>
-  <link rel="stylesheet" href="../unit-css/styles.css?v=4">
+  <!-- The shared xAPI library is fetched by unit-js/50-loader.js from the end of the body, after the parser
+     has queued every image; preloading it from the head puts it FIRST in the queue (2026-11-03,
+     BOOT-AND-RESUME-HARDENING §2.3). The href must equal what 50-loader.js builds (no ?v=, no
+     crossorigin) or the browser fetches it twice; the letter changes together with LIB720 there. -->
+<link rel="preload" as="script" fetchpriority="high" href="https://lomdot.education.gov.il/metodica/720active/common/xapiwrapper.min.js">
+<link rel="preload" as="script" fetchpriority="high" href="https://lomdot.education.gov.il/metodica/720active/common/xapi-720-l.js">
+<link rel="preconnect" href="https://kata.cet.ac.il">
+<link rel="stylesheet" href="../unit-css/styles.css?v=4">
 </head>
 <!-- data-subject-theme activates the Math token override block (engine
      vendored from ratio-01-01 / percent-02). -->
@@ -57,6 +64,11 @@
   <div id="boot-cover" style="position:fixed;inset:0;z-index:9999;background:#ffffff"></div>
   <script>
   (function () {
+    /* A Kata launch (registration in the query) may have a document to restore: raise the flag HERE,
+       before any script is fetched. bootXAPI raises it too, but from the last script tag, which on a cold
+       cache arrives after the 800 ms below — the cover dropped before the flag existed (2026-11-03).
+       Without a registration (local, dev) the 800 ms behaviour is unchanged. */
+    if (/[?&]registration=/.test(location.search)) window.__resumeInFlight = true;
     var t0 = Date.now();
     function tick() {
       var c = document.getElementById('boot-cover');
@@ -794,10 +806,10 @@
   </div>
 
   </div>
-  <script src="../unit-js/10-identity.js?v=3"></script>
-  <script src="../unit-js/20-xapi.js?v=6"></script>
-  <script src="../unit-js/40-resume.js?v=3"></script>
-  <script src="../unit-js/50-loader.js?v=3"></script>
+  <script src="../unit-js/10-identity.js?v=4"></script>
+  <script src="../unit-js/20-xapi.js?v=7"></script>
+  <script src="../unit-js/40-resume.js?v=4"></script>
+  <script src="../unit-js/50-loader.js?v=4"></script>
   <script src="script.js?v=4"></script>
   <script src="../unit-js/main.js?v=12"></script>
   <script src="../unit-js/90-boot.js?v=3"></script>

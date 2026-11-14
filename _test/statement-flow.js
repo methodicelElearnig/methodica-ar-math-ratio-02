@@ -171,7 +171,9 @@ function guidedItemUngraded() {
   const b = boot('01');
   b.finishBoot();
   b.clear();
-  b.exec('goTo(4); gstepSelect("s6","b"); gstepSelect("s8","b"); goTo(13); goTo(3);');
+  /* 003 is part 01's last item: it closes at the component's end (xapiFinishItems). Until 13.11.26 this
+     test closed it with a Back (goTo(3)), which B-2 (monday 13454123722) no longer does. */
+  b.exec('goTo(4); gstepSelect("s6","b"); gstepSelect("s8","b"); goTo(13); xapiFinishItems();');
   const s = b.stmts();
   ok('guided', 'the guided item emits no answered statement',
     s.every(x => x.verb.indexOf('answered') !== 0), s.map(label).join(' | '));
@@ -656,6 +658,26 @@ function backThroughUnanswered() {
   eq('b1', 'once answered, leaving 002 sends its completed exactly once', done.length, 1);
 }
 
+/* ══════════════ B-2 (monday 13454123722, 13.11.26): Back never closes an item ══════════════
+   01 S3 (item 002) answered WRONG, Back to S2: until 13.11 the Back closed 002 with the failed result and
+   the doneItems ledger then swallowed the real 'completed'. Now: nothing on the Back; return, right,
+   forward → exactly one, success:true. */
+function backAfterWrong() {
+  const b = boot('01');
+  b.finishBoot();
+  b.exec("goTo(1); goTo(2); goTo(3); xapiAnswered('002', 'q1', false, false, 'x');");
+  const n0 = b.stmts().length;
+  b.exec('goTo(2);');
+  const back = b.stmts().slice(n0);
+  ok('b2', 'wrong on 002, Back S3 → S2 sends no completed', !back.some(s => s.verb === 'completed'), back.map(label).join(', '));
+  eq('b2', '…and leaves 002 out of the ledger', b.val("alreadySent('doneItems', itemLedgerKey('002'))"), false);
+  b.exec("goTo(3); xapiAnswered('002', 'q1', true, true, 'y'); goTo(4);");
+  const done = b.stmts().filter(s => s.verb === 'completed' && /-002\/?$/.test(String(s.opts && s.opts.objectId)));
+  eq('b2', 'return, right, forward → exactly one completed for 002', done.length, 1);
+  ok('b2', '…with success:true', done[0] && done[0].result && done[0].result.success === true, JSON.stringify(done[0] && done[0].result));
+  b.dom.window.close();
+}
+
 /* ══════════════ F-2 (QA 2026-10-02): a fraction answer keeps its slash ══════════════
    02 s17 options b and c carry stacked fractions (the bar is a CSS border), so the reported text read
    "14" / "45" for 1/4 and 4/5. */
@@ -681,6 +703,7 @@ const SUITES = [
   ['the cross-part seam', crossPartSeam],
   ['the set-B gate', setBGate],
   ['B-1: Back through an unanswered item', backThroughUnanswered],
+  ['B-2: Back after a wrong answer', backAfterWrong],
   ['F-2: a fraction answer keeps its slash', f2FractionText],
 ];
 
